@@ -104,6 +104,12 @@
     .cloud-actions button.primary { color: #fff; border-color: var(--brand); background: var(--brand); font-weight: 700; }
     .cloud-actions button.danger { color: var(--danger); border-color: #efc7c2; }
     .cloud-actions button:disabled { opacity: .45; cursor: not-allowed; }
+    .auto-sync-setting { display: grid; grid-template-columns: minmax(0, 1fr) 138px; gap: 12px; align-items: center; margin-top: 14px; padding: 12px 13px; border: 1px solid #d9e5e1; border-radius: 12px; background: #f5faf8; }
+    .auto-sync-toggle { display: flex; align-items: center; gap: 10px; color: #315351; cursor: pointer; }
+    .auto-sync-toggle input { width: 18px; height: 18px; accent-color: var(--brand); }
+    .auto-sync-toggle strong { display: block; font-size: 12px; }
+    .auto-sync-toggle span { display: block; margin-top: 3px; color: var(--faint); font-size: 10px; line-height: 1.45; }
+    .auto-sync-setting select { width: 100%; height: 36px; padding: 0 9px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: #fff; }
     .cloud-admin { border: 1px dashed var(--line-strong); border-radius: 13px; background: #fafcfb; }
     .cloud-admin summary { padding: 12px 14px; color: var(--muted); cursor: pointer; font-size: 12px; user-select: none; }
     .cloud-admin-content { display: grid; gap: 12px; padding: 0 12px 12px; }
@@ -182,6 +188,10 @@
     .shape-icon.round { border-radius: 10px; }
     .shape-icon.circle { width: 22px; height: 22px; border-radius: 50%; }
     .shape-icon.diamond { width: 18px; height: 18px; margin: 3px 0 11px 4px; transform: rotate(45deg); }
+    .rich-text-palette { grid-column: 1 / -1; position: relative; min-height: 92px; overflow: hidden; border-color: #c7d8d3; background: linear-gradient(145deg, #fffdf7, #f2f8f5 72%); }
+    .rich-text-palette::after { content: 'Aa'; position: absolute; right: 13px; bottom: -12px; color: rgba(13,93,90,.08); font: 900 56px/1 Georgia, serif; }
+    .rich-text-palette .palette-icon { width: 38px; color: #fff; background: linear-gradient(145deg, #17474b, #d98b2b); font: 800 15px/1 Georgia, serif; }
+    .rich-text-palette .palette-desc { max-width: 190px; line-height: 1.45; }
 
     .quick-add { display: flex; gap: 7px; margin-bottom: 12px; }
     .quick-add input { flex: 1; min-width: 0; height: 38px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; outline: none; background: #fff; }
@@ -201,7 +211,7 @@
       transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
     .staging-card::before { content: ''; position: absolute; left: 13px; width: 18px; height: 18px; border-radius: 50%; background: var(--capsule-color, var(--brand)); box-shadow: inset 0 0 0 5px rgba(255,255,255,.32), 0 0 0 4px color-mix(in srgb, var(--capsule-color, var(--brand)) 13%, transparent); }
-    .staging-card::after { content: ''; position: absolute; left: 50%; top: 7px; bottom: 7px; width: 1px; opacity: .28; background: linear-gradient(transparent, var(--capsule-color, var(--brand)), transparent); }
+    .staging-card::after { content: none; }
     .staging-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--capsule-color, var(--brand)) 64%, #bdd0cb); box-shadow: 0 12px 27px rgba(27,67,66,.14), inset 0 1px rgba(255,255,255,.95); }
     .staging-card:active { cursor: grabbing; }
     .staging-card.is-breaking { opacity: 0; transform: scale(.78); transition: opacity .28s ease, transform .28s ease; }
@@ -254,7 +264,21 @@
       box-shadow: var(--shadow);
     }
     .board::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.6), transparent 20%); z-index: 1; }
-    .board-grid { position: relative; display: grid; }
+    .board-grid { position: relative; z-index: 2; display: grid; }
+    .free-text-layer { position: absolute; z-index: 11; inset: 0; pointer-events: none; }
+    .rich-text-note { position: absolute; min-width: 180px; min-height: 88px; display: flex; flex-direction: column; overflow: visible; border: 1px solid color-mix(in srgb, var(--text-color, #173f40) 20%, #d7dfdc); border-radius: 16px; color: var(--text-color, #173f40); background: linear-gradient(145deg, rgba(255,255,255,.97), rgba(247,250,247,.94)); box-shadow: 0 14px 34px rgba(25,60,61,.14), inset 0 1px rgba(255,255,255,.9); pointer-events: auto; }
+    .rich-text-note.selected { box-shadow: 0 0 0 3px rgba(13,93,90,.18), 0 18px 40px rgba(25,60,61,.17); }
+    .rich-text-handle { height: 28px; flex: 0 0 auto; display: flex; align-items: center; gap: 6px; padding: 0 11px; border-radius: 15px 15px 0 0; color: #5d7471; background: linear-gradient(90deg, #e9f3ef, #fff8ed); cursor: grab; user-select: none; }
+    .rich-text-handle:active { cursor: grabbing; }
+    .rich-text-handle::before { content: ''; width: 24px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--brand), var(--accent)); }
+    .rich-text-handle span { margin-left: auto; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+    .rich-text-content { flex: 1; min-height: 52px; padding: 12px 14px 15px; outline: none; white-space: pre-wrap; overflow-wrap: anywhere; cursor: text; line-height: 1.6; }
+    .rich-text-content:empty::before { content: '输入方案说明…'; color: #9aa7a5; font-weight: 400; }
+    .rich-text-resize { position: absolute; right: -6px; bottom: -6px; width: 16px; height: 16px; border: 3px solid #fff; border-radius: 5px; background: linear-gradient(145deg, var(--brand), var(--accent)); cursor: nwse-resize; box-shadow: 0 2px 7px rgba(20,50,52,.28); }
+    .rich-text-controls { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+    .rich-text-control { min-width: 38px; height: 36px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: #fff; cursor: pointer; }
+    .rich-text-control.active { color: #fff; border-color: var(--brand); background: var(--brand); font-weight: 800; }
+    .rich-text-color { width: 46px !important; height: 38px !important; padding: 4px !important; cursor: pointer; }
     .corner-cell, .stage-head, .lane-head, .region { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .corner-cell {
       position: sticky; left: 0; top: 0; z-index: 8; display: flex; flex-direction: column; justify-content: center;
@@ -415,14 +439,14 @@
     .color-dot.active { box-shadow: 0 0 0 2px var(--c); }
 
     .modal-backdrop { position: fixed; z-index: 200; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(17,39,41,.42); backdrop-filter: blur(5px); }
-    .modal { width: min(640px, 94vw); max-height: min(780px, 90vh); overflow: hidden; border: 1px solid rgba(255,255,255,.5); border-radius: 18px; background: #fbfcfb; box-shadow: 0 28px 80px rgba(14,42,44,.27); }
+    .modal { width: min(640px, 94vw); max-height: min(780px, calc(100dvh - 48px)); min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,.5); border-radius: 18px; background: #fbfcfb; box-shadow: 0 28px 80px rgba(14,42,44,.27); }
     .modal.wide { width: min(780px, 94vw); }
-    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 16px; border-bottom: 1px solid var(--line); }
+    .modal-head { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 16px; border-bottom: 1px solid var(--line); }
     .modal-head h2 { margin: 0; font-size: 18px; }
     .modal-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
     .close-btn { width: 34px; height: 34px; border: 0; border-radius: 9px; color: var(--muted); background: #edf2f0; cursor: pointer; font-size: 18px; }
-    .modal-body { max-height: 62vh; overflow: auto; padding: 19px 22px; }
-    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 22px 20px; border-top: 1px solid var(--line); }
+    .modal-body { flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto; overscroll-behavior: contain; padding: 19px 22px; }
+    .modal-foot { flex: 0 0 auto; display: flex; justify-content: flex-end; gap: 8px; padding: 14px 22px 20px; border-top: 1px solid var(--line); background: #fbfcfb; }
     .modal-btn { height: 38px; padding: 0 16px; border: 1px solid var(--line); border-radius: 9px; background: #fff; cursor: pointer; }
     .modal-btn.primary { border-color: var(--brand); color: #fff; background: var(--brand); font-weight: 700; }
     .config-section { margin-bottom: 20px; }
@@ -557,10 +581,10 @@
       .batch-toolbar { left: 8px; right: 8px; top: auto; bottom: calc(70px + env(safe-area-inset-bottom)); transform: none; overflow-x: auto; justify-content: flex-start; }
       .batch-toolbar strong, .batch-toolbar button { flex: 0 0 auto; }
       .modal-backdrop { align-items: flex-end; padding: 0; }
-      .modal, .modal.wide { width: 100%; max-height: min(90dvh, 760px); border-radius: 20px 20px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+      .modal, .modal.wide { width: 100%; max-height: calc(100dvh - max(8px, env(safe-area-inset-top))); border-radius: 20px 20px 0 0; padding-bottom: env(safe-area-inset-bottom); }
       .modal-head, .modal-body, .modal-foot { padding-left: 16px; padding-right: 16px; }
       .modal-body { -webkit-overflow-scrolling: touch; }
-      .modal-foot { position: sticky; bottom: 0; background: #f8faf9; }
+      .modal-foot { background: #f8faf9; }
       .toast-stack { left: 12px; right: 12px; bottom: calc(78px + env(safe-area-inset-bottom)); align-items: center; }
       .toast { max-width: min(92vw, 420px); }
       .context-menu { min-width: 190px; }
@@ -705,6 +729,8 @@
           <div class="component-grid" id="businessComponents"></div>
           <div class="section-label"><strong>基础图形</strong><span>Draw style</span></div>
           <div class="component-grid" id="shapeComponents"></div>
+          <div class="section-label"><strong>方案说明</strong><span>自由放置 · 富文本</span></div>
+          <div class="component-grid" id="textComponents"></div>
         </div>
         <div class="side-scroll hidden" id="stagingPanel">
           <div class="quick-add">
@@ -737,7 +763,7 @@
         <div class="canvas-viewport" id="canvasViewport">
           <div class="board-scale-shell" id="boardScaleShell">
             <div class="board-transform" id="boardTransform">
-              <div class="board" id="board"><svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg><div class="board-grid" id="boardGrid"></div></div>
+              <div class="board" id="board"><svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg><div class="board-grid" id="boardGrid"></div><div class="free-text-layer" id="freeTextLayer"></div></div>
             </div>
           </div>
         </div>
@@ -758,7 +784,7 @@
           <button class="close-btn mobile-drawer-close" id="closeRightDrawerBtn" aria-label="关闭详情抽屉">×</button>
         </div>
         <div class="empty-inspector" id="emptyInspector">
-          <div><div class="empty-symbol"></div><strong>选择一个组件</strong><p>点击画布中的卡片，即可编辑标题、详情、状态、负责人和标签。</p></div>
+          <div><div class="empty-symbol"></div><strong>选择组件或文字说明</strong><p>点击运营组件可编辑方案字段；点击文字说明可调整内容、字号、颜色和样式。</p></div>
         </div>
         <div class="inspector hidden" id="inspector">
           <div class="inspector-actions">
@@ -766,22 +792,32 @@
             <button class="outline-btn" id="moveStagingBtn">收回灵感区</button>
             <button class="outline-btn danger" id="deleteNodeBtn">删除</button>
           </div>
-          <div class="field"><label for="nodeTitle">标题</label><input id="nodeTitle" maxlength="80"></div>
-          <div class="field"><label for="nodeSummary">卡片摘要</label><textarea id="nodeSummary" maxlength="180"></textarea></div>
-          <div class="field"><label for="nodeDetail">详细方案</label><textarea id="nodeDetail" style="min-height:140px" placeholder="目标、策略、执行步骤、资源与风险……"></textarea></div>
-          <div class="field-row">
-            <div class="field"><label for="nodeOwner">负责人</label><input id="nodeOwner" placeholder="待指定"></div>
-            <div class="field"><label for="nodePriority">优先级</label><select id="nodePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div>
+          <div id="standardInspectorFields">
+            <div class="field"><label for="nodeTitle">标题</label><input id="nodeTitle" maxlength="80"></div>
+            <div class="field"><label for="nodeSummary">卡片摘要</label><textarea id="nodeSummary" maxlength="180"></textarea></div>
+            <div class="field"><label for="nodeDetail">详细方案</label><textarea id="nodeDetail" style="min-height:140px" placeholder="目标、策略、执行步骤、资源与风险……"></textarea></div>
+            <div class="field-row">
+              <div class="field"><label for="nodeOwner">负责人</label><input id="nodeOwner" placeholder="待指定"></div>
+              <div class="field"><label for="nodePriority">优先级</label><select id="nodePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="nodeProgress">执行进度</label><select id="nodeProgress"><option>未开始</option><option>进行中</option><option>已完成</option><option>已暂停</option><option>有风险</option></select></div>
+              <div class="field"><label for="nodeEffect">运营效果</label><select id="nodeEffect"><option>未验证</option><option>有效</option><option>待优化</option><option>无效</option><option>已复盘</option></select></div>
+            </div>
+            <div class="field"><label for="nodeTags">标签</label><input id="nodeTags" placeholder="增长, 留存, 活动"><div class="field-help">多个标签使用逗号分隔。</div></div>
+            <div class="business-fields" id="businessFields"></div>
+            <div class="field"><label>内容状态</label><div class="status-switch"><button class="status-option" data-style="solid"><span class="line-demo"></span>现有内容</button><button class="status-option" data-style="dashed"><span class="line-demo dashed"></span>准备实施</button></div></div>
+            <div class="field"><label>主题颜色</label><div class="color-row" id="colorRow"></div></div>
+            <div class="field"><label>组件关系</label><div class="connection-list" id="connectionList"></div><div class="field-help">点击画布上方“连接”，再依次点击起点和终点组件。</div></div>
           </div>
-          <div class="field-row">
-            <div class="field"><label for="nodeProgress">执行进度</label><select id="nodeProgress"><option>未开始</option><option>进行中</option><option>已完成</option><option>已暂停</option><option>有风险</option></select></div>
-            <div class="field"><label for="nodeEffect">运营效果</label><select id="nodeEffect"><option>未验证</option><option>有效</option><option>待优化</option><option>无效</option><option>已复盘</option></select></div>
+          <div class="hidden" id="richTextInspectorFields">
+            <div class="business-title">自由文字说明</div>
+            <div class="rich-text-controls"><button class="rich-text-control" id="richBoldBtn" title="加粗"><strong>B</strong></button><button class="rich-text-control" id="richUnderlineBtn" title="下划线"><u>U</u></button></div>
+            <div class="field"><label for="richTextContent">说明文字</label><textarea id="richTextContent" style="min-height:150px" placeholder="输入目标、背景、假设或评审结论……"></textarea></div>
+            <div class="field-row"><div class="field"><label for="richFontSize">字号</label><select id="richFontSize"><option value="13">小号</option><option value="16">正文</option><option value="20">强调</option><option value="26">标题</option><option value="32">大标题</option></select></div><div class="field"><label for="richTextAlign">对齐</label><select id="richTextAlign"><option value="left">左对齐</option><option value="center">居中</option><option value="right">右对齐</option></select></div></div>
+            <div class="field"><label for="richTextColor">文字颜色</label><input class="rich-text-color" id="richTextColor" type="color" value="#173f40"></div>
+            <div class="field-help">文字容器独立于泳道，可拖到标题区、泳道外空白或画布任意位置；也可直接点击正文编辑。</div>
           </div>
-          <div class="field"><label for="nodeTags">标签</label><input id="nodeTags" placeholder="增长, 留存, 活动"><div class="field-help">多个标签使用逗号分隔。</div></div>
-          <div class="business-fields" id="businessFields"></div>
-          <div class="field"><label>内容状态</label><div class="status-switch"><button class="status-option" data-style="solid"><span class="line-demo"></span>现有内容</button><button class="status-option" data-style="dashed"><span class="line-demo dashed"></span>准备实施</button></div></div>
-          <div class="field"><label>主题颜色</label><div class="color-row" id="colorRow"></div></div>
-          <div class="field"><label>组件关系</label><div class="connection-list" id="connectionList"></div><div class="field-help">点击画布上方“连接”，再依次点击起点和终点组件。</div></div>
         </div>
       </aside>
     </main>
@@ -858,7 +894,11 @@
           <p class="cloud-privacy-note">每个账号的数据相互隔离，未登录时仍会保存在当前浏览器。</p>
         </div>
         <div class="cloud-card cloud-sync-card hidden" id="cloudSyncCard">
-          <div class="cloud-user-row"><div class="cloud-avatar">云</div><div><strong id="cloudUserEmail">已登录</strong><span>本地修改会自动保存到云端</span></div></div>
+          <div class="cloud-user-row"><div class="cloud-avatar">云</div><div><strong id="cloudUserEmail">已登录</strong><span id="cloudAutoSyncSummary">本地修改会自动保存到云端</span></div></div>
+          <div class="auto-sync-setting">
+            <label class="auto-sync-toggle" for="autoSyncEnabled"><input id="autoSyncEnabled" type="checkbox"><span><strong>自动同步</strong><span>停止编辑后，按右侧等待时间上传当前方案。</span></span></label>
+            <select id="autoSyncInterval" aria-label="自动同步等待时间"><option value="5">5 秒后</option><option value="15">15 秒后</option><option value="30">30 秒后</option><option value="60">1 分钟后</option><option value="300">5 分钟后</option></select>
+          </div>
           <div class="cloud-actions"><button class="primary" id="cloudSyncBtn">立即同步</button><button id="cloudPullBtn">刷新云端方案</button><button class="danger" id="cloudLogoutBtn">退出登录</button></div>
         </div>
         <details class="cloud-admin hidden" id="cloudAdminSection">
@@ -868,7 +908,8 @@
               <h3>网站云端连接</h3>
               <p>仅网站发布者需要配置一次。普通用户不会看到这里。只能使用 Project URL 与 Publishable Key，禁止使用 Secret Key 或 service_role。</p>
               <div class="field-row"><div class="field"><label for="cloudUrl">Supabase Project URL</label><input id="cloudUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="cloudAnonKey">Publishable Key</label><input id="cloudAnonKey" placeholder="sb_publishable_..."></div></div>
-              <div class="cloud-actions"><button class="primary" id="saveCloudConfigBtn">保存本机配置</button><button id="testCloudConfigBtn">测试连接</button><button id="downloadConfiguredSiteBtn">下载已配置的 index.html</button><button class="danger" id="clearCloudConfigBtn">清除本机配置</button></div>
+              <div class="cloud-actions"><button class="primary" id="saveCloudConfigBtn">保存本机配置</button><button id="testCloudConfigBtn">测试连接</button><button id="downloadConfiguredSiteBtn">下载 cloud-config.js</button><button class="danger" id="clearCloudConfigBtn">清除本机配置</button></div>
+              <p class="cloud-privacy-note">以后更新只替换 index.html，保留 cloud-config.js 不动即可。</p>
             </div>
             <div class="cloud-card">
               <h3>数据库初始化 SQL</h3>
@@ -920,6 +961,7 @@
   </div>
   <div class="toast-stack" id="toastStack"></div>
 
+  <script src="cloud-config.js"></script>
   <script>
     'use strict';
 
@@ -928,9 +970,10 @@
     const LAYOUT_KEY = 'operationCanvas.layout.v1';
     const CLOUD_CONFIG_KEY = 'operationCanvas.cloud.config.v1';
     const CLOUD_SESSION_KEY = 'operationCanvas.cloud.session.v1';
-    const SITE_CLOUD_CONFIG = Object.freeze(
-      /*__SITE_CLOUD_CONFIG_START__*/{"url":"https://woccfvjrrxlnpgjepmei.supabase.co","anonKey":"sb_publishable_ilEum9T4o0MndEN7ygNCCw_34A7YeVY"}/*__SITE_CLOUD_CONFIG_END__*/
-    );
+    const AUTO_SYNC_KEY = 'operationCanvas.cloud.autoSync.v1';
+    const CLOUD_DELETE_QUEUE_KEY = 'operationCanvas.cloud.deleteQueue.v1';
+    const CLOUD_LAST_USER_KEY = 'operationCanvas.cloud.lastUser.v1';
+    const SITE_CLOUD_CONFIG = Object.freeze(window.OPERATION_CANVAS_CLOUD_CONFIG || { url: '', anonKey: '' });
     const CLOUD_ADMIN_MODE = new URLSearchParams(location.search).get('admin') === '1';
     const GRID = 12;
     const REGION_CONTENT_TOP = 52;
@@ -961,6 +1004,7 @@
       { type: 'diamond', name: '菱形', className: 'diamond' },
       { type: 'text', name: '文本框', className: 'round' }
     ];
+    const RICH_TEXT_PRESET = { type: 'richText', code: 'Aa', name: '文字说明容器', desc: '支持加粗、下划线、变色、字号和自由放置' };
     const FIELD_TEMPLATES = {
       action: [['目标用户', 'targetUser'], ['运营目标', 'goal'], ['触达渠道', 'channel'], ['成功指标', 'metric']],
       activity: [['活动机制', 'mechanism'], ['活动预算', 'budget'], ['活动时间', 'schedule'], ['转化目标', 'conversion']],
@@ -1036,7 +1080,7 @@
       ];
       const project = {
         id: uid('project'), name: '用户运营体系', createdAt: Date.now(), updatedAt: Date.now(),
-        stages, lanes, nodes: [], staging: [], edges: [], snapshots: [], zoom: 1, grid: true
+        stages, lanes, nodes: [], freeTexts: [], staging: [], edges: [], snapshots: [], zoom: 1, grid: true
       };
       project.nodes.push(
         makeNode('action', stages[0].id, lanes[0].id, 12, 38, { title: '核心体验验证', summary: '收集种子用户反馈，确认关键体验闭环', owner: '产品运营', tags: ['体验', '反馈'] }),
@@ -1066,6 +1110,16 @@
       };
     }
 
+    function makeRichText(x = 180, y = 80, patch = {}) {
+      return {
+        id: uid('text'), type: 'richText', content: patch.content || '在这里补充方案背景、目标或关键说明',
+        x, y, width: patch.width || 300, height: patch.height || 150,
+        bold: !!patch.bold, underline: !!patch.underline, color: patch.color || '#173f40',
+        fontSize: Number(patch.fontSize || 16), align: patch.align || 'left',
+        createdAt: Date.now(), updatedAt: Date.now()
+      };
+    }
+
     function makeStaging(type, title, summary = '', style = 'solid') {
       return { ...makeNode(type, null, null, 0, 0, { title, summary, style }), location: 'staging' };
     }
@@ -1074,14 +1128,23 @@
       project.stages ||= [];
       project.lanes ||= [];
       project.nodes ||= [];
+      project.freeTexts ||= [];
       project.staging ||= [];
       project.edges ||= [];
       project.snapshots ||= [];
       project.zoom ||= 1;
       project.grid ??= true;
+      project.freeTexts.forEach(note => {
+        note.type = 'richText'; note.content ||= ''; note.width ||= 300; note.height ||= 150;
+        note.color ||= '#173f40'; note.fontSize = Number(note.fontSize || 16); note.align ||= 'left';
+        note.bold = !!note.bold; note.underline = !!note.underline;
+      });
       [...project.nodes, ...project.staging].forEach(node => {
         node.width ||= (node.type === 'circle' || node.type === 'diamond' ? 104 : 156);
         node.height ||= (node.type === 'circle' || node.type === 'diamond' ? 104 : 82);
+        node.color = COLORS.some(item => item.value === node.color) ? node.color : COLORS[0].value;
+        node.style = node.style === 'dashed' ? 'dashed' : 'solid';
+        node.tags = Array.isArray(node.tags) ? node.tags : [];
         node.progress ||= '未开始'; node.effect ||= '未验证'; node.fields ||= {};
       });
       const userPhases = ['新手期', '成熟期', '稳定期', '预流失', '流失', '回流'];
@@ -1101,8 +1164,11 @@
     let redoStack = [];
     let saveTimer = null;
     let cloudSaveTimer = null;
+    let cloudPushInFlight = false;
+    let cloudPushQueued = false;
     let cloudConfig = loadCloudConfig();
     let cloudSession = loadCloudSession();
+    let autoSyncPrefs = loadAutoSyncPrefs();
     let dragState = null;
     let resizeState = null;
     let selectionState = null;
@@ -1122,6 +1188,8 @@
     let fullscreenViewState = null;
     let fullscreenCenterPending = false;
     let sidebarResizeState = null;
+    let freeTextDragState = null;
+    let freeTextResizeState = null;
     let activeSidebarTab = 'components';
     let layoutPrefs = loadLayoutPrefs();
     const isMobileLayout = () => matchMedia('(max-width: 700px), (max-height: 520px) and (pointer: coarse)').matches;
@@ -1279,6 +1347,52 @@ using ((select auth.uid()) = user_id);`;
       localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(localConfig));
       cloudConfig = { ...localConfig, source: 'local' };
     }
+    function loadAutoSyncPrefs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(AUTO_SYNC_KEY) || '{}');
+        const interval = [5, 15, 30, 60, 300].includes(Number(saved.interval)) ? Number(saved.interval) : 15;
+        return { enabled: saved.enabled !== false, interval };
+      } catch { return { enabled: true, interval: 15 }; }
+    }
+    function saveAutoSyncPrefs() {
+      localStorage.setItem(AUTO_SYNC_KEY, JSON.stringify(autoSyncPrefs));
+      updateAutoSyncUi();
+      if (!autoSyncPrefs.enabled) clearTimeout(cloudSaveTimer);
+      else if (cloudLoggedIn()) scheduleCloudSave();
+    }
+    function updateAutoSyncUi() {
+      const enabled = $('#autoSyncEnabled'); const interval = $('#autoSyncInterval'); const summary = $('#cloudAutoSyncSummary');
+      if (enabled) enabled.checked = !!autoSyncPrefs.enabled;
+      if (interval) { interval.value = String(autoSyncPrefs.interval); interval.disabled = !autoSyncPrefs.enabled; }
+      if (summary) summary.textContent = autoSyncPrefs.enabled ? `停止编辑 ${autoSyncPrefs.interval} 秒后自动同步` : '自动同步已关闭，可使用“立即同步”';
+    }
+    function loadCloudDeleteQueue() {
+      try { const value = JSON.parse(localStorage.getItem(CLOUD_DELETE_QUEUE_KEY) || '{}'); return value && typeof value === 'object' ? value : {}; }
+      catch { return {}; }
+    }
+    function saveCloudDeleteQueue(queue) { localStorage.setItem(CLOUD_DELETE_QUEUE_KEY, JSON.stringify(queue)); }
+    function cloudDeleteUserId() { return cloudSession?.user?.id || localStorage.getItem(CLOUD_LAST_USER_KEY) || ''; }
+    function pendingCloudDeleteIds(userId = cloudDeleteUserId()) { return new Set(loadCloudDeleteQueue()[userId] || []); }
+    function queueCloudProjectDelete(projectId) {
+      const userId = cloudDeleteUserId(); if (!userId) return false;
+      const queue = loadCloudDeleteQueue(); queue[userId] = [...new Set([...(queue[userId] || []), projectId])]; saveCloudDeleteQueue(queue); return true;
+    }
+    async function flushCloudDeleteQueue(silent = true) {
+      if (!cloudLoggedIn()) return 0;
+      await refreshCloudSessionIfNeeded();
+      const userId = cloudSession.user.id; const queue = loadCloudDeleteQueue(); const ids = [...new Set(queue[userId] || [])];
+      if (!ids.length) return 0;
+      let deleted = 0; const remaining = [];
+      for (const id of ids) {
+        try {
+          await cloudFetch(`/rest/v1/operation_canvas_projects?user_id=eq.${encodeURIComponent(userId)}&id=eq.${encodeURIComponent(id)}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+          deleted += 1;
+        } catch { remaining.push(id); }
+      }
+      if (remaining.length) queue[userId] = remaining; else delete queue[userId]; saveCloudDeleteQueue(queue);
+      if (!silent && deleted) toast(`已从云端删除 ${deleted} 个废弃方案`);
+      return deleted;
+    }
     function loadCloudSession() {
       try { return JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY) || 'null'); } catch { return null; }
     }
@@ -1315,26 +1429,17 @@ using ((select auth.uid()) = user_id);`;
       if ($('#cloudUrl')) $('#cloudUrl').value = cloudConfig.url || '';
       if ($('#cloudAnonKey')) $('#cloudAnonKey').value = cloudConfig.anonKey || '';
       $('#cloudAdminSection')?.classList.toggle('hidden', !CLOUD_ADMIN_MODE);
+      updateAutoSyncUi();
       updateCloudStatus();
     }
-    async function downloadConfiguredSite() {
+    function downloadConfiguredSite() {
       const config = normalizeCloudConfig({ url: $('#cloudUrl')?.value, anonKey: $('#cloudAnonKey')?.value });
       if (!validCloudConfig(config)) return toast('请先填写有效的 Project URL 和 Publishable Key', 'error');
-      const marker = /\/\*__SITE_CLOUD_CONFIG_START__\*\/[\s\S]*?\/\*__SITE_CLOUD_CONFIG_END__\*\//;
-      const replacement = `/*__SITE_CLOUD_CONFIG_START__*/${JSON.stringify(config)}/*__SITE_CLOUD_CONFIG_END__*/`;
-      let source = '';
-      try {
-        const sourceUrl = new URL(location.href); sourceUrl.search = ''; sourceUrl.hash = '';
-        const response = await fetch(sourceUrl.href, { cache: 'no-store' });
-        if (response.ok) source = await response.text();
-      } catch {}
-      if (!source) source = `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
-      if (!marker.test(source)) return toast('无法生成配置版网页', 'error');
-      source = source.replace(marker, replacement);
-      const blob = new Blob([source], { type: 'text/html;charset=utf-8' });
-      const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'index.html'; link.click();
+      const source = `'use strict';\nwindow.OPERATION_CANVAS_CLOUD_CONFIG = Object.freeze(${JSON.stringify(config, null, 2)});\n`;
+      const blob = new Blob([source], { type: 'text/javascript;charset=utf-8' });
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'cloud-config.js'; link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-      toast('已下载配置版 index.html，请覆盖 GitHub 文件');
+      toast('已下载 cloud-config.js，请与 index.html 放在同一目录');
     }
     async function cloudFetch(path, options = {}) {
       if (!cloudConfigured()) throw new Error('请先配置 Supabase Project URL 和 Publishable Key');
@@ -1361,7 +1466,7 @@ using ((select auth.uid()) = user_id);`;
         updateCloudStatus('注册中……');
         const data = await cloudFetch('/auth/v1/signup', { method: 'POST', auth: false, body: JSON.stringify({ email, password }) });
         if (data?.access_token) {
-          cloudSession = data; saveCloudSession(); updateCloudStatus('注册并登录成功'); toast('账号创建成功');
+          cloudSession = data; saveCloudSession(); localStorage.setItem(CLOUD_LAST_USER_KEY, cloudSession.user.id); updateCloudStatus('注册并登录成功'); toast('账号创建成功');
           await cloudSyncAll();
         } else {
           updateCloudStatus('注册成功，请前往邮箱完成验证后再登录'); toast('验证邮件已发送');
@@ -1374,13 +1479,14 @@ using ((select auth.uid()) = user_id);`;
       try {
         updateCloudStatus('登录中……');
         cloudSession = await cloudFetch('/auth/v1/token?grant_type=password', { method: 'POST', auth: false, body: JSON.stringify({ email, password }) });
-        saveCloudSession(); updateCloudStatus('登录成功'); toast('云端登录成功');
+        saveCloudSession(); localStorage.setItem(CLOUD_LAST_USER_KEY, cloudSession.user.id); updateCloudStatus('登录成功'); toast('云端登录成功');
         await cloudSyncAll();
       } catch (error) { updateCloudStatus(`登录失败：${error.message}`); toast(`登录失败：${error.message}`, 'error'); }
     }
     async function cloudLogout() {
+      clearTimeout(cloudSaveTimer); cloudPushQueued = false;
       try { if (cloudSession?.access_token) await cloudFetch('/auth/v1/logout', { method: 'POST' }); } catch {}
-      cloudSession = null; saveCloudSession(); updateCloudStatus('已退出账号，本地方案仍保存在当前浏览器'); toast('已退出账号');
+      cloudSession = null; saveCloudSession(); updateCloudStatus('已退出账号，本地方案仍保存在当前浏览器'); updateAutoSyncUi(); toast('已退出账号');
     }
     function serializeProjectForCloud(project) {
       const data = normalizeProject(deepClone(project));
@@ -1397,18 +1503,24 @@ using ((select auth.uid()) = user_id);`;
     async function cloudPushAll(silent = false) {
       if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return; }
       try {
+        await flushCloudDeleteQueue(true);
+        const pendingDeletes = pendingCloudDeleteIds(cloudSession.user.id);
+        const uploadProjects = projects.filter(project => !pendingDeletes.has(project.id));
         updateCloudStatus('正在上传本地方案……');
-        for (const project of projects) await cloudPushProject(project);
-        updateCloudStatus(`上传完成：${projects.length} 个方案`);
+        for (const project of uploadProjects) await cloudPushProject(project);
+        updateCloudStatus(`上传完成：${uploadProjects.length} 个方案`);
         if (!silent) toast('本地方案已上传云端');
       } catch (error) { updateCloudStatus(`上传失败：${error.message}`); if (!silent) toast(`上传失败：${error.message}`, 'error'); }
     }
     async function cloudPullAll(silent = false) {
       if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return []; }
       try {
-        await refreshCloudSessionIfNeeded(); updateCloudStatus('正在拉取云端方案……');
+        await refreshCloudSessionIfNeeded(); updateCloudStatus('正在清理废弃方案并拉取云端……');
+        await flushCloudDeleteQueue(true);
+        const pendingDeletes = pendingCloudDeleteIds(cloudSession.user.id);
         const rows = await cloudFetch('/rest/v1/operation_canvas_projects?select=*&order=updated_at.desc');
-        const remoteProjects = (rows || []).map(row => normalizeProject(row.data));
+        const remoteProjects = (rows || []).filter(row => !pendingDeletes.has(row.id)).map(row => normalizeProject(row.data));
+        resetCanvasFilters(false);
         mergeRemoteProjects(remoteProjects); persist(true);
         updateCloudStatus(`拉取完成：${remoteProjects.length} 个云端方案`);
         if (!silent) toast('云端方案已合并到本地');
@@ -1416,28 +1528,46 @@ using ((select auth.uid()) = user_id);`;
       } catch (error) { updateCloudStatus(`拉取失败：${error.message}`); if (!silent) toast(`拉取失败：${error.message}`, 'error'); return []; }
     }
     function mergeRemoteProjects(remoteProjects) {
-      remoteProjects.forEach(remote => {
+      const pendingDeletes = pendingCloudDeleteIds();
+      remoteProjects.filter(remote => !pendingDeletes.has(remote.id)).forEach(remote => {
         const index = projects.findIndex(item => item.id === remote.id);
         if (index < 0) projects.push(deepClone(remote));
         else if (Number(remote.updatedAt || 0) > Number(projects[index].updatedAt || 0)) projects[index] = deepClone(remote);
       });
       const current = projects.find(item => item.id === currentProject.id);
       if (current && Number(current.updatedAt || 0) > Number(currentProject.updatedAt || 0)) currentProject = normalizeProject(deepClone(current));
-      renderAll();
+      resetCanvasFilters(false); renderAll();
     }
     async function cloudSyncAll() {
       if (!cloudLoggedIn()) return toast('请先登录账号', 'error');
+      clearTimeout(cloudSaveTimer);
       try {
         updateCloudStatus('正在合并多设备方案……');
+        await flushCloudDeleteQueue(true);
         await cloudPullAll(true);
+        clearTimeout(cloudSaveTimer);
         await cloudPushAll(true);
         updateCloudStatus('同步完成，所有设备将获取最新方案'); toast('云端同步完成');
       } catch (error) { updateCloudStatus(`同步失败：${error.message}`); toast(`同步失败：${error.message}`, 'error'); }
     }
+    async function runScheduledCloudSave() {
+      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) return;
+      if (cloudPushInFlight) { cloudPushQueued = true; return; }
+      cloudPushInFlight = true;
+      try {
+        await cloudPushProject(currentProject);
+        updateCloudStatus(`当前方案已自动同步（${autoSyncPrefs.interval} 秒）`);
+      } catch (error) {
+        updateCloudStatus(`自动同步失败：${error.message}`);
+      } finally {
+        cloudPushInFlight = false;
+        if (cloudPushQueued) { cloudPushQueued = false; scheduleCloudSave(); }
+      }
+    }
     function scheduleCloudSave() {
-      if (!cloudLoggedIn()) return;
       clearTimeout(cloudSaveTimer);
-      cloudSaveTimer = setTimeout(() => cloudPushProject(currentProject).then(() => updateCloudStatus('当前方案已自动同步')).catch(error => updateCloudStatus(`自动同步失败：${error.message}`)), 1600);
+      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) return;
+      cloudSaveTimer = setTimeout(runScheduledCloudSave, autoSyncPrefs.interval * 1000);
     }
 
     function loadProjects() {
@@ -1515,6 +1645,7 @@ using ((select auth.uid()) = user_id);`;
         <div class="palette-item" draggable="true" data-create-type="${item.type}">
           <div class="shape-icon ${item.className}"></div><div class="palette-name">${item.name}</div><div class="palette-desc">基础表达图形</div>
         </div>`).join('');
+      $('#textComponents').innerHTML = `<div class="palette-item rich-text-palette" draggable="true" data-create-type="richText"><div class="palette-icon">Aa</div><div class="palette-name">${RICH_TEXT_PRESET.name}</div><div class="palette-desc">${RICH_TEXT_PRESET.desc}</div></div>`;
       $$('[data-create-type]').forEach(item => {
         item.addEventListener('dragstart', event => {
           event.dataTransfer.setData('text/plain', JSON.stringify({ source: 'palette', type: item.dataset.createType }));
@@ -1530,6 +1661,7 @@ using ((select auth.uid()) = user_id);`;
     }
 
     function renderAll() {
+      currentProject = normalizeProject(currentProject);
       $('#projectName').value = currentProject.name;
       currentProject.zoom = Number(currentProject.zoom || 1);
       renderBoard(); renderStaging(); renderInspector(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
@@ -1558,6 +1690,10 @@ using ((select auth.uid()) = user_id);`;
         });
       });
       grid.innerHTML = html;
+      const gridHeight = 56 + laneHeights.reduce((sum, value) => sum + parseFloat(value), 0);
+      const freeTextBottom = Math.max(0, ...currentProject.freeTexts.map(note => Number(note.y || 0) + Number(note.height || 150) + 24));
+      $('#board').style.minHeight = `${Math.max(gridHeight, freeTextBottom)}px`;
+      renderFreeTexts();
       bindBoardEvents();
       requestAnimationFrame(renderEdges);
     }
@@ -1581,6 +1717,114 @@ using ((select auth.uid()) = user_id);`;
       </article>`;
     }
 
+    function findFreeText(id) { return currentProject.freeTexts.find(item => item.id === id); }
+
+    function renderFreeTexts() {
+      const layer = $('#freeTextLayer');
+      if (!layer) return;
+      layer.innerHTML = currentProject.freeTexts.map(note => `<article class="rich-text-note ${selectedId === note.id ? 'selected' : ''}" data-free-text-id="${note.id}" style="left:${note.x}px;top:${note.y}px;width:${note.width}px;height:${note.height}px;--text-color:${note.color}"><div class="rich-text-handle" title="拖动文字说明"><span>NOTE</span></div><div class="rich-text-content" contenteditable="true" spellcheck="false" style="font-size:${note.fontSize}px;font-weight:${note.bold ? 800 : 400};text-decoration:${note.underline ? 'underline' : 'none'};text-align:${note.align};color:${note.color}">${escapeHtml(note.content || '').replace(/\n/g, '<br>')}</div><span class="rich-text-resize" title="调整文字容器大小"></span></article>`).join('');
+      bindFreeTextEvents();
+    }
+
+    function clampFreeText(note, x, y) {
+      const board = $('#board');
+      const width = Number(note.width || 300); const height = Number(note.height || 150);
+      return {
+        x: Math.max(0, Math.min(Math.max(0, board.offsetWidth - width), x)),
+        y: Math.max(0, Math.min(Math.max(0, board.offsetHeight - height), y))
+      };
+    }
+
+    function createFreeTextAtClient(clientX, clientY) {
+      const board = $('#board'); const rect = board.getBoundingClientRect(); const scale = currentProject.zoom || 1;
+      const note = makeRichText();
+      const position = clampFreeText(note, snap((clientX - rect.left) / scale - note.width / 2), snap((clientY - rect.top) / scale - 24));
+      Object.assign(note, position); checkpoint(); currentProject.freeTexts.push(note); selectedId = note.id; selectedIds.clear();
+      cancelMobilePlacement(); renderAll(); persist(); selectNode(note.id, false, !isMobileLayout()); toast('文字说明已放到画布，可直接编辑');
+      return note;
+    }
+
+    function bindFreeTextEvents() {
+      $$('.rich-text-note').forEach(element => {
+        const id = element.dataset.freeTextId;
+        const editor = $('.rich-text-content', element);
+        element.addEventListener('click', event => { event.stopPropagation(); selectNode(id, false, false); });
+        $('.rich-text-handle', element)?.addEventListener('pointerdown', startFreeTextDrag);
+        $('.rich-text-resize', element)?.addEventListener('pointerdown', startFreeTextResize);
+        editor?.addEventListener('focus', () => { if (!editor.dataset.checkpointed) { checkpoint(); editor.dataset.checkpointed = '1'; } selectNode(id, false, false); });
+        editor?.addEventListener('blur', () => { delete editor.dataset.checkpointed; });
+        editor?.addEventListener('input', () => {
+          const note = findFreeText(id); if (!note) return;
+          note.content = editor.innerText.replace(/\n{3,}/g, '\n\n'); note.updatedAt = Date.now(); persist();
+          if ($('#richTextContent') && selectedId === id) $('#richTextContent').value = note.content;
+        });
+      });
+    }
+
+    function startFreeTextDrag(event) {
+      if (event.button !== 0) return;
+      event.preventDefault(); event.stopPropagation();
+      const element = event.currentTarget.closest('.rich-text-note'); const note = findFreeText(element?.dataset.freeTextId); if (!note) return;
+      checkpoint(); selectNode(note.id, false, false);
+      freeTextDragState = { id: note.id, startX: event.clientX, startY: event.clientY, x: note.x, y: note.y, element };
+      safeSetPointerCapture(event.currentTarget, event.pointerId);
+      event.currentTarget.addEventListener('pointermove', moveFreeTextDrag);
+      event.currentTarget.addEventListener('pointerup', endFreeTextDrag, { once: true });
+      event.currentTarget.addEventListener('pointercancel', cancelFreeTextDrag, { once: true });
+    }
+
+    function moveFreeTextDrag(event) {
+      if (!freeTextDragState) return;
+      const note = findFreeText(freeTextDragState.id); if (!note) return;
+      const scale = currentProject.zoom || 1;
+      const position = clampFreeText(note, snap(freeTextDragState.x + (event.clientX - freeTextDragState.startX) / scale), snap(freeTextDragState.y + (event.clientY - freeTextDragState.startY) / scale));
+      freeTextDragState.preview = position;
+      freeTextDragState.element.style.left = `${position.x}px`; freeTextDragState.element.style.top = `${position.y}px`;
+    }
+
+    function finishFreeTextDrag(event, cancelled = false) {
+      if (!freeTextDragState) return;
+      const state = freeTextDragState; const handle = event?.currentTarget;
+      safeReleasePointerCapture(handle, event?.pointerId); handle?.removeEventListener('pointermove', moveFreeTextDrag);
+      if (!cancelled && state.preview) { const note = findFreeText(state.id); Object.assign(note, state.preview, { updatedAt: Date.now() }); persist(); }
+      freeTextDragState = null;
+      if (cancelled) renderFreeTexts();
+    }
+    function endFreeTextDrag(event) { finishFreeTextDrag(event, false); }
+    function cancelFreeTextDrag(event) { finishFreeTextDrag(event, true); }
+
+    function startFreeTextResize(event) {
+      if (event.button !== 0) return;
+      event.preventDefault(); event.stopPropagation();
+      const element = event.currentTarget.closest('.rich-text-note'); const note = findFreeText(element?.dataset.freeTextId); if (!note) return;
+      checkpoint(); selectNode(note.id, false, false);
+      freeTextResizeState = { id: note.id, startX: event.clientX, startY: event.clientY, width: note.width, height: note.height, element };
+      safeSetPointerCapture(event.currentTarget, event.pointerId);
+      event.currentTarget.addEventListener('pointermove', moveFreeTextResize);
+      event.currentTarget.addEventListener('pointerup', endFreeTextResize, { once: true });
+      event.currentTarget.addEventListener('pointercancel', cancelFreeTextResize, { once: true });
+    }
+
+    function moveFreeTextResize(event) {
+      if (!freeTextResizeState) return;
+      const scale = currentProject.zoom || 1;
+      const width = Math.max(180, Math.min(540, snap(freeTextResizeState.width + (event.clientX - freeTextResizeState.startX) / scale)));
+      const height = Math.max(88, Math.min(460, snap(freeTextResizeState.height + (event.clientY - freeTextResizeState.startY) / scale)));
+      freeTextResizeState.preview = { width, height };
+      freeTextResizeState.element.style.width = `${width}px`; freeTextResizeState.element.style.height = `${height}px`;
+    }
+
+    function finishFreeTextResize(event, cancelled = false) {
+      if (!freeTextResizeState) return;
+      const state = freeTextResizeState; const handle = event?.currentTarget;
+      safeReleasePointerCapture(handle, event?.pointerId); handle?.removeEventListener('pointermove', moveFreeTextResize);
+      if (!cancelled && state.preview) { const note = findFreeText(state.id); Object.assign(note, state.preview, { updatedAt: Date.now() }); persist(); renderBoard(); }
+      else if (cancelled) renderFreeTexts();
+      freeTextResizeState = null;
+    }
+    function endFreeTextResize(event) { finishFreeTextResize(event, false); }
+    function cancelFreeTextResize(event) { finishFreeTextResize(event, true); }
+
     function nodeMatchesFilters(node) {
       const query = filters.query.trim().toLowerCase();
       const text = [node.title, node.summary, node.owner, ...(node.tags || []), ...Object.values(node.fields || {})].join(' ').toLowerCase();
@@ -1592,7 +1836,16 @@ using ((select auth.uid()) = user_id);`;
     function applyFilters() {
       const matched = currentProject.nodes.filter(nodeMatchesFilters).length;
       $('#searchCount').textContent = (filters.query || filters.type || filters.style) ? `${matched}/${currentProject.nodes.length}` : '';
-      $$('.canvas-node').forEach(item => item.classList.toggle('filtered-out', !nodeMatchesFilters(findNode(item.dataset.nodeId))));
+      $$('.canvas-node').forEach(item => {
+        const node = findNode(item.dataset.nodeId);
+        item.classList.toggle('filtered-out', !!node && !nodeMatchesFilters(node));
+      });
+    }
+    function resetCanvasFilters(apply = true) {
+      filters = { query: '', type: '', style: '' };
+      ['canvasSearch', 'mobileCanvasSearch', 'typeFilter', 'mobileTypeFilter', 'statusFilter', 'mobileStatusFilter'].forEach(id => { const element = $(`#${id}`); if (element) element.value = ''; });
+      if ($('#searchCount')) $('#searchCount').textContent = '';
+      if (apply) applyFilters();
     }
 
     function renderEdges() {
@@ -1688,7 +1941,7 @@ using ((select auth.uid()) = user_id);`;
       mobilePlacementPayload = payload;
       closeMobileDrawers(); closeModal('mobileToolsModal');
       document.body.classList.add('mobile-placement-mode');
-      toast(`请选择目标阶段，放入“${label}”`);
+      toast(payload?.type === 'richText' ? `点击画布任意位置，放置“${label}”` : `请选择目标阶段，放入“${label}”`);
     }
 
     function cancelMobilePlacement(message = '') {
@@ -1700,6 +1953,11 @@ using ((select auth.uid()) = user_id);`;
 
     function placeMobilePayload(payload, region, clientX = null, clientY = null) {
       if (!payload || !region) return;
+      if (payload.source === 'palette' && payload.type === 'richText') {
+        const rect = region.getBoundingClientRect();
+        createFreeTextAtClient(clientX ?? rect.left + rect.width / 2, clientY ?? rect.top + 72);
+        return;
+      }
       const rect = region.getBoundingClientRect(); const scale = currentProject.zoom || 1;
       const regionNodes = currentProject.nodes.filter(node => node.stageId === region.dataset.stageId && node.laneId === region.dataset.laneId);
       const fallbackY = REGION_CONTENT_TOP + regionNodes.reduce((bottom, node) => Math.max(bottom, Number(node.y || REGION_CONTENT_TOP) + Number(node.height || 82) + 12), 0);
@@ -1754,16 +2012,24 @@ using ((select auth.uid()) = user_id);`;
     function updateMobileSourceDrag(event) {
       if (!mobileSourceDrag) return;
       mobileSourceDrag.ghost.style.left = `${event.clientX}px`; mobileSourceDrag.ghost.style.top = `${event.clientY}px`;
-      mobileSourceDrag.ghost.style.visibility = 'hidden'; const region = document.elementFromPoint(event.clientX, event.clientY)?.closest('.region'); mobileSourceDrag.ghost.style.visibility = '';
-      $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over')); if (region) region.classList.add('mobile-drag-over');
+      mobileSourceDrag.ghost.style.visibility = 'hidden';
+      const target = document.elementFromPoint(event.clientX, event.clientY);
+      const region = target?.closest('.region'); const board = target?.closest('#board');
+      mobileSourceDrag.ghost.style.visibility = '';
+      $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
+      if (region && mobileSourceDrag.payload?.type !== 'richText') region.classList.add('mobile-drag-over');
+      mobileSourceDrag.overBoard = !!board;
     }
 
     function finishMobileSourceDrag(event, cancelled = false) {
       if (!mobileSourceDrag) return;
       const state = mobileSourceDrag; state.ghost.style.visibility = 'hidden';
-      const region = !cancelled && event ? document.elementFromPoint(event.clientX, event.clientY)?.closest('.region') : null;
+      const target = !cancelled && event ? document.elementFromPoint(event.clientX, event.clientY) : null;
+      const region = target?.closest('.region'); const board = target?.closest('#board');
       state.ghost.remove(); mobileSourceDrag = null; $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
-      if (region) placeMobilePayload(state.payload, region, event.clientX, event.clientY); else if (!cancelled) { toast('未放入阶段，可再次选择组件'); openMobileDrawer('left', state.payload.source === 'staging' ? 'staging' : 'components'); }
+      if (state.payload?.type === 'richText' && board) createFreeTextAtClient(event.clientX, event.clientY);
+      else if (region) placeMobilePayload(state.payload, region, event.clientX, event.clientY);
+      else if (!cancelled) { toast(state.payload?.type === 'richText' ? '未放到画布，可再次选择文字说明' : '未放入阶段，可再次选择组件'); openMobileDrawer('left', state.payload.source === 'staging' ? 'staging' : 'components'); }
     }
 
     function toggleMobileMultiSelect() {
@@ -1946,13 +2212,24 @@ using ((select auth.uid()) = user_id);`;
       if (action === 'add-lane') addLane();
     }
 
+    function readDragPayload(event) {
+      try { return JSON.parse(event.dataTransfer.getData('text/plain')); } catch { return null; }
+    }
+
+    function handleBoardDrop(event) {
+      const payload = readDragPayload(event);
+      if (!payload || payload.source !== 'palette' || payload.type !== 'richText') return;
+      event.preventDefault(); event.stopPropagation();
+      createFreeTextAtClient(event.clientX, event.clientY);
+    }
+
     function bindBoardEvents() {
       $$('.region').forEach(region => {
         region.addEventListener('dragover', event => { event.preventDefault(); region.classList.add('drag-over'); });
         region.addEventListener('dragleave', () => region.classList.remove('drag-over'));
         region.addEventListener('drop', handleDrop);
         region.addEventListener('click', event => {
-          if (!mobilePlacementPayload || event.target.closest('.canvas-node')) return;
+          if (!mobilePlacementPayload || event.target.closest('.canvas-node,.rich-text-note')) return;
           event.stopPropagation(); placeMobilePayload(mobilePlacementPayload, region, event.clientX, event.clientY);
         });
       });
@@ -1964,15 +2241,25 @@ using ((select auth.uid()) = user_id);`;
         const handle = $('.resize-handle', nodeEl);
         if (handle) handle.addEventListener('pointerdown', startNodeResize);
       });
-      $('#board').onpointerdown = startSelectionBox;
+      const board = $('#board');
+      board.ondragover = event => { const payload = readDragPayload(event); if (payload?.source === 'palette' && payload.type === 'richText') event.preventDefault(); };
+      board.ondrop = handleBoardDrop;
+      board.onclick = event => {
+        if (!mobilePlacementPayload || mobilePlacementPayload.type !== 'richText' || event.target.closest('.canvas-node,.rich-text-note')) return;
+        event.stopPropagation(); createFreeTextAtClient(event.clientX, event.clientY);
+      };
+      board.onpointerdown = startSelectionBox;
     }
 
     function handleDrop(event) {
       event.preventDefault();
       const region = event.currentTarget;
       region.classList.remove('drag-over');
-      let payload;
-      try { payload = JSON.parse(event.dataTransfer.getData('text/plain')); } catch { return; }
+      const payload = readDragPayload(event);
+      if (!payload) return;
+      if (payload.source === 'palette' && payload.type === 'richText') {
+        event.stopPropagation(); createFreeTextAtClient(event.clientX, event.clientY); return;
+      }
       const rect = region.getBoundingClientRect();
       const scale = currentProject.zoom || 1;
       const x = snap((event.clientX - rect.left) / scale - 76);
@@ -2295,7 +2582,10 @@ using ((select auth.uid()) = user_id);`;
       document.body.classList.remove('mobile-placement-mode');
       $('.mobile-drag-ghost')?.remove();
       if (mobileSourceDrag?.ghost) mobileSourceDrag.ghost.remove();
+      const hadFreeTextGesture = !!(freeTextDragState || freeTextResizeState);
+      freeTextDragState = null; freeTextResizeState = null;
       mobileSourceDrag = null; edgeSwipeState = null;
+      if (hadFreeTextGesture) renderFreeTexts();
     }
 
     function renderStaging() {
@@ -2332,26 +2622,40 @@ using ((select auth.uid()) = user_id);`;
     }
 
     function selectNode(id, additive = false, openDetails = true) {
-      if (connectionMode && id) return handleConnectionClick(id);
+      if (connectionMode && id && findNode(id)) return handleConnectionClick(id);
+      const isFreeText = !!findFreeText(id);
       if (!id) { selectedId = null; selectedIds.clear(); $('#rightSidebar').classList.remove('open'); }
-      else if (additive) {
+      else if (additive && !isFreeText) {
         if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
         selectedId = selectedIds.size === 1 ? [...selectedIds][0] : null;
-      } else { selectedId = id; selectedIds = new Set([id]); }
+      } else { selectedId = id; selectedIds = isFreeText ? new Set() : new Set([id]); }
       $$('.canvas-node').forEach(item => {
         item.classList.toggle('selected', item.dataset.nodeId === selectedId);
         item.classList.toggle('multi-selected', selectedIds.has(item.dataset.nodeId));
       });
+      $$('.rich-text-note').forEach(item => item.classList.toggle('selected', item.dataset.freeTextId === selectedId));
       renderInspector(); updateBatchToolbar();
       if (id && openDetails && isMobileLayout() && !mobileMultiSelect) openMobileDrawer('right');
       else if (id && openDetails && !isMobileLayout()) $('#rightSidebar').classList.add('open');
     }
 
     function renderInspector() {
-      const node = findNode(selectedId);
-      $('#emptyInspector').classList.toggle('hidden', !!node);
-      $('#inspector').classList.toggle('hidden', !node);
-      if (!node) return;
+      const node = findNode(selectedId); const note = findFreeText(selectedId); const selected = node || note;
+      $('#emptyInspector').classList.toggle('hidden', !!selected);
+      $('#inspector').classList.toggle('hidden', !selected);
+      $('#standardInspectorFields').classList.toggle('hidden', !node);
+      $('#richTextInspectorFields').classList.toggle('hidden', !note);
+      $('#moveStagingBtn').classList.toggle('hidden', !node);
+      if (!selected) return;
+      if (note) {
+        $('#richTextContent').value = note.content || '';
+        $('#richFontSize').value = String(note.fontSize || 16);
+        $('#richTextAlign').value = note.align || 'left';
+        $('#richTextColor').value = note.color || '#173f40';
+        $('#richBoldBtn').classList.toggle('active', !!note.bold);
+        $('#richUnderlineBtn').classList.toggle('active', !!note.underline);
+        return;
+      }
       $('#nodeTitle').value = node.title || '';
       $('#nodeSummary').value = node.summary || '';
       $('#nodeDetail').value = node.detail || '';
@@ -2380,21 +2684,37 @@ using ((select auth.uid()) = user_id);`;
       persist();
     }
 
+    function updateSelectedFreeText(field, value) {
+      const note = findFreeText(selectedId); if (!note) return;
+      checkpoint(); note[field] = value; note.updatedAt = Date.now(); renderFreeTexts(); renderInspector(); persist();
+    }
+
     function bindInspector() {
       ['nodeTitle', 'nodeSummary', 'nodeDetail', 'nodeOwner', 'nodePriority'].forEach(id => {
         const el = $(`#${id}`);
-        const eventName = el.tagName === 'SELECT' ? 'change' : 'change';
-        el.addEventListener(eventName, () => updateSelected({ nodeTitle: 'title', nodeSummary: 'summary', nodeDetail: 'detail', nodeOwner: 'owner', nodePriority: 'priority' }[id], el.value));
+        el.addEventListener('change', () => updateSelected({ nodeTitle: 'title', nodeSummary: 'summary', nodeDetail: 'detail', nodeOwner: 'owner', nodePriority: 'priority' }[id], el.value));
       });
       $('#nodeTags').addEventListener('change', event => updateSelected('tags', event.target.value.split(/[,，]/).map(item => item.trim()).filter(Boolean)));
       $$('.status-option').forEach(item => item.onclick = () => updateSelected('style', item.dataset.style));
       $$('.color-dot').forEach(item => item.onclick = () => updateSelected('color', item.dataset.color));
+      $('#richTextContent').addEventListener('change', event => updateSelectedFreeText('content', event.target.value));
+      $('#richFontSize').addEventListener('change', event => updateSelectedFreeText('fontSize', Number(event.target.value) || 16));
+      $('#richTextAlign').addEventListener('change', event => updateSelectedFreeText('align', event.target.value));
+      $('#richTextColor').addEventListener('input', event => updateSelectedFreeText('color', event.target.value));
+      $('#richBoldBtn').onclick = () => { const note = findFreeText(selectedId); if (note) updateSelectedFreeText('bold', !note.bold); };
+      $('#richUnderlineBtn').onclick = () => { const note = findFreeText(selectedId); if (note) updateSelectedFreeText('underline', !note.underline); };
       $('#duplicateBtn').onclick = duplicateSelected;
       $('#deleteNodeBtn').onclick = deleteSelected;
       $('#moveStagingBtn').onclick = moveSelectedToStaging;
     }
 
     function duplicateSelected() {
+      const note = findFreeText(selectedId);
+      if (note) {
+        checkpoint();
+        const copy = { ...deepClone(note), id: uid('text'), x: note.x + GRID * 2, y: note.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
+        currentProject.freeTexts.push(copy); selectedId = copy.id; selectedIds.clear(); renderAll(); persist(); toast('已复制文字说明'); return;
+      }
       const node = findNode(selectedId); if (!node) return;
       checkpoint();
       const copy = { ...deepClone(node), id: uid('node'), title: `${node.title}（副本）`, y: node.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
@@ -2402,7 +2722,12 @@ using ((select auth.uid()) = user_id);`;
     }
     function deleteSelected() {
       if (!selectedId) return;
-      const id = selectedId; const node = findNode(id); const element = document.querySelector(`[data-node-id="${id}"]`);
+      const id = selectedId; const note = findFreeText(id);
+      if (note) {
+        checkpoint(); currentProject.freeTexts = currentProject.freeTexts.filter(item => item.id !== id);
+        selectedIds.clear(); selectedId = null; renderAll(); persist(); toast('文字说明已删除'); return;
+      }
+      const node = findNode(id); const element = document.querySelector(`[data-node-id="${id}"]`);
       checkpoint(); burstCapsuleAt(element, node?.color);
       currentProject.nodes = currentProject.nodes.filter(item => item.id !== id);
       currentProject.edges = currentProject.edges.filter(edge => edge.from !== id && edge.to !== id);
@@ -2574,7 +2899,7 @@ using ((select auth.uid()) = user_id);`;
     }
     function openProject(id) {
       persist(true); const project = projects.find(item => item.id === id); if (!project) return;
-      currentProject = normalizeProject(deepClone(project)); selectedId = null; selectedIds.clear(); undoStack = []; redoStack = [];
+      currentProject = normalizeProject(deepClone(project)); selectedId = null; selectedIds.clear(); undoStack = []; redoStack = []; resetCanvasFilters(false);
       localStorage.setItem(CURRENT_KEY, id); closeModal('projectsModal'); renderAll(); toast('方案已打开');
     }
     function copyProject(id) {
@@ -2585,10 +2910,19 @@ using ((select auth.uid()) = user_id);`;
     function deleteProject(id) {
       if (projects.length <= 1) return toast('至少保留一个方案', 'error');
       const target = projects.find(item => item.id === id);
-      if (!confirm(`确认删除“${target?.name || '该方案'}”？此操作不可撤销。`)) return;
+      if (!confirm(`确认删除“${target?.name || '该方案'}”？本地与云端存档都会删除。`)) return;
+      const queuedForCloud = queueCloudProjectDelete(id);
       projects = projects.filter(item => item.id !== id);
-      if (currentProject.id === id) { currentProject = deepClone(projects[0]); localStorage.setItem(CURRENT_KEY, currentProject.id); renderAll(); }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); renderProjectList(); toast('方案已删除');
+      if (currentProject.id === id) { currentProject = normalizeProject(deepClone(projects[0])); resetCanvasFilters(false); localStorage.setItem(CURRENT_KEY, currentProject.id); renderAll(); }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); renderProjectList();
+      if (cloudLoggedIn() && queuedForCloud) {
+        updateCloudStatus('正在删除云端废弃方案……');
+        flushCloudDeleteQueue(false).then(() => {
+          const pending = pendingCloudDeleteIds(cloudSession.user.id);
+          updateCloudStatus(pending.has(id) ? '本地已删除，云端将在下次同步时继续删除' : '废弃方案已从本地和云端删除');
+        }).catch(() => updateCloudStatus('本地已删除，云端将在下次同步时继续删除'));
+      }
+      toast(queuedForCloud ? '方案已删除，云端删除已排队' : '方案已从本地删除');
     }
 
     function exportJson() {
@@ -2718,6 +3052,7 @@ using ((select auth.uid()) = user_id);`;
 
     function switchTab(tab) {
       activeSidebarTab = tab;
+      if (tab === 'staging') resetCanvasFilters(true);
       $$('.tab-btn').forEach(item => item.classList.toggle('active', item.dataset.tab === tab));
       $('#componentPanel').classList.toggle('hidden', tab !== 'components');
       $('#stagingPanel').classList.toggle('hidden', tab !== 'staging');
@@ -2775,6 +3110,8 @@ using ((select auth.uid()) = user_id);`;
       $('#cloudLogoutBtn').onclick = cloudLogout;
       $('#cloudPullBtn').onclick = () => cloudPullAll(false);
       $('#cloudSyncBtn').onclick = cloudSyncAll;
+      $('#autoSyncEnabled').onchange = event => { autoSyncPrefs.enabled = event.target.checked; saveAutoSyncPrefs(); toast(autoSyncPrefs.enabled ? `自动同步已开启：${autoSyncPrefs.interval} 秒` : '自动同步已关闭'); };
+      $('#autoSyncInterval').onchange = event => { autoSyncPrefs.interval = Number(event.target.value) || 15; saveAutoSyncPrefs(); toast(`自动同步等待时间已设为 ${autoSyncPrefs.interval} 秒`); };
       $('#copyCloudSqlBtn').onclick = async () => { try { await navigator.clipboard.writeText(CLOUD_SQL); toast('SQL 已复制'); } catch { $('#cloudSql').select(); document.execCommand('copy'); toast('SQL 已复制'); } };
       $('#newProjectBtn').onclick = () => newProject(true);
       $('#modalNewProject').onclick = () => newProject(false);
