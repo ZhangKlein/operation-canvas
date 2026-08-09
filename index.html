@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="color-scheme" content="light">
   <title>运营画布</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d5d5a'/%3E%3Cpath d='M18 18h12v12H18zM34 18h12v12H34zM18 34h12v12H18zM34 34h12v12H34z' fill='white'/%3E%3Cpath d='M34 18h12v12H34z' fill='%23d98b2b'/%3E%3C/svg%3E">
   <style>
     :root {
       --ink: #172b31;
@@ -25,6 +26,7 @@
       --radius: 14px;
       --topbar: 68px;
       --leftbar: 286px;
+      --notesbar: 340px;
       --rightbar: 320px;
     }
 
@@ -129,27 +131,55 @@
     .divider { width: 1px; height: 24px; margin: 0 3px; background: rgba(255,255,255,.15); }
     .zoom-value { width: 50px; text-align: center; color: rgba(255,255,255,.72); font-size: 12px; }
 
-    .workspace { min-height: 0; display: grid; grid-template-columns: var(--leftbar) minmax(0, 1fr); transition: grid-template-columns .2s ease; }
+    .workspace { min-height: 0; display: grid; grid-template-columns: var(--leftbar) minmax(0, 1fr) var(--notesbar); transition: grid-template-columns .2s ease; }
     .sidebar {
       position: relative; z-index: 20; min-height: 0; display: flex; flex-direction: column;
       background: rgba(251, 252, 251, .96); backdrop-filter: blur(16px);
     }
     .sidebar.left { grid-column: 1; border-right: 1px solid var(--line); }
     .main-area { grid-column: 2; }
+    .notes-panel {
+      position: relative; z-index: 18; grid-column: 3; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+      border-left: 1px solid var(--line); background: linear-gradient(180deg, rgba(252,253,251,.98), rgba(244,248,246,.98));
+      box-shadow: -10px 0 30px rgba(26,58,59,.06); overflow: hidden;
+    }
+    .notes-head { position: relative; flex: 0 0 auto; padding: 17px 16px 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.78); }
+    .notes-kicker { color: var(--accent); font-size: 9px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
+    .notes-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 5px; }
+    .notes-title-row h2 { margin: 0; font-size: 17px; letter-spacing: .02em; }
+    .notes-count { min-width: 28px; padding: 3px 8px; border-radius: 999px; color: var(--brand); background: var(--brand-soft); text-align: center; font-size: 10px; font-weight: 800; }
+    .notes-copy { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .notes-actions { display: flex; gap: 6px; margin-top: 12px; }
+    .notes-actions button { height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: #fff; cursor: pointer; font-size: 11px; font-weight: 700; }
+    .notes-actions button:first-child { flex: 1; color: #fff; border-color: var(--brand); background: var(--brand); }
+    .notes-actions button:hover { border-color: #9dbab5; }
+    .notes-scroll { flex: 1; min-height: 0; overflow: auto; padding: 14px; overscroll-behavior: contain; }
+    .notes-canvas { position: relative; min-height: 100%; border: 1px dashed #c8d8d4; border-radius: 16px; background: radial-gradient(circle at 12px 12px, rgba(13,93,90,.07) 1px, transparent 1px), rgba(255,255,255,.72); background-size: 24px 24px; transition: border-color .16s, background .16s; }
+    .notes-canvas.drag-over { border-color: var(--brand); background-color: #edf7f3; box-shadow: inset 0 0 0 2px rgba(13,93,90,.12); }
+    .notes-empty { position: absolute; inset: 18px; display: grid; place-items: center; padding: 30px 18px; color: var(--faint); text-align: center; font-size: 11px; line-height: 1.7; pointer-events: none; }
+    .notes-panel:not(.is-empty) .notes-empty { display: none; }
+    .notes-restore { position: absolute; z-index: 35; right: 0; top: 50%; display: none; width: 30px; height: 58px; padding: 0; place-items: center; border: 1px solid #b8ccc7; border-right: 0; border-radius: 12px 0 0 12px; color: var(--brand); background: rgba(255,255,255,.97); box-shadow: -6px 0 18px rgba(25,60,61,.13); cursor: pointer; font-size: 18px; font-weight: 800; line-height: 1; transform: translateY(-50%); }
     .sidebar-resizer { position: absolute; z-index: 8; top: 0; right: -5px; bottom: 0; width: 10px; cursor: ew-resize; touch-action: none; }
     .sidebar-resizer::after { content: ''; position: absolute; top: 50%; left: 4px; width: 2px; height: 54px; border-radius: 2px; background: #b8c9c5; opacity: 0; transform: translateY(-50%); transition: opacity .16s; }
     .sidebar.left:hover .sidebar-resizer::after, body.sidebar-resizing .sidebar-resizer::after { opacity: 1; }
     .panel-space-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
     .panel-space-tools button { height: 30px; min-width: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: #fff; cursor: pointer; font-size: 11px; }
     .panel-space-tools button:hover { color: var(--brand); border-color: #9dbab5; background: var(--brand-soft); }
-    .workspace.sidebar-collapsed { grid-template-columns: minmax(0, 1fr); }
+    .workspace.sidebar-collapsed { grid-template-columns: minmax(0, 1fr) var(--notesbar); }
     .workspace.sidebar-collapsed .sidebar.left { display: none; }
     .workspace.sidebar-collapsed .main-area { grid-column: 1; }
+    .workspace.sidebar-collapsed .notes-panel { grid-column: 2; }
     .workspace.sidebar-collapsed .sidebar-resizer { display: none; }
+    .workspace.notes-collapsed { grid-template-columns: var(--leftbar) minmax(0, 1fr); }
+    .workspace.notes-collapsed .notes-panel { display: none; }
+    .workspace.notes-collapsed .main-area { grid-column: 2; }
+    .workspace.sidebar-collapsed.notes-collapsed { grid-template-columns: minmax(0, 1fr); }
+    .workspace.sidebar-collapsed.notes-collapsed .main-area { grid-column: 1; }
     .panel-restore { position: absolute; z-index: 35; left: 0; top: 50%; display: none; width: 30px; height: 58px; padding: 0; place-items: center; border: 1px solid #b8ccc7; border-left: 0; border-radius: 0 12px 12px 0; color: var(--brand); background: rgba(255,255,255,.97); box-shadow: 6px 0 18px rgba(25,60,61,.13); cursor: pointer; font-size: 20px; font-weight: 800; line-height: 1; transform: translateY(-50%); }
     .workspace.sidebar-collapsed .panel-restore, .workspace.clean-canvas .panel-restore { display: grid; }
+    .workspace.notes-collapsed:not(.clean-canvas) .notes-restore { display: grid; }
     .workspace.clean-canvas { grid-template-columns: minmax(0, 1fr); }
-    .workspace.clean-canvas .sidebar.left { display: none; }
+    .workspace.clean-canvas .sidebar.left, .workspace.clean-canvas .notes-panel { display: none; }
     .workspace.clean-canvas .main-area { grid-column: 1; }
     .workspace.clean-canvas .canvas-toolbar, .workspace.clean-canvas .canvas-foot, .workspace.clean-canvas .batch-toolbar { opacity: 0; pointer-events: none; }
     .workspace.clean-canvas .panel-restore { opacity: .35; transition: opacity .18s; }
@@ -497,7 +527,7 @@
       @page { size: landscape; margin: 10mm; }
       html, body { height: auto; overflow: visible; background: #fff; }
       .app { display: block; height: auto; }
-      .topbar, .sidebar, .canvas-toolbar, .canvas-foot, .toast-stack, .context-menu, .modal-backdrop { display: none !important; }
+      .topbar, .sidebar, .notes-panel, .canvas-toolbar, .canvas-foot, .toast-stack, .context-menu, .modal-backdrop { display: none !important; }
       .workspace, .main-area, .canvas-viewport { position: static; display: block; width: auto; height: auto; overflow: visible; padding: 0; background: #fff; }
       .board-scale-shell { position: static; width: auto !important; height: auto !important; min-width: 0; }
       .board-transform { position: static; transform: none !important; }
@@ -506,14 +536,14 @@
     }
 
     @media (max-width: 1180px) {
-      :root { --leftbar: 250px; --rightbar: 292px; }
+      :root { --leftbar: 250px; --notesbar: 300px; --rightbar: 292px; }
       .brand-sub, .save-state { display: none; }
       .brand-block { min-width: 170px; }
       .top-btn .label-hide { display: none; }
     }
     @media (max-width: 900px) {
-      :root { --leftbar: 226px; --rightbar: 0px; }
-      .workspace { grid-template-columns: var(--leftbar) minmax(0, 1fr); }
+      :root { --leftbar: 226px; --notesbar: 280px; --rightbar: 0px; }
+      .workspace { grid-template-columns: var(--leftbar) minmax(0, 1fr) var(--notesbar); }
       .sidebar.right { position: fixed; z-index: 80; right: 0; top: var(--topbar); bottom: 0; width: 310px; transform: translateX(102%); transition: transform .22s ease; box-shadow: -15px 0 40px rgba(25,50,52,.16); }
       .sidebar.right.open { transform: translateX(0); }
       .project-name { width: 170px; }
@@ -531,7 +561,7 @@
     :fullscreen .app { width: 100vw; height: 100dvh; }
 
     @media (max-width: 700px), (max-height: 520px) and (pointer: coarse) {
-      :root { --topbar: 54px; --leftbar: 0px; --rightbar: 0px; }
+      :root { --topbar: 54px; --leftbar: 0px; --notesbar: 0px; --rightbar: 0px; }
       html, body { height: 100%; height: 100dvh; overscroll-behavior: none; }
       body { position: fixed; inset: 0; width: 100%; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
       .app { height: 100dvh; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); background: #eef2ef; }
@@ -554,6 +584,14 @@
       .sidebar.left.mobile-open { transform: translate3d(0, 0, 0); }
       .sidebar.right { left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important; width: 100%; height: var(--mobile-right-sheet-height, min(84dvh, 720px)); max-height: calc(var(--mobile-vh, 100dvh) - 12px); border-radius: 20px 20px 0 0; transform: translate3d(0, 105%, 0); box-shadow: 0 -18px 50px rgba(20,50,52,.24); padding-bottom: env(safe-area-inset-bottom); }
       .sidebar.right.open { transform: translate3d(0, 0, 0); }
+      .notes-panel { position: fixed !important; z-index: 150 !important; left: 0 !important; right: 0 !important; top: auto !important; bottom: 0 !important; width: 100%; height: var(--mobile-right-sheet-height, min(84dvh, 720px)); max-height: calc(var(--mobile-vh, 100dvh) - 12px); border: 0; border-radius: 20px 20px 0 0; transform: translate3d(0, 105%, 0); transition: transform .24s ease; box-shadow: 0 -18px 50px rgba(20,50,52,.24); padding-bottom: env(safe-area-inset-bottom); }
+      .notes-panel.mobile-open { display: flex !important; transform: translate3d(0, 0, 0); }
+      .notes-head { padding: 14px 16px 11px; }
+      .notes-head::before { content: ''; display: block; width: 38px; height: 4px; margin: -5px auto 10px; border-radius: 3px; background: #cfdad7; }
+      .notes-scroll { padding-bottom: calc(28px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
+      .notes-canvas { min-height: 520px; }
+      .notes-actions .desktop-notes-action { display: none; }
+      .notes-restore { display: none !important; }
       .sidebar .side-head { flex: 0 0 auto; padding: 14px 16px 11px; }
       .sidebar .side-head::before { content: ''; display: block; width: 38px; height: 4px; margin: -5px auto 10px; border-radius: 3px; background: #cfdad7; }
       .side-title { font-size: 15px; }
@@ -590,7 +628,7 @@
       .context-menu { min-width: 190px; }
       .mobile-backdrop { display: block; position: fixed; z-index: 140; inset: 0; opacity: 0; visibility: hidden; background: rgba(18,42,44,.34); backdrop-filter: blur(2px); transition: opacity .2s, visibility .2s; }
       .mobile-backdrop.show { opacity: 1; visibility: visible; }
-      .mobile-dock { position: fixed; z-index: 130; left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; min-height: 58px; padding: 5px; border: 1px solid rgba(190,207,202,.8); border-radius: 16px; background: rgba(255,255,255,.94); box-shadow: 0 14px 38px rgba(20,50,52,.20); backdrop-filter: blur(18px); }
+      .mobile-dock { position: fixed; z-index: 130; left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; min-height: 58px; padding: 5px; border: 1px solid rgba(190,207,202,.8); border-radius: 16px; background: rgba(255,255,255,.94); box-shadow: 0 14px 38px rgba(20,50,52,.20); backdrop-filter: blur(18px); }
       .mobile-dock button { min-width: 0; min-height: 48px; border: 0; border-radius: 11px; background: transparent; color: #617371; font-size: 10px; font-weight: 700; }
       .mobile-dock button::before { content: attr(data-icon); display: block; margin-bottom: 3px; color: var(--brand); font-size: 18px; line-height: 1; }
       .mobile-dock button.active { color: var(--brand); background: var(--brand-soft); }
@@ -729,7 +767,7 @@
           <div class="component-grid" id="businessComponents"></div>
           <div class="section-label"><strong>基础图形</strong><span>Draw style</span></div>
           <div class="component-grid" id="shapeComponents"></div>
-          <div class="section-label"><strong>方案说明</strong><span>自由放置 · 富文本</span></div>
+          <div class="section-label"><strong>方案说明</strong><span>拖入右侧说明区 · 富文本</span></div>
           <div class="component-grid" id="textComponents"></div>
         </div>
         <div class="side-scroll hidden" id="stagingPanel">
@@ -747,6 +785,7 @@
 
       <section class="main-area" id="mainArea">
         <button class="panel-restore" id="panelRestoreBtn" title="展开组件与灵感池" aria-label="展开组件与灵感池">›</button>
+        <button class="notes-restore" id="notesRestoreBtn" title="展开方案说明" aria-label="展开方案说明">‹</button>
         <div class="canvas-toolbar">
           <div class="canvas-badge"><span class="live-dot"></span><strong id="boardStats">0 个运营组件</strong><span>自动吸附已开启</span></div>
           <div class="view-actions">
@@ -763,7 +802,7 @@
         <div class="canvas-viewport" id="canvasViewport">
           <div class="board-scale-shell" id="boardScaleShell">
             <div class="board-transform" id="boardTransform">
-              <div class="board" id="board"><svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg><div class="board-grid" id="boardGrid"></div><div class="free-text-layer" id="freeTextLayer"></div></div>
+              <div class="board" id="board"><svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg><div class="board-grid" id="boardGrid"></div></div>
             </div>
           </div>
         </div>
@@ -775,6 +814,27 @@
           <button class="foot-btn" id="deselectBtn">取消选择</button>
         </div>
       </section>
+
+      <aside class="notes-panel is-empty" id="notesPanel" aria-label="画布外方案说明区">
+        <div class="notes-head">
+          <button class="close-btn mobile-only mobile-drawer-close" id="closeNotesPanelBtn" aria-label="关闭方案说明抽屉">×</button>
+          <div class="notes-kicker">Briefing</div>
+          <div class="notes-title-row"><h2>方案说明</h2><span class="notes-count" id="notesCount">0</span></div>
+          <p class="notes-copy">画布外的辅助说明区，不参与泳道排布、缩放和自动整理。</p>
+          <div class="notes-actions">
+            <button id="addNoteBtn">＋ 新增说明</button>
+            <button class="desktop-notes-action" id="notesNarrowBtn" title="缩小说明区">−</button>
+            <button class="desktop-notes-action" id="notesWideBtn" title="放大说明区">＋</button>
+            <button class="desktop-notes-action" id="notesCollapseBtn">收起</button>
+          </div>
+        </div>
+        <div class="notes-scroll" id="notesScroll">
+          <div class="notes-canvas" id="notesCanvas">
+            <div class="notes-empty">从左侧拖入“辅助说明卡”，或点击上方“新增说明”。<br>这里的内容位于画布外，不会遮挡泳道。</div>
+            <div class="free-text-layer" id="freeTextLayer"></div>
+          </div>
+        </div>
+      </aside>
 
       <aside class="sidebar right" id="rightSidebar">
         <div class="side-head">
@@ -811,12 +871,12 @@
             <div class="field"><label>组件关系</label><div class="connection-list" id="connectionList"></div><div class="field-help">点击画布上方“连接”，再依次点击起点和终点组件。</div></div>
           </div>
           <div class="hidden" id="richTextInspectorFields">
-            <div class="business-title">自由文字说明</div>
+            <div class="business-title">画布外辅助说明</div>
             <div class="rich-text-controls"><button class="rich-text-control" id="richBoldBtn" title="加粗"><strong>B</strong></button><button class="rich-text-control" id="richUnderlineBtn" title="下划线"><u>U</u></button></div>
             <div class="field"><label for="richTextContent">说明文字</label><textarea id="richTextContent" style="min-height:150px" placeholder="输入目标、背景、假设或评审结论……"></textarea></div>
             <div class="field-row"><div class="field"><label for="richFontSize">字号</label><select id="richFontSize"><option value="13">小号</option><option value="16">正文</option><option value="20">强调</option><option value="26">标题</option><option value="32">大标题</option></select></div><div class="field"><label for="richTextAlign">对齐</label><select id="richTextAlign"><option value="left">左对齐</option><option value="center">居中</option><option value="right">右对齐</option></select></div></div>
             <div class="field"><label for="richTextColor">文字颜色</label><input class="rich-text-color" id="richTextColor" type="color" value="#173f40"></div>
-            <div class="field-help">文字容器独立于泳道，可拖到标题区、泳道外空白或画布任意位置；也可直接点击正文编辑。</div>
+            <div class="field-help">辅助说明位于画布外侧，不参与泳道排布、画布缩放或自动整理；可在说明区内拖动、缩放并直接编辑正文。</div>
           </div>
         </div>
       </aside>
@@ -825,6 +885,7 @@
     <nav class="mobile-dock" id="mobileDock" aria-label="手机画布工具栏">
       <button id="mobileLibraryBtn" data-icon="＋">组件</button>
       <button id="mobileStagingBtn" data-icon="◉">胶囊</button>
+      <button id="mobileNotesBtn" data-icon="Aa">说明</button>
       <button id="mobileArrangeBtn" data-icon="≋">整理</button>
       <button id="mobileToolsBtn" data-icon="⋯">工具</button>
       <button id="mobileFitBtn" data-icon="◎">全局</button>
@@ -1004,7 +1065,7 @@
       { type: 'diamond', name: '菱形', className: 'diamond' },
       { type: 'text', name: '文本框', className: 'round' }
     ];
-    const RICH_TEXT_PRESET = { type: 'richText', code: 'Aa', name: '文字说明容器', desc: '支持加粗、下划线、变色、字号和自由放置' };
+    const RICH_TEXT_PRESET = { type: 'richText', code: 'Aa', name: '辅助说明卡', desc: '放在画布外说明区，支持富文本编辑' };
     const FIELD_TEMPLATES = {
       action: [['目标用户', 'targetUser'], ['运营目标', 'goal'], ['触达渠道', 'channel'], ['成功指标', 'metric']],
       activity: [['活动机制', 'mechanism'], ['活动预算', 'budget'], ['活动时间', 'schedule'], ['转化目标', 'conversion']],
@@ -1134,10 +1195,16 @@
       project.snapshots ||= [];
       project.zoom ||= 1;
       project.grid ??= true;
-      project.freeTexts.forEach(note => {
+      project.freeTexts.forEach((note, index) => {
         note.type = 'richText'; note.content ||= ''; note.width ||= 300; note.height ||= 150;
         note.color ||= '#173f40'; note.fontSize = Number(note.fontSize || 16); note.align ||= 'left';
         note.bold = !!note.bold; note.underline = !!note.underline;
+        if (note.surface !== 'notes') {
+          note.surface = 'notes';
+          note.x = 12;
+          note.y = 12 + index * 174;
+          note.width = Math.min(Number(note.width || 300), 300);
+        }
       });
       [...project.nodes, ...project.staging].forEach(node => {
         node.width ||= (node.type === 'circle' || node.type === 'diamond' ? 104 : 156);
@@ -1188,6 +1255,7 @@
     let fullscreenViewState = null;
     let fullscreenCenterPending = false;
     let sidebarResizeState = null;
+    let activePaletteDragType = null;
     let freeTextDragState = null;
     let freeTextResizeState = null;
     let activeSidebarTab = 'components';
@@ -1197,9 +1265,9 @@
 
     function loadLayoutPrefs() {
       try {
-        return { componentWidth: 286, stagingWidth: 320, collapsed: false, clean: false, mobileExpanded: false, ...JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}') };
+        return { componentWidth: 286, stagingWidth: 320, notesWidth: 340, collapsed: false, notesCollapsed: false, clean: false, mobileExpanded: false, ...JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}') };
       } catch {
-        return { componentWidth: 286, stagingWidth: 320, collapsed: false, clean: false, mobileExpanded: false };
+        return { componentWidth: 286, stagingWidth: 320, notesWidth: 340, collapsed: false, notesCollapsed: false, clean: false, mobileExpanded: false };
       }
     }
 
@@ -1212,6 +1280,11 @@
       return Math.max(220, Math.min(max, Math.round(Number(value) || 286)));
     }
 
+    function notesWidthLimit(value) {
+      const max = Math.max(300, Math.min(560, Math.round(innerWidth * .42)));
+      return Math.max(280, Math.min(max, Math.round(Number(value) || 340)));
+    }
+
     function currentSidebarWidth() {
       return sidebarWidthLimit(activeSidebarTab === 'staging' ? layoutPrefs.stagingWidth : layoutPrefs.componentWidth);
     }
@@ -1220,8 +1293,12 @@
       const workspace = $('.workspace');
       if (!workspace) return;
       const mobile = isMobileLayout();
-      if (!mobile) document.documentElement.style.setProperty('--leftbar', `${currentSidebarWidth()}px`);
+      if (!mobile) {
+        document.documentElement.style.setProperty('--leftbar', `${currentSidebarWidth()}px`);
+        document.documentElement.style.setProperty('--notesbar', `${notesWidthLimit(layoutPrefs.notesWidth)}px`);
+      }
       workspace.classList.toggle('sidebar-collapsed', !mobile && !!layoutPrefs.collapsed && !layoutPrefs.clean);
+      workspace.classList.toggle('notes-collapsed', !mobile && !!layoutPrefs.notesCollapsed && !layoutPrefs.clean);
       workspace.classList.toggle('clean-canvas', !mobile && !!layoutPrefs.clean);
       $('#appRoot')?.classList.toggle('clean-canvas-mode', !mobile && !!layoutPrefs.clean);
       $('.sidebar.left')?.classList.toggle('mobile-expanded', mobile && !!layoutPrefs.mobileExpanded);
@@ -1229,6 +1306,33 @@
       if (mobileSizeButton) mobileSizeButton.textContent = layoutPrefs.mobileExpanded ? '半屏' : '展开';
       const collapseButton = $('#sidebarCollapseBtn');
       if (collapseButton) collapseButton.textContent = layoutPrefs.collapsed ? '展开' : '收起';
+      const notesCollapseButton = $('#notesCollapseBtn');
+      if (notesCollapseButton) notesCollapseButton.textContent = layoutPrefs.notesCollapsed ? '展开' : '收起';
+    }
+
+    function setNotesWidth(value) {
+      layoutPrefs.notesWidth = notesWidthLimit(value);
+      layoutPrefs.notesCollapsed = false;
+      layoutPrefs.clean = false;
+      saveLayoutPrefs(); applyLayoutPrefs();
+      requestAnimationFrame(renderFreeTexts);
+    }
+
+    function toggleNotesCollapsed() {
+      if (isMobileLayout()) return closeMobileDrawers();
+      layoutPrefs.clean = false;
+      layoutPrefs.notesCollapsed = !layoutPrefs.notesCollapsed;
+      saveLayoutPrefs(); applyLayoutPrefs();
+      requestAnimationFrame(() => { applyZoom(); renderEdges(); });
+    }
+
+    function restoreNotesPanel() {
+      if (isMobileLayout()) return openMobileDrawer('notes');
+      layoutPrefs.notesCollapsed = false;
+      layoutPrefs.clean = false;
+      saveLayoutPrefs(); applyLayoutPrefs();
+      requestAnimationFrame(() => { renderFreeTexts(); applyZoom(); renderEdges(); });
+      toast('已展开画布外方案说明');
     }
 
     function setSidebarWidth(value) {
@@ -1648,8 +1752,13 @@ using ((select auth.uid()) = user_id);`;
       $('#textComponents').innerHTML = `<div class="palette-item rich-text-palette" draggable="true" data-create-type="richText"><div class="palette-icon">Aa</div><div class="palette-name">${RICH_TEXT_PRESET.name}</div><div class="palette-desc">${RICH_TEXT_PRESET.desc}</div></div>`;
       $$('[data-create-type]').forEach(item => {
         item.addEventListener('dragstart', event => {
+          activePaletteDragType = item.dataset.createType;
           event.dataTransfer.setData('text/plain', JSON.stringify({ source: 'palette', type: item.dataset.createType }));
           event.dataTransfer.effectAllowed = 'copy';
+        });
+        item.addEventListener('dragend', () => {
+          activePaletteDragType = null;
+          $('#notesCanvas')?.classList.remove('drag-over');
         });
         bindMobileSource(item, { source: 'palette', type: item.dataset.createType }, typeName(item.dataset.createType));
       });
@@ -1664,7 +1773,7 @@ using ((select auth.uid()) = user_id);`;
       currentProject = normalizeProject(currentProject);
       $('#projectName').value = currentProject.name;
       currentProject.zoom = Number(currentProject.zoom || 1);
-      renderBoard(); renderStaging(); renderInspector(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
+      renderBoard(); renderFreeTexts(); renderStaging(); renderInspector(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
       if (document.fullscreenElement || $('#appRoot').classList.contains('pseudo-fullscreen')) requestAnimationFrame(centerCanvasInViewport);
     }
 
@@ -1691,9 +1800,7 @@ using ((select auth.uid()) = user_id);`;
       });
       grid.innerHTML = html;
       const gridHeight = 56 + laneHeights.reduce((sum, value) => sum + parseFloat(value), 0);
-      const freeTextBottom = Math.max(0, ...currentProject.freeTexts.map(note => Number(note.y || 0) + Number(note.height || 150) + 24));
-      $('#board').style.minHeight = `${Math.max(gridHeight, freeTextBottom)}px`;
-      renderFreeTexts();
+      $('#board').style.minHeight = `${gridHeight}px`;
       bindBoardEvents();
       requestAnimationFrame(renderEdges);
     }
@@ -1720,27 +1827,47 @@ using ((select auth.uid()) = user_id);`;
     function findFreeText(id) { return currentProject.freeTexts.find(item => item.id === id); }
 
     function renderFreeTexts() {
-      const layer = $('#freeTextLayer');
-      if (!layer) return;
-      layer.innerHTML = currentProject.freeTexts.map(note => `<article class="rich-text-note ${selectedId === note.id ? 'selected' : ''}" data-free-text-id="${note.id}" style="left:${note.x}px;top:${note.y}px;width:${note.width}px;height:${note.height}px;--text-color:${note.color}"><div class="rich-text-handle" title="拖动文字说明"><span>NOTE</span></div><div class="rich-text-content" contenteditable="true" spellcheck="false" style="font-size:${note.fontSize}px;font-weight:${note.bold ? 800 : 400};text-decoration:${note.underline ? 'underline' : 'none'};text-align:${note.align};color:${note.color}">${escapeHtml(note.content || '').replace(/\n/g, '<br>')}</div><span class="rich-text-resize" title="调整文字容器大小"></span></article>`).join('');
+      const layer = $('#freeTextLayer'); const canvas = $('#notesCanvas'); const panel = $('#notesPanel');
+      if (!layer || !canvas || !panel) return;
+      const availableWidth = Math.max(180, canvas.clientWidth - 24);
+      currentProject.freeTexts.forEach(note => {
+        note.surface = 'notes';
+        note.width = Math.max(180, Math.min(Number(note.width || 300), availableWidth));
+        const position = clampFreeText(note, Number(note.x || 12), Number(note.y || 12));
+        note.x = position.x; note.y = position.y;
+      });
+      const bottom = Math.max(0, ...currentProject.freeTexts.map(note => Number(note.y || 0) + Number(note.height || 150) + 24));
+      canvas.style.minHeight = `${Math.max(420, bottom)}px`;
+      panel.classList.toggle('is-empty', currentProject.freeTexts.length === 0);
+      $('#notesCount').textContent = String(currentProject.freeTexts.length);
+      layer.innerHTML = currentProject.freeTexts.map(note => `<article class="rich-text-note ${selectedId === note.id ? 'selected' : ''}" data-free-text-id="${note.id}" style="left:${note.x}px;top:${note.y}px;width:${note.width}px;height:${note.height}px;--text-color:${note.color}"><div class="rich-text-handle" title="在方案说明区内拖动"><span>NOTE</span></div><div class="rich-text-content" contenteditable="true" spellcheck="false" style="font-size:${note.fontSize}px;font-weight:${note.bold ? 800 : 400};text-decoration:${note.underline ? 'underline' : 'none'};text-align:${note.align};color:${note.color}">${escapeHtml(note.content || '').replace(/\n/g, '<br>')}</div><span class="rich-text-resize" title="调整说明卡大小"></span></article>`).join('');
       bindFreeTextEvents();
     }
 
     function clampFreeText(note, x, y) {
-      const board = $('#board');
+      const canvas = $('#notesCanvas');
       const width = Number(note.width || 300); const height = Number(note.height || 150);
+      const canvasWidth = Math.max(width + 24, canvas?.clientWidth || width + 24);
+      const canvasHeight = Math.max(height + 24, canvas?.scrollHeight || height + 24, Number(y || 0) + height + 24);
       return {
-        x: Math.max(0, Math.min(Math.max(0, board.offsetWidth - width), x)),
-        y: Math.max(0, Math.min(Math.max(0, board.offsetHeight - height), y))
+        x: Math.max(12, Math.min(Math.max(12, canvasWidth - width - 12), Number(x) || 12)),
+        y: Math.max(12, Math.min(Math.max(12, canvasHeight - height - 12), Number(y) || 12))
       };
     }
 
-    function createFreeTextAtClient(clientX, clientY) {
-      const board = $('#board'); const rect = board.getBoundingClientRect(); const scale = currentProject.zoom || 1;
-      const note = makeRichText();
-      const position = clampFreeText(note, snap((clientX - rect.left) / scale - note.width / 2), snap((clientY - rect.top) / scale - 24));
+    function createFreeTextAtClient(clientX = null, clientY = null) {
+      const canvas = $('#notesCanvas'); const rect = canvas?.getBoundingClientRect();
+      const note = makeRichText(); note.surface = 'notes';
+      const fallbackY = Math.max(12, ...currentProject.freeTexts.map(item => Number(item.y || 0) + Number(item.height || 150) + 18));
+      const desiredX = rect && clientX != null ? clientX - rect.left - note.width / 2 : 12;
+      const desiredY = rect && clientY != null ? clientY - rect.top - 24 : fallbackY;
+      const position = clampFreeText(note, snap(desiredX), snap(desiredY));
       Object.assign(note, position); checkpoint(); currentProject.freeTexts.push(note); selectedId = note.id; selectedIds.clear();
-      cancelMobilePlacement(); renderAll(); persist(); selectNode(note.id, false, !isMobileLayout()); toast('文字说明已放到画布，可直接编辑');
+      cancelMobilePlacement(); renderAll(); persist();
+      if (isMobileLayout()) openMobileDrawer('notes');
+      else { layoutPrefs.notesCollapsed = false; saveLayoutPrefs(); applyLayoutPrefs(); selectNode(note.id, false, false); }
+      requestAnimationFrame(() => $('#notesScroll')?.scrollTo({ top: Math.max(0, note.y - 20), behavior: 'smooth' }));
+      toast('辅助说明已添加到画布外说明区');
       return note;
     }
 
@@ -1776,8 +1903,7 @@ using ((select auth.uid()) = user_id);`;
     function moveFreeTextDrag(event) {
       if (!freeTextDragState) return;
       const note = findFreeText(freeTextDragState.id); if (!note) return;
-      const scale = currentProject.zoom || 1;
-      const position = clampFreeText(note, snap(freeTextDragState.x + (event.clientX - freeTextDragState.startX) / scale), snap(freeTextDragState.y + (event.clientY - freeTextDragState.startY) / scale));
+      const position = clampFreeText(note, snap(freeTextDragState.x + event.clientX - freeTextDragState.startX), snap(freeTextDragState.y + event.clientY - freeTextDragState.startY));
       freeTextDragState.preview = position;
       freeTextDragState.element.style.left = `${position.x}px`; freeTextDragState.element.style.top = `${position.y}px`;
     }
@@ -1807,9 +1933,9 @@ using ((select auth.uid()) = user_id);`;
 
     function moveFreeTextResize(event) {
       if (!freeTextResizeState) return;
-      const scale = currentProject.zoom || 1;
-      const width = Math.max(180, Math.min(540, snap(freeTextResizeState.width + (event.clientX - freeTextResizeState.startX) / scale)));
-      const height = Math.max(88, Math.min(460, snap(freeTextResizeState.height + (event.clientY - freeTextResizeState.startY) / scale)));
+      const canvasWidth = Math.max(180, ($('#notesCanvas')?.clientWidth || 320) - 24);
+      const width = Math.max(180, Math.min(canvasWidth, snap(freeTextResizeState.width + event.clientX - freeTextResizeState.startX)));
+      const height = Math.max(88, Math.min(460, snap(freeTextResizeState.height + event.clientY - freeTextResizeState.startY)));
       freeTextResizeState.preview = { width, height };
       freeTextResizeState.element.style.width = `${width}px`; freeTextResizeState.element.style.height = `${height}px`;
     }
@@ -1905,22 +2031,25 @@ using ((select auth.uid()) = user_id);`;
     function openMobileDrawer(kind, tab = 'components') {
       if (!isMobileLayout()) return;
       clearTransientCanvasUI(); closeMenus(); syncMobileViewportHeight(); updateOrientationUI(false);
-      const left = $('.sidebar.left'); const right = $('#rightSidebar');
-      left.removeAttribute('style'); right.removeAttribute('style');
+      const left = $('.sidebar.left'); const right = $('#rightSidebar'); const notes = $('#notesPanel');
+      left.removeAttribute('style'); right.removeAttribute('style'); notes.removeAttribute('style');
+      left.classList.remove('mobile-open'); right.classList.remove('open'); notes.classList.remove('mobile-open');
       if (kind === 'left') {
-        switchTab(tab); left.classList.add('mobile-open'); right.classList.remove('open');
+        switchTab(tab); left.classList.add('mobile-open');
+      } else if (kind === 'notes') {
+        notes.classList.add('mobile-open');
       } else {
-        left.classList.remove('mobile-open'); right.classList.add('open');
+        right.classList.add('open');
       }
       resetMobileDrawerScroll(kind, tab);
       $('#mobileBackdrop').classList.add('show');
-      updateMobileDock(kind === 'left' ? tab : 'details');
+      updateMobileDock(kind === 'left' ? tab : kind === 'notes' ? 'notes' : 'details');
     }
 
     function closeMobileDrawers(clearDock = true) {
-      const left = $('.sidebar.left'); const right = $('#rightSidebar');
-      left.classList.remove('mobile-open'); right.classList.remove('open');
-      left.removeAttribute('style'); right.removeAttribute('style');
+      const left = $('.sidebar.left'); const right = $('#rightSidebar'); const notes = $('#notesPanel');
+      left.classList.remove('mobile-open'); right.classList.remove('open'); notes.classList.remove('mobile-open');
+      left.removeAttribute('style'); right.removeAttribute('style'); notes.removeAttribute('style');
       $('#mobileBackdrop').classList.remove('show');
       clearTransientCanvasUI();
       if (clearDock) updateMobileDock('');
@@ -1933,15 +2062,20 @@ using ((select auth.uid()) = user_id);`;
     }
 
     function updateMobileDock(active) {
-      const map = { components: '#mobileLibraryBtn', staging: '#mobileStagingBtn', tools: '#mobileToolsBtn', fullscreen: '#mobileFullscreenBtn' };
+      const map = { components: '#mobileLibraryBtn', staging: '#mobileStagingBtn', notes: '#mobileNotesBtn', tools: '#mobileToolsBtn', fullscreen: '#mobileFullscreenBtn' };
       $$('#mobileDock button').forEach(button => button.classList.toggle('active', map[active] === `#${button.id}`));
     }
 
     function beginMobilePlacement(payload, label = '组件') {
+      if (payload?.source === 'palette' && payload.type === 'richText') {
+        closeMobileDrawers(); closeModal('mobileToolsModal');
+        createFreeTextAtClient();
+        return;
+      }
       mobilePlacementPayload = payload;
       closeMobileDrawers(); closeModal('mobileToolsModal');
       document.body.classList.add('mobile-placement-mode');
-      toast(payload?.type === 'richText' ? `点击画布任意位置，放置“${label}”` : `请选择目标阶段，放入“${label}”`);
+      toast(`请选择目标阶段，放入“${label}”`);
     }
 
     function cancelMobilePlacement(message = '') {
@@ -1952,12 +2086,7 @@ using ((select auth.uid()) = user_id);`;
     }
 
     function placeMobilePayload(payload, region, clientX = null, clientY = null) {
-      if (!payload || !region) return;
-      if (payload.source === 'palette' && payload.type === 'richText') {
-        const rect = region.getBoundingClientRect();
-        createFreeTextAtClient(clientX ?? rect.left + rect.width / 2, clientY ?? rect.top + 72);
-        return;
-      }
+      if (!payload || !region || payload.type === 'richText') return;
       const rect = region.getBoundingClientRect(); const scale = currentProject.zoom || 1;
       const regionNodes = currentProject.nodes.filter(node => node.stageId === region.dataset.stageId && node.laneId === region.dataset.laneId);
       const fallbackY = REGION_CONTENT_TOP + regionNodes.reduce((bottom, node) => Math.max(bottom, Number(node.y || REGION_CONTENT_TOP) + Number(node.height || 82) + 12), 0);
@@ -1992,7 +2121,8 @@ using ((select auth.uid()) = user_id);`;
       };
       const onUp = event => {
         clearTimeout(timer);
-        if (active) finishMobileSourceDrag(event); else if (!moved) beginMobilePlacement(payload, label);
+        if (active) finishMobileSourceDrag(event);
+        else if (!moved) { suppressNodeClickUntil = Date.now() + 480; beginMobilePlacement(payload, label); }
         cleanup(); active = false;
       };
       const onCancel = () => { clearTimeout(timer); if (active) finishMobileSourceDrag(null, true); cleanup(); active = false; };
@@ -2014,22 +2144,28 @@ using ((select auth.uid()) = user_id);`;
       mobileSourceDrag.ghost.style.left = `${event.clientX}px`; mobileSourceDrag.ghost.style.top = `${event.clientY}px`;
       mobileSourceDrag.ghost.style.visibility = 'hidden';
       const target = document.elementFromPoint(event.clientX, event.clientY);
-      const region = target?.closest('.region'); const board = target?.closest('#board');
+      const region = target?.closest('.region'); const notesCanvas = target?.closest('#notesCanvas');
       mobileSourceDrag.ghost.style.visibility = '';
       $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
-      if (region && mobileSourceDrag.payload?.type !== 'richText') region.classList.add('mobile-drag-over');
-      mobileSourceDrag.overBoard = !!board;
+      $('#notesCanvas')?.classList.remove('drag-over');
+      if (mobileSourceDrag.payload?.type === 'richText') notesCanvas?.classList.add('drag-over');
+      else if (region) region.classList.add('mobile-drag-over');
     }
 
     function finishMobileSourceDrag(event, cancelled = false) {
       if (!mobileSourceDrag) return;
       const state = mobileSourceDrag; state.ghost.style.visibility = 'hidden';
       const target = !cancelled && event ? document.elementFromPoint(event.clientX, event.clientY) : null;
-      const region = target?.closest('.region'); const board = target?.closest('#board');
-      state.ghost.remove(); mobileSourceDrag = null; $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
-      if (state.payload?.type === 'richText' && board) createFreeTextAtClient(event.clientX, event.clientY);
-      else if (region) placeMobilePayload(state.payload, region, event.clientX, event.clientY);
-      else if (!cancelled) { toast(state.payload?.type === 'richText' ? '未放到画布，可再次选择文字说明' : '未放入阶段，可再次选择组件'); openMobileDrawer('left', state.payload.source === 'staging' ? 'staging' : 'components'); }
+      const region = target?.closest('.region'); const notesCanvas = target?.closest('#notesCanvas');
+      state.ghost.remove(); mobileSourceDrag = null;
+      $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
+      $('#notesCanvas')?.classList.remove('drag-over');
+      if (state.payload?.type === 'richText' && notesCanvas) createFreeTextAtClient(event.clientX, event.clientY);
+      else if (state.payload?.type !== 'richText' && region) placeMobilePayload(state.payload, region, event.clientX, event.clientY);
+      else if (!cancelled) {
+        toast(state.payload?.type === 'richText' ? '辅助说明只能放入画布外说明区' : '未放入阶段，可再次选择组件');
+        openMobileDrawer('left', state.payload.source === 'staging' ? 'staging' : 'components');
+      }
     }
 
     function toggleMobileMultiSelect() {
@@ -2216,20 +2352,24 @@ using ((select auth.uid()) = user_id);`;
       try { return JSON.parse(event.dataTransfer.getData('text/plain')); } catch { return null; }
     }
 
-    function handleBoardDrop(event) {
+    function handleNotesDrop(event) {
       const payload = readDragPayload(event);
       if (!payload || payload.source !== 'palette' || payload.type !== 'richText') return;
       event.preventDefault(); event.stopPropagation();
+      $('#notesCanvas')?.classList.remove('drag-over');
       createFreeTextAtClient(event.clientX, event.clientY);
     }
 
     function bindBoardEvents() {
       $$('.region').forEach(region => {
-        region.addEventListener('dragover', event => { event.preventDefault(); region.classList.add('drag-over'); });
+        region.addEventListener('dragover', event => {
+          if (activePaletteDragType === 'richText') return;
+          event.preventDefault(); region.classList.add('drag-over');
+        });
         region.addEventListener('dragleave', () => region.classList.remove('drag-over'));
         region.addEventListener('drop', handleDrop);
         region.addEventListener('click', event => {
-          if (!mobilePlacementPayload || event.target.closest('.canvas-node,.rich-text-note')) return;
+          if (!mobilePlacementPayload || event.target.closest('.canvas-node')) return;
           event.stopPropagation(); placeMobilePayload(mobilePlacementPayload, region, event.clientX, event.clientY);
         });
       });
@@ -2242,12 +2382,9 @@ using ((select auth.uid()) = user_id);`;
         if (handle) handle.addEventListener('pointerdown', startNodeResize);
       });
       const board = $('#board');
-      board.ondragover = event => { const payload = readDragPayload(event); if (payload?.source === 'palette' && payload.type === 'richText') event.preventDefault(); };
-      board.ondrop = handleBoardDrop;
-      board.onclick = event => {
-        if (!mobilePlacementPayload || mobilePlacementPayload.type !== 'richText' || event.target.closest('.canvas-node,.rich-text-note')) return;
-        event.stopPropagation(); createFreeTextAtClient(event.clientX, event.clientY);
-      };
+      board.ondragover = null;
+      board.ondrop = null;
+      board.onclick = null;
       board.onpointerdown = startSelectionBox;
     }
 
@@ -2258,7 +2395,8 @@ using ((select auth.uid()) = user_id);`;
       const payload = readDragPayload(event);
       if (!payload) return;
       if (payload.source === 'palette' && payload.type === 'richText') {
-        event.stopPropagation(); createFreeTextAtClient(event.clientX, event.clientY); return;
+        toast('辅助说明只能放入画布外说明区');
+        return;
       }
       const rect = region.getBoundingClientRect();
       const scale = currentProject.zoom || 1;
@@ -3145,6 +3283,22 @@ using ((select auth.uid()) = user_id);`;
       $('#cleanCanvasBtn').onclick = () => toggleCleanCanvas(false);
       $('#panelRestoreBtn').onclick = restoreSidebarPanels;
       $('#sidebarResizer').addEventListener('pointerdown', startSidebarResize);
+      $('#addNoteBtn').onclick = () => createFreeTextAtClient();
+      $('#notesNarrowBtn').onclick = () => setNotesWidth(layoutPrefs.notesWidth - 40);
+      $('#notesWideBtn').onclick = () => setNotesWidth(layoutPrefs.notesWidth + 40);
+      $('#notesCollapseBtn').onclick = toggleNotesCollapsed;
+      $('#notesRestoreBtn').onclick = restoreNotesPanel;
+      $('#closeNotesPanelBtn').onclick = () => closeMobileDrawers();
+      const notesCanvas = $('#notesCanvas');
+      notesCanvas.addEventListener('dragover', event => {
+        if (activePaletteDragType !== 'richText') return;
+        event.preventDefault();
+        notesCanvas.classList.add('drag-over');
+      });
+      notesCanvas.addEventListener('dragleave', event => {
+        if (!notesCanvas.contains(event.relatedTarget)) notesCanvas.classList.remove('drag-over');
+      });
+      notesCanvas.addEventListener('drop', handleNotesDrop);
       $('#mobilePanelSizeBtn').onclick = () => { layoutPrefs.mobileExpanded = !layoutPrefs.mobileExpanded; saveLayoutPrefs(); applyLayoutPrefs(); syncMobileViewportHeight(); };
       $('#exportBtn').onclick = event => {
         const menu = $('#exportMenu'); const rect = event.currentTarget.getBoundingClientRect();
@@ -3164,6 +3318,7 @@ using ((select auth.uid()) = user_id);`;
       $('#mobileExitBtn').onclick = requestCanvasExit;
       $('#mobileLibraryBtn').onclick = () => openMobileDrawer('left', 'components');
       $('#mobileStagingBtn').onclick = () => openMobileDrawer('left', 'staging');
+      $('#mobileNotesBtn').onclick = () => openMobileDrawer('notes');
       $('#mobileArrangeBtn').onclick = () => { clearTransientCanvasUI(); autoArrange(); updateMobileDock(''); };
       $('#mobileToolsBtn').onclick = () => { clearTransientCanvasUI(); updateMobileDock('tools'); openModal('mobileToolsModal'); };
       $('#mobileFitBtn').onclick = fitView;
