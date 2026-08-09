@@ -78,6 +78,24 @@
     }
     .project-name:focus { border-color: rgba(255,255,255,.48); background: rgba(255,255,255,.13); }
     .save-state { min-width: 62px; color: rgba(255,255,255,.65); font-size: 12px; }
+    .cloud-state {
+      min-width: 72px; padding: 4px 8px; border-radius: 999px;
+      color: rgba(255,255,255,.78); background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.13); font-size: 12px; text-align: center;
+    }
+    .cloud-state.online { color: #164448; background: #e8fff7; border-color: rgba(255,255,255,.4); font-weight: 700; }
+    .cloud-state.syncing { color: #fff; background: rgba(217,139,43,.38); }
+    .cloud-state.error { color: #fff; background: rgba(185,74,69,.55); }
+    .cloud-panel { display: grid; gap: 16px; }
+    .cloud-card { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: var(--shadow-soft); }
+    .cloud-card h3 { margin: 0 0 6px; font-size: 15px; color: var(--brand-2); }
+    .cloud-card p { margin: 0 0 12px; color: var(--muted); line-height: 1.7; }
+    .cloud-status-box { padding: 10px 12px; border-radius: 12px; background: #f5f8f7; border: 1px solid var(--line); color: var(--muted); line-height: 1.6; }
+    .cloud-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .cloud-actions button { height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+    .cloud-actions button.primary { color: #fff; border-color: var(--brand); background: var(--brand); font-weight: 700; }
+    .cloud-actions button.danger { color: var(--danger); border-color: #efc7c2; }
+    .cloud-sql { width: 100%; min-height: 140px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #f8faf9; color: #435155; font-family: Consolas, Monaco, monospace; font-size: 12px; white-space: pre; overflow: auto; }
     .top-spacer { flex: 1; }
     .tool-cluster { display: flex; align-items: center; gap: 5px; }
     .top-btn {
@@ -626,6 +644,8 @@
         <button class="top-btn" id="newProjectBtn" title="新建画布">新建</button>
         <button class="top-btn" id="openProjectsBtn" title="打开方案">方案</button>
         <button class="top-btn primary" id="saveBtn" title="立即保存">保存</button>
+        <button class="top-btn" id="cloudBtn" title="云端保存与同步">云端</button>
+        <span id="cloudState" class="cloud-state">本地</span>
       </div>
       <div class="divider"></div>
       <div class="tool-cluster">
@@ -813,6 +833,39 @@
     </div>
   </div>
 
+  <div id="cloudModal" class="modal-backdrop hidden">
+    <div class="modal wide">
+      <div class="modal-head"><div><h2>云端保存</h2><p>本地优先保存；配置 Supabase 并登录后，可把方案同步到云端。</p></div><button class="close-btn" data-close="cloudModal">×</button></div>
+      <div class="modal-body cloud-panel">
+        <div class="cloud-status-box" id="cloudStatusBox">当前为本地模式。请先配置 Supabase Project URL 和 Publishable Key。</div>
+        <div class="cloud-card">
+          <h3>1. Supabase 项目配置</h3>
+          <p>创建 Supabase 免费项目后，在 Connect 或 Settings → API Keys 中复制 Project URL 和 Publishable Key。Publishable Key 可用于前端，但必须配合下方 RLS 权限；不要填写 Secret Key 或 service_role。</p>
+          <div class="field-row"><div class="field"><label for="cloudUrl">Supabase Project URL</label><input id="cloudUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="cloudAnonKey">Publishable Key（兼容旧 anon key）</label><input id="cloudAnonKey" placeholder="sb_publishable_..."></div></div>
+          <div class="cloud-actions"><button class="primary" id="saveCloudConfigBtn">保存配置</button><button id="testCloudConfigBtn">测试连接</button><button class="danger" id="clearCloudConfigBtn">清除配置</button></div>
+        </div>
+        <div class="cloud-card">
+          <h3>2. 账号登录</h3>
+          <p>每个用户登录后只同步自己的方案。若 Supabase 开启邮箱验证，注册后需要先去邮箱确认。</p>
+          <div class="field-row"><div class="field"><label for="cloudEmail">邮箱</label><input id="cloudEmail" type="email" placeholder="name@example.com"></div><div class="field"><label for="cloudPassword">密码</label><input id="cloudPassword" type="password" placeholder="至少 6 位"></div></div>
+          <div class="cloud-actions"><button class="primary" id="cloudLoginBtn">登录</button><button id="cloudSignupBtn">注册</button><button class="danger" id="cloudLogoutBtn">退出登录</button></div>
+        </div>
+        <div class="cloud-card">
+          <h3>3. 方案同步</h3>
+          <p>“同步”会先上传本地方案，再按更新时间合并云端方案；不影响 JSON 导入导出。建议上线前先导出 JSON 做一次备份。</p>
+          <div class="cloud-actions"><button class="primary" id="cloudSyncBtn">同步本地与云端</button><button id="cloudPushBtn">上传当前本地方案</button><button id="cloudPullBtn">拉取云端方案</button></div>
+        </div>
+        <div class="cloud-card">
+          <h3>4. Supabase 数据表 SQL</h3>
+          <p>在 Supabase SQL Editor 运行一次下面 SQL，才能启用用户隔离的云端保存。</p>
+          <textarea class="cloud-sql" id="cloudSql" readonly></textarea>
+          <div class="cloud-actions"><button id="copyCloudSqlBtn">复制 SQL</button></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="modal-btn" data-close="cloudModal">关闭</button></div>
+    </div>
+  </div>
+
   <div id="batchNoteModal" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-head"><div><h2>批量生成灵感胶囊</h2><p>每一行会创建一枚只显示标题的灵感胶囊。</p></div><button class="close-btn" data-close="batchNoteModal">×</button></div>
@@ -856,6 +909,8 @@
     const STORAGE_KEY = 'operationCanvas.projects.v1';
     const CURRENT_KEY = 'operationCanvas.current.v1';
     const LAYOUT_KEY = 'operationCanvas.layout.v1';
+    const CLOUD_CONFIG_KEY = 'operationCanvas.cloud.config.v1';
+    const CLOUD_SESSION_KEY = 'operationCanvas.cloud.session.v1';
     const GRID = 12;
     const REGION_CONTENT_TOP = 52;
     const SNAP_THRESHOLD = 10;
@@ -1024,6 +1079,9 @@
     let undoStack = [];
     let redoStack = [];
     let saveTimer = null;
+    let cloudSaveTimer = null;
+    let cloudConfig = loadCloudConfig();
+    let cloudSession = loadCloudSession();
     let dragState = null;
     let resizeState = null;
     let selectionState = null;
@@ -1146,6 +1204,174 @@
       sidebarResizeState = null; saveLayoutPrefs(); applyLayoutPrefs();
     }
 
+    const CLOUD_SQL = `create table if not exists public.operation_canvas_projects (
+  id text not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  data jsonb not null,
+  updated_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  primary key (user_id, id)
+);
+
+alter table public.operation_canvas_projects enable row level security;
+
+create index if not exists operation_canvas_projects_user_id_idx
+on public.operation_canvas_projects (user_id);
+
+drop policy if exists "operation_canvas_select_own" on public.operation_canvas_projects;
+drop policy if exists "operation_canvas_insert_own" on public.operation_canvas_projects;
+drop policy if exists "operation_canvas_update_own" on public.operation_canvas_projects;
+drop policy if exists "operation_canvas_delete_own" on public.operation_canvas_projects;
+
+create policy "operation_canvas_select_own" on public.operation_canvas_projects
+for select to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "operation_canvas_insert_own" on public.operation_canvas_projects
+for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "operation_canvas_update_own" on public.operation_canvas_projects
+for update to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+create policy "operation_canvas_delete_own" on public.operation_canvas_projects
+for delete to authenticated
+using ((select auth.uid()) = user_id);`;
+
+    function loadCloudConfig() {
+      try { return JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}'); } catch { return {}; }
+    }
+    function saveCloudConfig() { localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cloudConfig || {})); }
+    function loadCloudSession() {
+      try { return JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY) || 'null'); } catch { return null; }
+    }
+    function saveCloudSession() {
+      if (cloudSession?.access_token) localStorage.setItem(CLOUD_SESSION_KEY, JSON.stringify(cloudSession));
+      else localStorage.removeItem(CLOUD_SESSION_KEY);
+    }
+    function cloudConfigured() { return !!(cloudConfig?.url && cloudConfig?.anonKey); }
+    function cloudBaseUrl() { return String(cloudConfig.url || '').replace(/\/+$/, ''); }
+    function cloudLoggedIn() { return cloudConfigured() && !!cloudSession?.access_token && !!(cloudSession.user?.id); }
+    function updateCloudStatus(message = '') {
+      const state = $('#cloudState'); const box = $('#cloudStatusBox');
+      let label = '本地'; let cls = 'cloud-state';
+      if (cloudLoggedIn()) { label = '云端'; cls += ' online'; }
+      else if (cloudConfigured()) { label = '待登录'; }
+      if (message?.includes('同步') || message?.includes('上传') || message?.includes('拉取')) cls += ' syncing';
+      if (message?.includes('失败') || message?.includes('错误')) cls += ' error';
+      if (state) { state.textContent = label; state.className = cls; }
+      const user = cloudSession?.user?.email || '';
+      if (box) box.textContent = message || (cloudLoggedIn() ? `已登录：${user}。本地修改会自动排队同步。` : cloudConfigured() ? '已保存云端配置，请登录后同步。' : '当前为本地模式。请先配置 Supabase Project URL 和 Publishable Key。');
+    }
+    function initCloudUi() {
+      if ($('#cloudSql')) $('#cloudSql').value = CLOUD_SQL;
+      if ($('#cloudUrl')) $('#cloudUrl').value = cloudConfig.url || '';
+      if ($('#cloudAnonKey')) $('#cloudAnonKey').value = cloudConfig.anonKey || '';
+      updateCloudStatus();
+    }
+    async function cloudFetch(path, options = {}) {
+      if (!cloudConfigured()) throw new Error('请先配置 Supabase Project URL 和 Publishable Key');
+      const headers = { apikey: cloudConfig.anonKey, 'Content-Type': 'application/json', ...(options.headers || {}) };
+      if (options.auth !== false && cloudSession?.access_token) headers.Authorization = `Bearer ${cloudSession.access_token}`;
+      const response = await fetch(`${cloudBaseUrl()}${path}`, { ...options, headers });
+      const text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+      if (!response.ok) throw new Error((data && (data.msg || data.message || data.error_description || data.error)) || `HTTP ${response.status}`);
+      return data;
+    }
+    async function refreshCloudSessionIfNeeded() {
+      if (!cloudSession?.refresh_token || !cloudSession?.expires_at) return cloudSession;
+      if (Date.now() < (Number(cloudSession.expires_at) * 1000 - 60000)) return cloudSession;
+      const data = await cloudFetch('/auth/v1/token?grant_type=refresh_token', { method: 'POST', auth: false, body: JSON.stringify({ refresh_token: cloudSession.refresh_token }) });
+      cloudSession = data; saveCloudSession(); updateCloudStatus('登录状态已刷新');
+      return cloudSession;
+    }
+    async function cloudSignUp() {
+      const email = $('#cloudEmail').value.trim(); const password = $('#cloudPassword').value;
+      if (!email || password.length < 6) return toast('请输入邮箱和至少 6 位密码', 'error');
+      try {
+        updateCloudStatus('注册中……');
+        const data = await cloudFetch('/auth/v1/signup', { method: 'POST', auth: false, body: JSON.stringify({ email, password }) });
+        if (data?.access_token) { cloudSession = data; saveCloudSession(); updateCloudStatus('注册并登录成功'); }
+        else updateCloudStatus('注册成功，请按 Supabase 设置完成邮箱验证后再登录');
+        toast('注册请求已提交');
+      } catch (error) { updateCloudStatus(`注册失败：${error.message}`); toast(`注册失败：${error.message}`, 'error'); }
+    }
+    async function cloudLogin() {
+      const email = $('#cloudEmail').value.trim(); const password = $('#cloudPassword').value;
+      if (!email || !password) return toast('请输入邮箱和密码', 'error');
+      try {
+        updateCloudStatus('登录中……');
+        cloudSession = await cloudFetch('/auth/v1/token?grant_type=password', { method: 'POST', auth: false, body: JSON.stringify({ email, password }) });
+        saveCloudSession(); updateCloudStatus('登录成功'); toast('云端登录成功');
+        await cloudSyncAll();
+      } catch (error) { updateCloudStatus(`登录失败：${error.message}`); toast(`登录失败：${error.message}`, 'error'); }
+    }
+    async function cloudLogout() {
+      try { if (cloudSession?.access_token) await cloudFetch('/auth/v1/logout', { method: 'POST' }); } catch {}
+      cloudSession = null; saveCloudSession(); updateCloudStatus('已退出云端登录，本地保存不受影响'); toast('已退出云端');
+    }
+    function serializeProjectForCloud(project) {
+      const data = normalizeProject(deepClone(project));
+      return { id: data.id, user_id: cloudSession.user.id, name: data.name || '未命名运营画布', data, updated_at: new Date(data.updatedAt || Date.now()).toISOString(), created_at: new Date(data.createdAt || Date.now()).toISOString() };
+    }
+    async function cloudPushProject(project = currentProject) {
+      await refreshCloudSessionIfNeeded();
+      if (!cloudLoggedIn()) throw new Error('请先登录云端账号');
+      const payload = serializeProjectForCloud(project);
+      return cloudFetch('/rest/v1/operation_canvas_projects?on_conflict=user_id,id', {
+        method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify(payload)
+      });
+    }
+    async function cloudPushAll(silent = false) {
+      if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return; }
+      try {
+        updateCloudStatus('正在上传本地方案……');
+        for (const project of projects) await cloudPushProject(project);
+        updateCloudStatus(`上传完成：${projects.length} 个方案`);
+        if (!silent) toast('本地方案已上传云端');
+      } catch (error) { updateCloudStatus(`上传失败：${error.message}`); if (!silent) toast(`上传失败：${error.message}`, 'error'); }
+    }
+    async function cloudPullAll(silent = false) {
+      if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return []; }
+      try {
+        await refreshCloudSessionIfNeeded(); updateCloudStatus('正在拉取云端方案……');
+        const rows = await cloudFetch('/rest/v1/operation_canvas_projects?select=*&order=updated_at.desc');
+        const remoteProjects = (rows || []).map(row => normalizeProject(row.data));
+        mergeRemoteProjects(remoteProjects); persist(true);
+        updateCloudStatus(`拉取完成：${remoteProjects.length} 个云端方案`);
+        if (!silent) toast('云端方案已合并到本地');
+        return remoteProjects;
+      } catch (error) { updateCloudStatus(`拉取失败：${error.message}`); if (!silent) toast(`拉取失败：${error.message}`, 'error'); return []; }
+    }
+    function mergeRemoteProjects(remoteProjects) {
+      remoteProjects.forEach(remote => {
+        const index = projects.findIndex(item => item.id === remote.id);
+        if (index < 0) projects.push(deepClone(remote));
+        else if (Number(remote.updatedAt || 0) > Number(projects[index].updatedAt || 0)) projects[index] = deepClone(remote);
+      });
+      const current = projects.find(item => item.id === currentProject.id);
+      if (current && Number(current.updatedAt || 0) > Number(currentProject.updatedAt || 0)) currentProject = normalizeProject(deepClone(current));
+      renderAll();
+    }
+    async function cloudSyncAll() {
+      if (!cloudLoggedIn()) return toast('请先登录云端账号', 'error');
+      try {
+        updateCloudStatus('正在同步本地与云端……');
+        await cloudPushAll(true); await cloudPullAll(true); await cloudPushAll(true);
+        updateCloudStatus('同步完成'); toast('云端同步完成');
+      } catch (error) { updateCloudStatus(`同步失败：${error.message}`); toast(`同步失败：${error.message}`, 'error'); }
+    }
+    function scheduleCloudSave() {
+      if (!cloudLoggedIn()) return;
+      clearTimeout(cloudSaveTimer);
+      cloudSaveTimer = setTimeout(() => cloudPushProject(currentProject).then(() => updateCloudStatus('当前方案已自动同步')).catch(error => updateCloudStatus(`自动同步失败：${error.message}`)), 1600);
+    }
+
     function loadProjects() {
       try {
         const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -1174,6 +1400,7 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
         localStorage.setItem(CURRENT_KEY, currentProject.id);
         $('#saveState').textContent = '已保存';
+        scheduleCloudSave();
       };
       if (immediate) run(); else {
         $('#saveState').textContent = '保存中';
@@ -2456,7 +2683,18 @@
       $('#typeFilter').onchange = event => { filters.type = event.target.value; applyFilters(); };
       $('#statusFilter').onchange = event => { filters.style = event.target.value; applyFilters(); };
       $('#projectName').addEventListener('change', event => { checkpoint(); currentProject.name = event.target.value.trim() || '未命名运营画布'; renderAll(); persist(); });
-      $('#saveBtn').onclick = () => { persist(true); toast('方案已保存到当前浏览器'); };
+      $('#saveBtn').onclick = () => { persist(true); toast(cloudLoggedIn() ? '方案已保存，本地与云端将自动同步' : '方案已保存到当前浏览器'); };
+      $('#cloudBtn').onclick = () => { initCloudUi(); openModal('cloudModal'); };
+      $('#saveCloudConfigBtn').onclick = () => { cloudConfig = { url: $('#cloudUrl').value.trim(), anonKey: $('#cloudAnonKey').value.trim() }; saveCloudConfig(); updateCloudStatus('云端配置已保存'); toast('云端配置已保存'); };
+      $('#clearCloudConfigBtn').onclick = () => { if (!confirm('清除云端配置和登录状态？本地方案不会删除。')) return; cloudConfig = {}; cloudSession = null; saveCloudConfig(); saveCloudSession(); initCloudUi(); toast('云端配置已清除'); };
+      $('#testCloudConfigBtn').onclick = async () => { cloudConfig = { url: $('#cloudUrl').value.trim(), anonKey: $('#cloudAnonKey').value.trim() }; saveCloudConfig(); try { updateCloudStatus('正在测试连接……'); await cloudFetch('/auth/v1/settings', { auth: false }); updateCloudStatus('连接正常，可以登录或注册'); toast('Supabase 连接正常'); } catch (error) { updateCloudStatus(`连接失败：${error.message}`); toast(`连接失败：${error.message}`, 'error'); } };
+      $('#cloudSignupBtn').onclick = cloudSignUp;
+      $('#cloudLoginBtn').onclick = cloudLogin;
+      $('#cloudLogoutBtn').onclick = cloudLogout;
+      $('#cloudPushBtn').onclick = () => cloudPushAll(false);
+      $('#cloudPullBtn').onclick = () => cloudPullAll(false);
+      $('#cloudSyncBtn').onclick = cloudSyncAll;
+      $('#copyCloudSqlBtn').onclick = async () => { try { await navigator.clipboard.writeText(CLOUD_SQL); toast('SQL 已复制'); } catch { $('#cloudSql').select(); document.execCommand('copy'); toast('SQL 已复制'); } };
       $('#newProjectBtn').onclick = () => newProject(true);
       $('#modalNewProject').onclick = () => newProject(false);
       $('#openProjectsBtn').onclick = () => { persist(true); renderProjectList(); openModal('projectsModal'); };
@@ -2561,7 +2799,7 @@
       });
     }
 
-    initPalette(); bindInspector(); bindGlobalEvents(); applyLayoutPrefs(); renderAll();
+    initPalette(); bindInspector(); bindGlobalEvents(); initCloudUi(); applyLayoutPrefs(); renderAll();
     if (isMobileLayout()) {
       syncMobileViewportHeight(); installMobileHistoryGuard(); updateOrientationUI(false);
       if ((currentProject.zoom || 1) < .65) currentProject.zoom = innerWidth > innerHeight ? .9 : .75;
