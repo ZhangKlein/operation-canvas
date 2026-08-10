@@ -494,6 +494,31 @@
     .image-upload-status { min-height: 16px; margin-top: 8px; color: var(--muted); font-size: 9px; line-height: 1.45; }
     .image-upload-status.error { color: var(--danger); }
 
+    .onboarding-layer { position: fixed; z-index: 1500; inset: 0; pointer-events: auto; }
+    .onboarding-layer.welcome { display: grid; place-items: center; padding: 24px; background: rgba(12,32,34,.68); backdrop-filter: blur(7px); }
+    .onboarding-spotlight { position: fixed; z-index: 1501; border: 2px solid #f2b45e; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(12,32,34,.68), 0 0 0 5px rgba(242,180,94,.18); pointer-events: none; transition: .22s ease; }
+    .onboarding-card { position: fixed; z-index: 1502; width: min(390px, calc(100vw - 32px)); overflow: hidden; border: 1px solid rgba(255,255,255,.7); border-radius: 20px; color: var(--ink); background: #fbfcfb; box-shadow: 0 28px 90px rgba(4,23,25,.38); }
+    .onboarding-layer.welcome .onboarding-card { position: relative; left: auto !important; top: auto !important; width: min(520px, calc(100vw - 32px)); }
+    .onboarding-card-head { padding: 22px 22px 16px; color: #fff; background: linear-gradient(135deg, #133d42, #0d5d5a 68%, #2a7e74); }
+    .onboarding-kicker { color: #f2b45e; font-size: 10px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+    .onboarding-card h2 { margin: 8px 0 0; font: 700 22px/1.3 Georgia, 'Songti SC', serif; }
+    .onboarding-card-body { padding: 18px 22px 12px; }
+    .onboarding-card-body p { margin: 0; color: #566b69; font-size: 12px; line-height: 1.75; }
+    .onboarding-principles { display: grid; gap: 9px; margin: 15px 0 0; padding: 0; list-style: none; }
+    .onboarding-principles li { position: relative; padding: 10px 11px 10px 34px; border: 1px solid #dce7e3; border-radius: 11px; color: #395653; background: #f4f8f6; font-size: 11px; line-height: 1.55; }
+    .onboarding-principles li::before { content: attr(data-index); position: absolute; left: 10px; top: 10px; width: 17px; height: 17px; display: grid; place-items: center; border-radius: 6px; color: #fff; background: var(--brand); font-size: 9px; font-weight: 900; }
+    .onboarding-hint { margin-top: 12px !important; color: #859390 !important; font-size: 10px !important; }
+    .onboarding-card-foot { display: flex; align-items: center; gap: 8px; padding: 13px 22px 20px; }
+    .onboarding-progress { margin-right: auto; color: #788986; font-size: 10px; font-weight: 800; }
+    .onboarding-card button { min-height: 38px; padding: 0 14px; border: 1px solid #d4e0dc; border-radius: 10px; color: #536a67; background: #fff; cursor: pointer; font-size: 11px; font-weight: 800; }
+    .onboarding-card button:hover { color: var(--brand); border-color: #90b5ae; }
+    .onboarding-card button.primary { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .onboarding-close { position: absolute; z-index: 1; right: 12px; top: 12px; width: 32px; min-height: 32px !important; padding: 0 !important; border-color: rgba(255,255,255,.18) !important; color: #fff !important; background: rgba(255,255,255,.1) !important; font-size: 18px !important; }
+    .onboarding-replay-btn { border-color: rgba(255,255,255,.16); }
+    .mobile-project-switcher { min-width: 0; display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; color: #fff; background: transparent; text-align: left; cursor: pointer; }
+    .mobile-project-switcher h1 { overflow: hidden; max-width: min(54vw, 250px); text-overflow: ellipsis; white-space: nowrap; }
+    .mobile-project-switcher .switcher-arrow { flex: 0 0 auto; color: #f2b45e; font-size: 14px; transform: translateY(1px); }
+
     .modal-backdrop { position: fixed; z-index: 200; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(17,39,41,.42); backdrop-filter: blur(5px); }
     .modal { width: min(640px, 94vw); max-height: min(780px, calc(100dvh - 48px)); min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,.5); border-radius: 18px; background: #fbfcfb; box-shadow: 0 28px 80px rgba(14,42,44,.27); }
     .modal.wide { width: min(780px, 94vw); }
@@ -583,6 +608,8 @@
     .mobile-design-title-row { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 8px; }
     .mobile-design-title-row h1 { margin: 0; font: 700 24px/1.2 Georgia, 'Songti SC', serif; letter-spacing: .02em; }
     .mobile-design-title-row button { flex: 0 0 auto; min-height: 34px; padding: 0 11px; border: 1px solid rgba(255,255,255,.24); border-radius: 10px; color: #fff; background: rgba(255,255,255,.1); font-size: 11px; font-weight: 800; }
+    .mobile-design-title-row .mobile-project-switcher { min-width: 0; display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; text-align: left; }
+    .mobile-design-title-row .mobile-project-switcher h1 { overflow: hidden; max-width: min(52vw, 230px); text-overflow: ellipsis; white-space: nowrap; }
     .mobile-cloud-summary { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; margin-top: 9px; color: rgba(255,255,255,.72); font-size: 10px; }
     .mobile-cloud-dot { width: 7px; height: 7px; border-radius: 50%; background: #d6a65b; box-shadow: 0 0 0 4px rgba(214,166,91,.13); }
     .mobile-cloud-summary.online .mobile-cloud-dot { background: #79d5b3; box-shadow: 0 0 0 4px rgba(121,213,179,.13); }
@@ -862,6 +889,7 @@
       </div>
       <div class="divider"></div>
       <div class="tool-cluster">
+        <button class="top-btn onboarding-replay-btn" id="onboardingReplayBtn">新手教程</button>
         <button class="top-btn" id="exportBtn">导出</button>
         <button class="top-btn" id="importBtn">导入</button>
         <button class="top-btn" id="settingsBtn">分区设置</button>
@@ -916,7 +944,7 @@
           <div class="mobile-design-scroll" id="mobileDesignScroll">
             <header class="mobile-design-hero">
               <div class="mobile-design-kicker">Structured canvas</div>
-              <div class="mobile-design-title-row"><h1 id="mobileDesignTitle">运营画布</h1><button id="mobileHeroCloudBtn" type="button">账号与同步</button></div>
+              <div class="mobile-design-title-row"><button class="mobile-project-switcher" id="mobileProjectSwitcherBtn" type="button" aria-label="切换运营方案"><h1 id="mobileDesignTitle">运营画布</h1><span class="switcher-arrow">⌄</span></button><button id="mobileHeroCloudBtn" type="button">账号与同步</button></div>
               <div class="mobile-cloud-summary" id="mobileCloudSummary"><span class="mobile-cloud-dot"></span><span id="mobileCloudSummaryText">当前使用本地保存</span></div>
               <div class="mobile-design-metrics">
                 <div class="mobile-design-metric"><strong id="mobileStageMetric">0</strong><span>设计阶段</span></div>
@@ -1089,7 +1117,7 @@
     <div class="modal">
       <div class="modal-head"><div><h2>手机画布工具</h2><p>常用编辑和管理功能集中在这里。</p></div><button class="close-btn" data-close="mobileToolsModal">×</button></div>
       <div class="modal-body"><div class="mobile-tool-grid" id="mobileToolGrid">
-        <button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导入导出</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
+        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导入导出</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
       </div></div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileToolsModal">关闭</button></div>
     </div>
@@ -1206,6 +1234,16 @@
     <button data-node-action="staging">收回灵感胶囊</button>
     <button class="danger" data-node-action="delete">删除组件</button>
   </div>
+
+  <div id="onboardingLayer" class="onboarding-layer hidden" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+    <div id="onboardingSpotlight" class="onboarding-spotlight hidden" aria-hidden="true"></div>
+    <section id="onboardingCard" class="onboarding-card">
+      <button id="onboardingCloseBtn" class="onboarding-close" type="button" aria-label="关闭新手教程">×</button>
+      <div class="onboarding-card-head"><div class="onboarding-kicker" id="onboardingKicker">Quick start</div><h2 id="onboardingTitle">欢迎使用运营画布</h2></div>
+      <div class="onboarding-card-body"><p id="onboardingCopy"></p><ul id="onboardingPrinciples" class="onboarding-principles hidden"></ul><p id="onboardingHint" class="onboarding-hint"></p></div>
+      <div class="onboarding-card-foot"><span id="onboardingProgress" class="onboarding-progress"></span><button id="onboardingSkipBtn" type="button">跳过教程</button><button id="onboardingPrevBtn" type="button">上一步</button><button id="onboardingNextBtn" class="primary" type="button">下一步</button></div>
+    </section>
+  </div>
   <div class="toast-stack" id="toastStack"></div>
 
   <script src="cloud-config.js"></script>
@@ -1221,6 +1259,9 @@
     const CLOUD_DELETE_QUEUE_KEY = 'operationCanvas.cloud.deleteQueue.v1';
     const CLOUD_LAST_USER_KEY = 'operationCanvas.cloud.lastUser.v1';
     const CLOUD_LAST_SYNC_KEY = 'operationCanvas.cloud.lastSync.v1';
+    const ONBOARDING_KEY = 'operationCanvas.onboarding.v1';
+    const ONBOARDING_VERSION = 'core-v1';
+    const IS_FIRST_LOCAL_VISIT = !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(CURRENT_KEY);
     const IMAGE_BUCKET = 'operation-canvas-assets';
     const MAX_NODE_IMAGES = 6;
     const MAX_IMAGE_SOURCE_BYTES = 5 * 1024 * 1024;
@@ -1450,6 +1491,8 @@
     let mobileMultiSelect = false;
     let mobileMoveNodeId = null;
     let mobileDesignState = { view: 'map', stageId: '', laneId: '', unitStageId: '', unitLaneId: '' };
+    let onboardingState = { active: false, welcome: false, step: 0, manual: false, mobile: false, restoreMobileView: null };
+    let onboardingResizeTimer = null;
     let suppressNodeClickUntil = 0;
     let edgeSwipeState = null;
     let pinchState = null;
@@ -1476,6 +1519,167 @@
 
     function saveLayoutPrefs() {
       localStorage.setItem(LAYOUT_KEY, JSON.stringify(layoutPrefs));
+    }
+
+    function loadOnboardingRecord() {
+      try { return JSON.parse(localStorage.getItem(ONBOARDING_KEY) || 'null'); } catch { return null; }
+    }
+
+    function onboardingHandled() {
+      const record = loadOnboardingRecord();
+      return !!(record && record.version === ONBOARDING_VERSION && ['completed', 'skipped', 'dismissed'].includes(record.status));
+    }
+
+    function saveOnboardingResult(status) {
+      if (onboardingState.manual) return;
+      localStorage.setItem(ONBOARDING_KEY, JSON.stringify({ status, version: ONBOARDING_VERSION, handledAt: new Date().toISOString() }));
+    }
+
+    function onboardingSteps(mobile = onboardingState.mobile) {
+      if (mobile) return [
+        { kicker: '01 / 07 · 方案', title: '从顶部切换运营方案', copy: '这里显示当前方案名称。点击名称即可打开“我的运营方案”，切换、新建或管理画布。', target: '#mobileProjectSwitcherBtn', view: 'map' },
+        { kicker: '02 / 07 · 结构地图', title: '先从全局理解画布骨架', copy: '结构地图把阶段和泳道组成一个清晰矩阵。每个格子都是一个“阶段 × 泳道”的设计单元。', target: '.mobile-structure-grid', view: 'map' },
+        { kicker: '03 / 07 · 设计视角', title: '用不同角度设计同一张画布', copy: '在结构地图、按阶段、按泳道和单元设计之间切换，不需要持续挪动二维画布。', target: '.mobile-view-switch', view: 'map' },
+        { kicker: '04 / 07 · 设计单元', title: '进入局部单元进行编排', copy: '点击任意格子，可以聚焦一个阶段和泳道，查看内容、调整顺序或改变归属。', target: '.mobile-map-cell', view: 'map' },
+        { kicker: '05 / 07 · 新增内容', title: '在当前上下文快速创建组件', copy: '点击右下角加号，可以新增任务、活动、指标、风险等内容，并指定所属阶段和泳道。', target: '#mobileQuickCreateBtn', view: 'map' },
+        { kicker: '06 / 07 · 内容详情', title: '手机版同样支持完整设计', copy: '点击卡片的“编辑详情”进入全屏编辑，可填写内容、状态、优先级和业务字段，也可以上传图片。', target: '.mobile-node-card', view: 'stage' },
+        { kicker: '07 / 07 · 云端协作', title: '手机和电脑使用同一份方案', copy: '通过账号与同步登录 Supabase，手机结构设计会与电脑画布同步；成功后会显示最近同步时间。', target: '#mobileHeroCloudBtn', view: 'map' }
+      ];
+      return [
+        { kicker: '01 / 06 · 画布结构', title: '先理解运营画布的二维骨架', copy: '横向是运营阶段，纵向是运营泳道。两者的交叉区域用于承载具体运营内容。', target: '#canvasViewport' },
+        { kicker: '02 / 06 · 阶段与泳道', title: '用结构拆解完整运营体系', copy: '阶段描述方案如何推进，泳道描述产品、用户、内容、活动和数据等运营模块。', target: '.stage-head' },
+        { kicker: '03 / 06 · 组件库', title: '把运营内容放进对应区域', copy: '从左侧添加运营动作、活动、任务、指标、风险和里程碑等组件，再放入合适的阶段与泳道。', target: '#componentPanel' },
+        { kicker: '04 / 06 · 内容详情', title: '点击组件继续完善方案', copy: '在内容详情中填写目标、负责人、进度、优先级和业务字段，也可以上传相关图片。', target: '.canvas-node', fallback: '#componentPanel' },
+        { kicker: '05 / 06 · 方案说明', title: '把背景与规则放在画布外', copy: '独立说明区适合记录方案背景、策略、指标口径和复盘内容，不会遮挡主画布。', target: '#notesPanel' },
+        { kicker: '06 / 06 · 云端同步', title: '登录后在不同设备继续设计', copy: '云端登录、自动同步和手动同步都在这里。同步成功后，“已同步”下方会显示最近时间。', target: '#cloudBtn' }
+      ];
+    }
+
+    function prepareOnboardingStep(step) {
+      if (!onboardingState.mobile) return;
+      document.body.classList.remove('mobile-canvas-view');
+      closeMobileDrawers();
+      if (step.view && mobileDesignState.view !== step.view) {
+        mobileDesignState.view = step.view;
+        renderMobileDesigner();
+      }
+      const scroll = $('#mobileDesignScroll');
+      if (scroll) scroll.scrollTop = step.target === '#mobileHeroCloudBtn' || step.target === '#mobileProjectSwitcherBtn' ? 0 : Math.max(0, scroll.scrollTop);
+    }
+
+    function onboardingTarget(step) {
+      const primary = step?.target ? $(step.target) : null;
+      const fallback = step?.fallback ? $(step.fallback) : null;
+      const element = primary || fallback;
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 ? element : (fallback && fallback !== element ? fallback : null);
+    }
+
+    function positionOnboardingStep() {
+      if (!onboardingState.active || onboardingState.welcome) return;
+      const steps = onboardingSteps();
+      const step = steps[onboardingState.step];
+      const card = $('#onboardingCard');
+      const spotlight = $('#onboardingSpotlight');
+      const target = onboardingTarget(step);
+      if (!target) {
+        spotlight.classList.add('hidden');
+        card.style.left = `${Math.max(16, (innerWidth - card.offsetWidth) / 2)}px`;
+        card.style.top = `${Math.max(16, (innerHeight - card.offsetHeight) / 2)}px`;
+        return;
+      }
+      target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
+      requestAnimationFrame(() => {
+        if (!onboardingState.active || onboardingState.welcome) return;
+        const rect = target.getBoundingClientRect();
+        const pad = onboardingState.mobile ? 6 : 9;
+        spotlight.classList.remove('hidden');
+        spotlight.style.left = `${Math.max(5, rect.left - pad)}px`;
+        spotlight.style.top = `${Math.max(5, rect.top - pad)}px`;
+        spotlight.style.width = `${Math.min(innerWidth - 10, rect.width + pad * 2)}px`;
+        spotlight.style.height = `${Math.min(innerHeight - 10, rect.height + pad * 2)}px`;
+        const cardWidth = card.offsetWidth; const cardHeight = card.offsetHeight; const gap = 14;
+        let left = Math.min(innerWidth - cardWidth - 16, Math.max(16, rect.left));
+        let top = rect.bottom + gap;
+        if (top + cardHeight > innerHeight - 16) top = rect.top - cardHeight - gap;
+        if (top < 16) top = Math.max(16, innerHeight - cardHeight - 16);
+        if (onboardingState.mobile) left = Math.max(12, (innerWidth - cardWidth) / 2);
+        card.style.left = `${left}px`; card.style.top = `${top}px`;
+      });
+    }
+
+    function renderOnboarding() {
+      const layer = $('#onboardingLayer');
+      const steps = onboardingSteps();
+      layer.classList.remove('hidden');
+      layer.classList.toggle('welcome', onboardingState.welcome);
+      $('#onboardingSpotlight').classList.toggle('hidden', onboardingState.welcome);
+      $('#onboardingPrevBtn').classList.toggle('hidden', onboardingState.welcome || onboardingState.step === 0);
+      $('#onboardingSkipBtn').textContent = onboardingState.welcome ? '跳过，直接使用' : '跳过教程';
+      if (onboardingState.welcome) {
+        $('#onboardingKicker').textContent = onboardingState.mobile ? 'Mobile structured canvas' : 'Operation canvas quick start';
+        $('#onboardingTitle').textContent = onboardingState.mobile ? '欢迎使用手机版运营画布' : '欢迎使用运营画布';
+        $('#onboardingCopy').textContent = onboardingState.mobile ? '手机版是一套完整的结构化画布设计器，不是电脑版画布的简单缩小。' : '用阶段、泳道和运营组件，把复杂方案整理成可设计、可执行、可复盘的运营体系。';
+        const principles = onboardingState.mobile ? ['结构地图：查看完整阶段与泳道', '多种视角：按阶段或泳道持续设计', '同一份数据：手机和电脑云端同步'] : ['阶段：描述运营过程如何推进', '泳道：拆分不同运营模块', '组件：记录动作、任务、指标与风险'];
+        $('#onboardingPrinciples').innerHTML = principles.map((item, index) => `<li data-index="${index + 1}">${escapeHtml(item)}</li>`).join('');
+        $('#onboardingPrinciples').classList.remove('hidden');
+        $('#onboardingHint').textContent = '关闭或跳过后不会再次自动出现，可随时从“新手教程”重新学习。';
+        $('#onboardingProgress').textContent = '';
+        $('#onboardingNextBtn').textContent = `开始 ${steps.length} 步引导`;
+        $('#onboardingCard').style.left = ''; $('#onboardingCard').style.top = '';
+        return;
+      }
+      const step = steps[onboardingState.step];
+      prepareOnboardingStep(step);
+      $('#onboardingKicker').textContent = step.kicker;
+      $('#onboardingTitle').textContent = step.title;
+      $('#onboardingCopy').textContent = step.copy;
+      $('#onboardingPrinciples').classList.add('hidden');
+      $('#onboardingHint').textContent = '教程只做说明，不会自动创建、修改或上传任何方案数据。';
+      $('#onboardingProgress').textContent = `${onboardingState.step + 1} / ${steps.length}`;
+      $('#onboardingNextBtn').textContent = onboardingState.step === steps.length - 1 ? '完成引导' : '下一步';
+      requestAnimationFrame(positionOnboardingStep);
+    }
+
+    function startOnboarding(manual = false) {
+      if (onboardingState.active) return;
+      closeMenus();
+      onboardingState = {
+        active: true, welcome: true, step: 0, manual, mobile: isMobileLayout(),
+        restoreMobileView: isMobileLayout() ? deepClone(mobileDesignState) : null
+      };
+      renderOnboarding();
+    }
+
+    function finishOnboarding(status = 'completed') {
+      if (!onboardingState.active) return;
+      saveOnboardingResult(status);
+      const restore = onboardingState.restoreMobileView;
+      onboardingState.active = false;
+      $('#onboardingLayer').classList.add('hidden');
+      $('#onboardingSpotlight').classList.add('hidden');
+      if (restore && isMobileLayout()) { mobileDesignState = restore; renderMobileDesigner(); }
+      if (status === 'completed') toast('新手引导已完成，可从“新手教程”再次学习');
+    }
+
+    function nextOnboardingStep() {
+      if (onboardingState.welcome) { onboardingState.welcome = false; onboardingState.step = 0; renderOnboarding(); return; }
+      const steps = onboardingSteps();
+      if (onboardingState.step >= steps.length - 1) return finishOnboarding('completed');
+      onboardingState.step += 1; renderOnboarding();
+    }
+
+    function previousOnboardingStep() {
+      if (onboardingState.welcome || onboardingState.step <= 0) return;
+      onboardingState.step -= 1; renderOnboarding();
+    }
+
+    function scheduleFirstOnboarding(attempt = 0) {
+      if (!IS_FIRST_LOCAL_VISIT || onboardingHandled() || onboardingState.active) return;
+      const modalOpen = !!$('.modal-backdrop:not(.hidden)');
+      if (modalOpen && attempt < 8) return setTimeout(() => scheduleFirstOnboarding(attempt + 1), 750);
+      if (!modalOpen) startOnboarding(false);
     }
 
     function sidebarWidthLimit(value) {
@@ -3004,6 +3208,7 @@ using (
       if (action === 'snapshots') { renderSnapshotList(); openModal('snapshotsModal'); }
       if (action === 'settings') { configDraft = null; openSettingsWithDraft(); }
       if (action === 'projects') { persist(true); renderProjectList(); openModal('projectsModal'); }
+      if (action === 'tutorial') setTimeout(() => startOnboarding(true), 0);
       if (action === 'export') setTimeout(() => { const menu = $('#exportMenu'); menu.style.position = 'fixed'; menu.style.left = '50%'; menu.style.top = '50%'; menu.style.transform = 'translate(-50%,-50%)'; menu.classList.remove('hidden'); }, 0);
       if (action === 'import') $('#fileInput').click();
       if (action === 'add-stage') addStage();
@@ -3956,6 +4161,12 @@ using (
       $('#cloudBtn').onclick = openCloudAccount;
       $('#mobileCloudBtn').onclick = openCloudAccount;
       $('#mobileHeroCloudBtn').onclick = openCloudAccount;
+      $('#mobileProjectSwitcherBtn').onclick = () => { persist(true); renderProjectList(); openModal('projectsModal'); };
+      $('#onboardingReplayBtn').onclick = () => startOnboarding(true);
+      $('#onboardingCloseBtn').onclick = () => finishOnboarding('dismissed');
+      $('#onboardingSkipBtn').onclick = () => finishOnboarding('skipped');
+      $('#onboardingPrevBtn').onclick = previousOnboardingStep;
+      $('#onboardingNextBtn').onclick = nextOnboardingStep;
       $$('[data-mobile-design-view]').forEach(button => button.onclick = () => { mobileDesignState.view = button.dataset.mobileDesignView; renderMobileDesigner(); $('#mobileDesignScroll')?.scrollTo({ top: 0, behavior: 'smooth' }); });
       $$('[data-mobile-design-nav]').forEach(button => button.onclick = () => {
         const action = button.dataset.mobileDesignNav;
@@ -4084,7 +4295,12 @@ using (
       $('#canvasViewport').addEventListener('touchmove', handlePinchMove, { passive: false });
       $('#canvasViewport').addEventListener('touchend', handlePinchEnd, { passive: true });
       $('#canvasViewport').addEventListener('touchcancel', handlePinchEnd, { passive: true });
-      window.addEventListener('resize', () => { clearTransientCanvasUI(); applyLayoutPrefs(); if (isMobileLayout()) { syncMobileViewportHeight(); installMobileHistoryGuard(); } updateOrientationUI(false); });
+      window.addEventListener('resize', () => {
+        clearTransientCanvasUI(); applyLayoutPrefs();
+        if (isMobileLayout()) { syncMobileViewportHeight(); installMobileHistoryGuard(); }
+        updateOrientationUI(false);
+        clearTimeout(onboardingResizeTimer); onboardingResizeTimer = setTimeout(positionOnboardingStep, 90);
+      });
       window.addEventListener('orientationchange', () => setTimeout(() => { clearTransientCanvasUI(); syncMobileViewportHeight(); closeMobileDrawers(); applyLayoutPrefs(); updateOrientationUI(true); }, 180));
       window.visualViewport?.addEventListener('resize', () => { clearTransientCanvasUI(); if (isMobileLayout()) syncMobileViewportHeight(); });
       window.visualViewport?.addEventListener('scroll', () => { if (isMobileLayout()) syncMobileViewportHeight(); });
@@ -4109,7 +4325,8 @@ using (
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z' && !event.shiftKey && !editing) { event.preventDefault(); undo(); }
         if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z')) && !editing) { event.preventDefault(); redo(); }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd' && selectedId && !editing) { event.preventDefault(); duplicateSelected(); }
-        if ((event.key === 'Delete' || event.key === 'Backspace') && selectedId && !editing) { event.preventDefault(); deleteSelected(); }
+        if ((event.key === 'Delete' || event.key === 'Backspace') && selectedId && !editing && !onboardingState.active) { event.preventDefault(); deleteSelected(); }
+        if (event.key === 'Escape' && onboardingState.active) { event.preventDefault(); finishOnboarding('dismissed'); return; }
         if (event.key === 'Escape') { closeMenus(); selectNode(null); $('#rightSidebar').classList.remove('open'); }
       });
     }
@@ -4120,7 +4337,8 @@ using (
       if ((currentProject.zoom || 1) < .65) currentProject.zoom = innerWidth > innerHeight ? .9 : .75;
       requestAnimationFrame(() => { applyZoom(); $('#canvasViewport').scrollTo({ left: 0, top: 0 }); persist(); });
     }
-    setTimeout(() => toast(isMobileLayout() ? '手机模式已就绪，可双指或使用右下角按钮缩放' : '画布已就绪，可从左侧拖入组件'), 500);
+    setTimeout(() => toast(isMobileLayout() ? '手机版结构设计器已就绪' : '画布已就绪，可从左侧拖入组件'), 500);
+    setTimeout(() => scheduleFirstOnboarding(), 850);
   </script>
 </body>
 </html>
