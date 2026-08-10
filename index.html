@@ -368,6 +368,21 @@
     .canvas-node.diamond .node-inner { transform: rotate(-45deg); }
     .canvas-node.text { border-color: transparent; background: transparent; box-shadow: none; }
     .canvas-node.text.selected { border-color: rgba(13,93,90,.35); box-shadow: 0 0 0 3px rgba(13,93,90,.09); }
+    .canvas-node.lightweight-node { display: flex; align-items: center; justify-content: center; padding: 10px 12px; }
+    .canvas-node.lightweight-node .node-inner { display: flex; align-items: center; justify-content: center; text-align: center; }
+    .canvas-node.lightweight-node .node-title { margin: 0; display: block; width: 100%; -webkit-line-clamp: unset; white-space: pre-wrap; overflow: hidden; }
+    .canvas-node.person-node { min-height: 56px; border-radius: 999px; background: #fffaf0; }
+    .canvas-node.person-node .node-title { font-size: 13px; }
+    .canvas-node.plain-text-node { align-items: flex-start; justify-content: flex-start; padding: 10px; border-color: transparent; background: transparent; box-shadow: none; }
+    .canvas-node.plain-text-node.selected { border-color: rgba(13,93,90,.32); background: rgba(255,255,255,.72); box-shadow: 0 0 0 3px rgba(13,93,90,.08); }
+    .canvas-node.plain-text-node .node-inner { align-items: flex-start; justify-content: flex-start; text-align: left; }
+    .canvas-node.plain-text-node .node-title { font-size: 13px; font-weight: 500; line-height: 1.65; }
+    .canvas-node.shape-node { border-radius: 4px; background: #fff; }
+    .canvas-node.shape-node.shape-rounded { border-radius: 22px; }
+    .canvas-node.shape-node.shape-ellipse, .canvas-node.shape-node.shape-circle { border-radius: 50%; }
+    .canvas-node.shape-node.shape-diamond { transform: rotate(45deg); border-radius: 5px; }
+    .canvas-node.shape-node.shape-diamond:hover { transform: rotate(45deg); }
+    .canvas-node.shape-node.shape-diamond .node-inner { transform: rotate(-45deg); }
     .node-top { display: flex; justify-content: space-between; align-items: center; gap: 7px; }
     .node-kind { color: var(--node-color, #0d5d5a); font-size: 9px; font-weight: 800; letter-spacing: .10em; text-transform: uppercase; }
     .node-status { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--node-color, #0d5d5a); }
@@ -1012,7 +1027,7 @@
       <div class="divider"></div>
       <div class="tool-cluster">
         <button class="top-btn onboarding-replay-btn" id="onboardingReplayBtn">新手教程</button>
-        <button class="top-btn" id="exportBtn">导出</button>
+        <button class="top-btn" id="exportBtn" title="导出可编辑 JSON">导出 JSON</button>
         <button class="top-btn" id="importBtn">导入</button>
         <button class="top-btn" id="settingsBtn">分区设置</button>
       </div>
@@ -1041,7 +1056,7 @@
           <div class="component-grid" id="businessComponents"></div>
           <div class="section-label"><strong>基础图形</strong><span>Draw style</span></div>
           <div class="component-grid" id="shapeComponents"></div>
-          <div class="section-label"><strong>方案说明</strong><span>拖入右侧说明区 · 富文本</span></div>
+          <div class="section-label"><strong>文字与标注</strong><span>轻量文字放画布 · 说明卡放外侧</span></div>
           <div class="component-grid" id="textComponents"></div>
         </div>
         <div class="side-scroll hidden" id="stagingPanel">
@@ -1173,6 +1188,13 @@
             <div class="field"><label>主题颜色</label><div class="color-row" id="colorRow"></div></div>
             <div class="field"><label>组件关系</label><div class="connection-list" id="connectionList"></div><div class="field-help">点击画布上方“连接”，再依次点击起点和终点组件。</div></div>
           </div>
+          <div class="hidden" id="lightweightInspectorFields">
+            <div class="business-title" id="lightweightInspectorTitle">轻量组件</div>
+            <div class="field" id="lightweightSingleLineField"><label for="lightweightTextInput" id="lightweightTextLabel">文字</label><input id="lightweightTextInput" maxlength="120" placeholder="输入文字"></div>
+            <div class="field hidden" id="lightweightMultilineField"><label for="lightweightTextArea">文字内容</label><textarea id="lightweightTextArea" style="min-height:220px" placeholder="输入大段文字"></textarea></div>
+            <div class="field hidden" id="shapeVariantField"><label for="shapeVariantSelect">图形样式</label><select id="shapeVariantSelect"><option value="rectangle">矩形</option><option value="rounded">圆角矩形</option><option value="ellipse">椭圆形</option><option value="circle">圆形</option><option value="diamond">菱形</option></select></div>
+            <div class="field-help" id="lightweightInspectorHelp">轻量组件只编辑必要内容，不显示复杂业务详情。</div>
+          </div>
           <div class="hidden" id="richTextInspectorFields">
             <div class="business-title">画布外辅助说明</div>
             <div class="rich-text-controls"><button class="rich-text-control" id="richBoldBtn" title="加粗"><strong>B</strong></button><button class="rich-text-control" id="richUnderlineBtn" title="下划线"><u>U</u></button></div>
@@ -1216,10 +1238,10 @@
       <div class="modal-body">
         <div class="mobile-create-context" id="mobileCreateContext">将根据当前视角自动选择阶段与泳道。</div>
         <div class="field"><label for="mobileCreateType">内容类型</label><select id="mobileCreateType"></select></div>
-        <div class="field"><label for="mobileCreateTitle">标题</label><input id="mobileCreateTitle" maxlength="80" placeholder="输入一个清晰的运营内容标题"></div>
-        <div class="field"><label for="mobileCreateSummary">卡片摘要</label><textarea id="mobileCreateSummary" maxlength="180" placeholder="简要说明目标、动作或判断"></textarea></div>
+        <div class="field"><label for="mobileCreateTitle" id="mobileCreateTitleLabel">标题</label><input id="mobileCreateTitle" maxlength="80" placeholder="输入一个清晰的运营内容标题"></div>
+        <div class="field" id="mobileCreateSummaryField"><label for="mobileCreateSummary">卡片摘要</label><textarea id="mobileCreateSummary" maxlength="180" placeholder="简要说明目标、动作或判断"></textarea></div>
         <div class="field-row"><div class="field"><label for="mobileCreateStage">所属阶段</label><select id="mobileCreateStage"></select></div><div class="field"><label for="mobileCreateLane">所属泳道</label><select id="mobileCreateLane"></select></div></div>
-        <div class="field-row"><div class="field"><label for="mobileCreateProgress">执行进度</label><select id="mobileCreateProgress"><option>未开始</option><option>进行中</option><option>已完成</option><option>已暂停</option><option>有风险</option></select></div><div class="field"><label for="mobileCreatePriority">优先级</label><select id="mobileCreatePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div></div>
+        <div class="field-row" id="mobileCreateBusinessFields"><div class="field"><label for="mobileCreateProgress">执行进度</label><select id="mobileCreateProgress"><option>未开始</option><option>进行中</option><option>已完成</option><option>已暂停</option><option>有风险</option></select></div><div class="field"><label for="mobileCreatePriority">优先级</label><select id="mobileCreatePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div></div>
       </div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileCreateModal">取消</button><button class="modal-btn primary" id="mobileCreateConfirmBtn">创建并编辑详情</button></div>
     </div>
@@ -1237,7 +1259,7 @@
     <div class="modal">
       <div class="modal-head"><div><h2>手机画布工具</h2><p>常用编辑和管理功能集中在这里。</p></div><button class="close-btn" data-close="mobileToolsModal">×</button></div>
       <div class="modal-body"><div class="mobile-tool-grid" id="mobileToolGrid">
-        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="compare">方案对比</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导入导出</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
+        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="compare">方案对比</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导出 JSON</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
       </div></div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileToolsModal">关闭</button></div>
     </div>
@@ -1363,11 +1385,6 @@
     </div>
   </div>
 
-  <div id="exportMenu" class="context-menu hidden">
-    <button data-export="json">导出可编辑 JSON</button>
-    <button data-export="png">导出画布 PNG</button>
-    <button data-export="print">打印 / 保存 PDF</button>
-  </div>
   <div id="nodeMenu" class="context-menu hidden">
     <button data-node-action="duplicate">复制组件</button>
     <button data-node-action="toggle">切换实线 / 虚线</button>
@@ -1432,14 +1449,41 @@
       { type: 'milestone', code: 'MST', name: '里程碑', desc: '重要进度节点', title: '关键里程碑', summary: '填写交付结果与时间' },
       { type: 'decision', code: 'DEC', name: '决策', desc: '待确认的关键判断', title: '待确认决策', summary: '记录选项与判断依据' }
     ];
-    const SHAPES = [
-      { type: 'rectangle', name: '矩形', className: '' },
-      { type: 'round', name: '圆角矩形', className: 'round' },
-      { type: 'circle', name: '圆形', className: 'circle' },
-      { type: 'diamond', name: '菱形', className: 'diamond' },
-      { type: 'text', name: '文本框', className: 'round' }
+    const LIGHTWEIGHT_TYPES = [
+      { type: 'person', code: '人', name: '人名组件', desc: '椭圆姓名标签', title: '输入人名' },
+      { type: 'plainText', code: 'Aa', name: '纯文字框', desc: '记录大段文字', title: '点击编辑文字' }
     ];
+    const SHAPES = [{ type: 'shape', name: '基础图形', className: '' }];
+    const SHAPE_VARIANTS = [
+      { value: 'rectangle', name: '矩形' },
+      { value: 'rounded', name: '圆角矩形' },
+      { value: 'ellipse', name: '椭圆形' },
+      { value: 'circle', name: '圆形' },
+      { value: 'diamond', name: '菱形' }
+    ];
+    const LEGACY_SHAPE_TYPES = { rectangle: 'rectangle', round: 'rounded', circle: 'circle', diamond: 'diamond' };
     const RICH_TEXT_PRESET = { type: 'richText', code: 'Aa', name: '辅助说明卡', desc: '放在画布外说明区，支持富文本编辑' };
+
+    function lightweightPreset(type) { return LIGHTWEIGHT_TYPES.find(item => item.type === type); }
+    function isShapeNode(nodeOrType) { return (typeof nodeOrType === 'string' ? nodeOrType : nodeOrType?.type) === 'shape'; }
+    function isLightweightNode(nodeOrType) {
+      const type = typeof nodeOrType === 'string' ? nodeOrType : nodeOrType?.type;
+      return type === 'shape' || LIGHTWEIGHT_TYPES.some(item => item.type === type);
+    }
+    function nodeDefaultSize(type, shapeVariant = 'rectangle') {
+      if (type === 'person') return { width: 128, height: 56 };
+      if (type === 'plainText') return { width: 156, height: 140 };
+      if (type === 'shape' && ['circle', 'diamond'].includes(shapeVariant)) return { width: 104, height: 104 };
+      if (type === 'shape' && shapeVariant === 'ellipse') return { width: 148, height: 76 };
+      return { width: 156, height: 82 };
+    }
+    function normalizeShapeVariant(value) { return SHAPE_VARIANTS.some(item => item.value === value) ? value : 'rectangle'; }
+    function applyShapeVariant(node, value) {
+      if (!isShapeNode(node)) return;
+      node.shapeVariant = normalizeShapeVariant(value);
+      Object.assign(node, nodeDefaultSize('shape', node.shapeVariant));
+      node.updatedAt = Date.now();
+    }
     const FIELD_TEMPLATES = {
       action: [['目标用户', 'targetUser'], ['运营目标', 'goal'], ['触达渠道', 'channel'], ['成功指标', 'metric']],
       activity: [['活动机制', 'mechanism'], ['活动预算', 'budget'], ['活动时间', 'schedule'], ['转化目标', 'conversion']],
@@ -1510,10 +1554,9 @@
     }
 
     function makeDefaultProject() {
-      const stages = [
-        ['内部体验期', '验证体验'], ['测试期', '验证模型'], ['爆发期', '加速增长'],
-        ['稳定期', '提效留存'], ['衰退期', '价值回收'], ['关服', '迁移沉淀']
-      ].map(([name, note]) => ({ id: uid('stage'), name, note }));
+      const stages = Array.from({ length: 6 }, (_, index) => ({
+        id: uid('stage'), name: `COLUMN ${String(index + 1).padStart(2, '0')}`, note: ''
+      }));
       const lanes = [
         { id: uid('lane'), name: '产品生命周期', note: '围绕版本、能力与商业化节奏', phases: ['内部体验期', '测试期', '爆发期', '稳定期', '衰退期', '关服'] },
         { id: uid('lane'), name: '用户生命周期', note: '围绕用户成长、留存、流失与召回', phases: ['新手期', '成熟期', '稳定期', '预流失', '流失', '回流'] }
@@ -1536,16 +1579,18 @@
     }
 
     function makeNode(type, stageId, laneId, x = 12, y = 18, patch = {}) {
-      const preset = TYPES.find(item => item.type === type);
-      const isShape = SHAPES.some(item => item.type === type);
+      const preset = TYPES.find(item => item.type === type) || lightweightPreset(type);
+      const shapeVariant = type === 'shape' ? normalizeShapeVariant(patch.shapeVariant) : '';
+      const size = nodeDefaultSize(type, shapeVariant);
+      const defaultTitle = type === 'shape' ? '双击编辑文字' : preset?.title || '新组件';
       return {
-        id: uid('node'), type, title: patch.title || (preset ? preset.title : isShape ? '双击编辑图形' : '新组件'),
-        summary: patch.summary || (preset ? preset.summary : ''), detail: patch.detail || '',
-        owner: patch.owner || '', priority: patch.priority || '中', tags: patch.tags || [], images: Array.isArray(patch.images) ? patch.images : [],
+        id: uid('node'), type, title: patch.title || defaultTitle,
+        summary: isLightweightNode(type) ? '' : patch.summary || (preset?.summary || ''), detail: isLightweightNode(type) ? '' : patch.detail || '',
+        owner: isLightweightNode(type) ? '' : patch.owner || '', priority: patch.priority || '中', tags: isLightweightNode(type) ? [] : patch.tags || [], images: isLightweightNode(type) ? [] : Array.isArray(patch.images) ? patch.images : [],
         style: patch.style || 'solid', color: patch.color || COLORS[0].value,
-        progress: patch.progress || '未开始', effect: patch.effect || '未验证', fields: patch.fields || {},
-        stageId, laneId, x, y, width: patch.width || (type === 'circle' || type === 'diamond' ? 104 : 156),
-        height: patch.height || (type === 'circle' || type === 'diamond' ? 104 : 82),
+        progress: patch.progress || '未开始', effect: patch.effect || '未验证', fields: isLightweightNode(type) ? {} : patch.fields || {},
+        shapeVariant, stageId, laneId, x, y, width: patch.width || size.width,
+        height: patch.height || size.height,
         createdAt: Date.now(), updatedAt: Date.now()
       };
     }
@@ -1586,8 +1631,16 @@
         }
       });
       [...project.nodes, ...project.staging].forEach(node => {
-        node.width ||= (node.type === 'circle' || node.type === 'diamond' ? 104 : 156);
-        node.height ||= (node.type === 'circle' || node.type === 'diamond' ? 104 : 82);
+        if (LEGACY_SHAPE_TYPES[node.type]) {
+          node.shapeVariant = LEGACY_SHAPE_TYPES[node.type];
+          node.type = 'shape';
+        } else if (node.type === 'text') {
+          node.type = 'plainText';
+        }
+        if (node.type === 'shape') node.shapeVariant = normalizeShapeVariant(node.shapeVariant);
+        const defaultSize = nodeDefaultSize(node.type, node.shapeVariant);
+        node.width ||= defaultSize.width;
+        node.height ||= defaultSize.height;
         node.color = COLORS.some(item => item.value === node.color) ? node.color : COLORS[0].value;
         node.style = node.style === 'dashed' ? 'dashed' : 'solid';
         node.tags = Array.isArray(node.tags) ? node.tags : [];
@@ -2680,7 +2733,10 @@ using (
         <div class="palette-item" draggable="true" data-create-type="${item.type}">
           <div class="shape-icon ${item.className}"></div><div class="palette-name">${item.name}</div><div class="palette-desc">基础表达图形</div>
         </div>`).join('');
-      $('#textComponents').innerHTML = `<div class="palette-item rich-text-palette" draggable="true" data-create-type="richText"><div class="palette-icon">Aa</div><div class="palette-name">${RICH_TEXT_PRESET.name}</div><div class="palette-desc">${RICH_TEXT_PRESET.desc}</div></div>`;
+      $('#textComponents').innerHTML = `${LIGHTWEIGHT_TYPES.map(item => `
+        <div class="palette-item" draggable="true" data-create-type="${item.type}">
+          <div class="palette-icon">${item.code}</div><div class="palette-name">${item.name}</div><div class="palette-desc">${item.desc}</div>
+        </div>`).join('')}<div class="palette-item rich-text-palette" draggable="true" data-create-type="richText"><div class="palette-icon">Aa</div><div class="palette-name">${RICH_TEXT_PRESET.name}</div><div class="palette-desc">${RICH_TEXT_PRESET.desc}</div></div>`;
       $$('[data-create-type]').forEach(item => {
         item.addEventListener('dragstart', event => {
           activePaletteDragType = item.dataset.createType;
@@ -2694,7 +2750,7 @@ using (
         bindMobileSource(item, { source: 'palette', type: item.dataset.createType }, typeName(item.dataset.createType));
       });
       $('#colorRow').innerHTML = COLORS.map(item => `<button class="color-dot" style="--c:${item.value}" data-color="${item.value}" title="${item.value}"></button>`).join('');
-      const typeOptions = '<option value="">全部类型</option>' + TYPES.map(item => `<option value="${item.type}">${item.name}</option>`).join('') + '<option value="shape">基础图形</option>';
+      const typeOptions = '<option value="">全部类型</option>' + [...TYPES, ...LIGHTWEIGHT_TYPES].map(item => `<option value="${item.type}">${item.name}</option>`).join('') + '<option value="shape">基础图形</option>';
       $('#typeFilter').innerHTML = typeOptions;
       $('#mobileTypeFilter').innerHTML = typeOptions;
       $('#batchNoteType').innerHTML = TYPES.map(item => `<option value="${item.type}">${item.name}</option>`).join('');
@@ -2731,14 +2787,16 @@ using (
     }
 
     function mobileNodeCardHtml(node, index, total) {
-      const preset = TYPES.find(item => item.type === node.type);
+      const preset = TYPES.find(item => item.type === node.type) || lightweightPreset(node.type);
+      const lightweight = isLightweightNode(node);
       const imageCount = Array.isArray(node.images) ? node.images.length : 0;
       const relationCount = (currentProject.edges || []).filter(edge => edge.from === node.id || edge.to === node.id).length;
-      return `<article class="mobile-node-card ${node.style === 'dashed' ? 'dashed' : ''}" data-mobile-node-id="${escapeAttr(node.id)}" style="--node-color:${escapeAttr(node.color || COLORS[0].value)}">
-        <div class="mobile-node-card-top"><span class="mobile-node-kind">${escapeHtml(preset?.code || typeName(node.type))}</span><span class="mobile-node-progress">${escapeHtml(node.progress || '未开始')}</span></div>
-        <h4>${escapeHtml(node.title || '未命名组件')}</h4>${node.summary ? `<p>${escapeHtml(node.summary)}</p>` : ''}
-        <div class="mobile-node-meta">${node.owner ? `<span>${escapeHtml(node.owner)}</span>` : ''}<span>${escapeHtml(node.priority || '中')}优先级</span>${imageCount ? `<span>${imageCount} 张图片</span>` : ''}${relationCount ? `<span>${relationCount} 个关系</span>` : ''}</div>
-        <div class="mobile-node-actions"><button data-mobile-node-action="edit" data-node-id="${escapeAttr(node.id)}">编辑详情</button><button data-mobile-node-action="up" data-node-id="${escapeAttr(node.id)}" ${index === 0 ? 'disabled' : ''} aria-label="上移">↑</button><button data-mobile-node-action="down" data-node-id="${escapeAttr(node.id)}" ${index === total - 1 ? 'disabled' : ''} aria-label="下移">↓</button><button data-mobile-node-action="move" data-node-id="${escapeAttr(node.id)}">移动</button></div>
+      const kind = isShapeNode(node) ? SHAPE_VARIANTS.find(item => item.value === normalizeShapeVariant(node.shapeVariant))?.name || '矩形' : preset?.code || typeName(node.type);
+      return `<article class="mobile-node-card ${node.style === 'dashed' ? 'dashed' : ''} ${lightweight ? 'lightweight' : ''}" data-mobile-node-id="${escapeAttr(node.id)}" style="--node-color:${escapeAttr(node.color || COLORS[0].value)}">
+        <div class="mobile-node-card-top"><span class="mobile-node-kind">${escapeHtml(kind)}</span>${lightweight ? '' : `<span class="mobile-node-progress">${escapeHtml(node.progress || '未开始')}</span>`}</div>
+        <h4>${escapeHtml(node.title || (node.type === 'person' ? '输入人名' : node.type === 'plainText' ? '点击编辑文字' : '双击编辑文字'))}</h4>${!lightweight && node.summary ? `<p>${escapeHtml(node.summary)}</p>` : ''}
+        ${lightweight ? '' : `<div class="mobile-node-meta">${node.owner ? `<span>${escapeHtml(node.owner)}</span>` : ''}<span>${escapeHtml(node.priority || '中')}优先级</span>${imageCount ? `<span>${imageCount} 张图片</span>` : ''}${relationCount ? `<span>${relationCount} 个关系</span>` : ''}</div>`}
+        <div class="mobile-node-actions"><button data-mobile-node-action="edit" data-node-id="${escapeAttr(node.id)}">${lightweight ? '编辑文字' : '编辑详情'}</button><button data-mobile-node-action="up" data-node-id="${escapeAttr(node.id)}" ${index === 0 ? 'disabled' : ''} aria-label="上移">↑</button><button data-mobile-node-action="down" data-node-id="${escapeAttr(node.id)}" ${index === total - 1 ? 'disabled' : ''} aria-label="下移">↓</button><button data-mobile-node-action="move" data-node-id="${escapeAttr(node.id)}">移动</button></div>
       </article>`;
     }
 
@@ -2873,25 +2931,39 @@ using (
       if (laneSelect) { laneSelect.innerHTML = currentProject.lanes.map(lane => `<option value="${escapeAttr(lane.id)}">${escapeHtml(lane.name)}</option>`).join(''); laneSelect.value = laneId || currentProject.lanes[0]?.id || ''; }
     }
 
+    function updateMobileCreateFields() {
+      const type = $('#mobileCreateType').value; const lightweight = isLightweightNode(type);
+      const isPerson = type === 'person'; const isPlainText = type === 'plainText'; const isShape = type === 'shape';
+      $('#mobileCreateSummaryField').classList.toggle('hidden', lightweight);
+      $('#mobileCreateBusinessFields').classList.toggle('hidden', lightweight);
+      $('#mobileCreateTitleLabel').textContent = isPerson ? '人名' : isPlainText ? '文字内容' : isShape ? '图形内文字' : '标题';
+      $('#mobileCreateTitle').placeholder = isPerson ? '输入人名' : isPlainText ? '输入大段文字' : isShape ? '输入图形内文字' : '输入一个清晰的运营内容标题';
+      $('#mobileCreateTitle').maxLength = isPerson ? 40 : isPlainText ? 1200 : 120;
+      $('#mobileCreateContext').textContent = lightweight ? '轻量组件创建后只编辑必要文字，不显示复杂业务详情。' : `${mobileStageLabel($('#mobileCreateStage').value)} / ${mobileLaneLabel($('#mobileCreateLane').value)} · 创建后可继续编辑完整详情与图片`;
+    }
+
     function openMobileCreateModal(stageId = '', laneId = '') {
       ensureMobileDesignState();
       const resolvedStage = stageId || (mobileDesignState.view === 'stage' ? mobileDesignState.stageId : mobileDesignState.unitStageId) || currentProject.stages[0]?.id;
       const resolvedLane = laneId || (mobileDesignState.view === 'lane' ? mobileDesignState.laneId : mobileDesignState.unitLaneId) || currentProject.lanes[0]?.id;
-      $('#mobileCreateType').innerHTML = [...TYPES, ...SHAPES].map(item => `<option value="${escapeAttr(item.type)}">${escapeHtml(item.name)}</option>`).join('');
+      $('#mobileCreateType').innerHTML = [...TYPES, ...LIGHTWEIGHT_TYPES, ...SHAPES].map(item => `<option value="${escapeAttr(item.type)}">${escapeHtml(item.name)}</option>`).join('');
       fillMobileStructureSelects($('#mobileCreateStage'), $('#mobileCreateLane'), resolvedStage, resolvedLane);
       $('#mobileCreateTitle').value = ''; $('#mobileCreateSummary').value = ''; $('#mobileCreateProgress').value = '未开始'; $('#mobileCreatePriority').value = '中';
-      $('#mobileCreateContext').textContent = `${mobileStageLabel(resolvedStage)} / ${mobileLaneLabel(resolvedLane)} · 创建后可继续编辑完整详情与图片`;
+      updateMobileCreateFields();
       openModal('mobileCreateModal'); setTimeout(() => $('#mobileCreateTitle')?.focus(), 120);
     }
 
     function createMobileNode() {
       const stageId = $('#mobileCreateStage').value; const laneId = $('#mobileCreateLane').value; const type = $('#mobileCreateType').value;
       if (!stageId || !laneId) return toast('请先创建并选择阶段与泳道', 'error');
-      const title = $('#mobileCreateTitle').value.trim(); const preset = TYPES.find(item => item.type === type);
+      const title = $('#mobileCreateTitle').value.trim(); const preset = TYPES.find(item => item.type === type) || lightweightPreset(type);
       const nodes = mobileRegionNodes(stageId, laneId);
       const nextY = nodes.reduce((bottom, node) => Math.max(bottom, Number(node.y || REGION_CONTENT_TOP) + Number(node.height || 82) + 12), REGION_CONTENT_TOP);
+      const patch = isLightweightNode(type)
+        ? { title: title || (type === 'shape' ? '双击编辑文字' : preset?.title || typeName(type)) }
+        : { title: title || preset?.title || typeName(type), summary: $('#mobileCreateSummary').value.trim(), progress: $('#mobileCreateProgress').value, priority: $('#mobileCreatePriority').value };
       checkpoint();
-      const node = makeNode(type, stageId, laneId, 12, nextY, { title: title || preset?.title || typeName(type), summary: $('#mobileCreateSummary').value.trim(), progress: $('#mobileCreateProgress').value, priority: $('#mobileCreatePriority').value });
+      const node = makeNode(type, stageId, laneId, 12, nextY, patch);
       currentProject.nodes.push(node); selectedId = node.id; selectedIds = new Set([node.id]);
       mobileDesignState = { ...mobileDesignState, view: 'unit', stageId, laneId, unitStageId: stageId, unitLaneId: laneId };
       closeModal('mobileCreateModal'); renderAll(); persist(); selectNode(node.id, false, true); toast('内容已加入结构化画布');
@@ -2945,7 +3017,7 @@ using (
       grid.style.gridTemplateRows = `56px ${laneHeights.join(' ')}`;
       let html = `<div class="corner-cell"><strong>运营全景</strong><span>${currentProject.lanes.length} 条泳道 · ${stageCount} 个阶段</span></div>`;
       currentProject.stages.forEach((stage, index) => {
-        html += `<div class="stage-head"><div class="stage-index">COLUMN ${String(index + 1).padStart(2, '0')}</div><div class="stage-name">${escapeHtml(stage.name || `阶段列 ${index + 1}`)}</div></div>`;
+        html += `<div class="stage-head" title="${escapeAttr(stage.name || `阶段列 ${index + 1}`)}"><div class="stage-index">COLUMN ${String(index + 1).padStart(2, '0')}</div></div>`;
       });
       currentProject.lanes.forEach(lane => {
         html += `<div class="lane-head"><div class="lane-bar"></div><div class="lane-name">${escapeHtml(lane.name)}</div><div class="lane-note">${escapeHtml(lane.note || '运营工作泳道')}</div></div>`;
@@ -2963,21 +3035,22 @@ using (
     }
 
     function renderNodeHtml(node) {
-      const preset = TYPES.find(item => item.type === node.type);
+      const preset = TYPES.find(item => item.type === node.type) || lightweightPreset(node.type);
       const color = COLORS.find(item => item.value === node.color) || COLORS[0];
-      const shapeClass = ['circle', 'diamond', 'text'].includes(node.type) ? node.type : '';
+      const lightweight = isLightweightNode(node);
+      const shapeVariant = isShapeNode(node) ? normalizeShapeVariant(node.shapeVariant) : '';
+      const shapeClass = isShapeNode(node) ? `lightweight-node shape-node shape-${shapeVariant}` : node.type === 'person' ? 'lightweight-node person-node' : node.type === 'plainText' ? 'lightweight-node plain-text-node' : '';
       const tags = Array.isArray(node.tags) ? node.tags : [];
       const selected = selectedIds.has(node.id);
       const matched = nodeMatchesFilters(node);
       const width = node.width || 156; const height = node.height || 82;
       const sizeClass = [width <= 124 ? 'narrow' : '', height <= 72 ? 'compact' : '', height > 72 && height < 116 ? 'short' : '', height >= 168 ? 'tall' : ''].filter(Boolean).join(' ');
+      const content = lightweight
+        ? `<div class="node-inner"><div class="node-title">${escapeHtml(node.title || (node.type === 'person' ? '输入人名' : node.type === 'plainText' ? '点击编辑文字' : '双击编辑文字')).replace(/\n/g, '<br>')}</div></div>`
+        : `<div class="node-inner"><div class="node-top"><span class="node-kind">${preset?.code || node.type.toUpperCase()}</span><span class="node-status"></span></div><div class="node-title">${escapeHtml(node.title || '未命名组件')}</div>${node.summary ? `<div class="node-summary">${escapeHtml(node.summary)}</div>` : ''}${(node.owner || tags.length || node.progress) ? `<div class="node-footer">${node.owner ? `<span class="node-chip">${escapeHtml(node.owner)}</span>` : ''}${tags[0] ? `<span class="node-chip">#${escapeHtml(tags[0])}</span>` : ''}${node.progress ? `<span class="progress-pill">${escapeHtml(node.progress)}</span>` : ''}</div>` : ''}</div>`;
       return `<article class="canvas-node ${node.style === 'dashed' ? 'dashed' : ''} ${shapeClass} ${sizeClass} ${selectedId === node.id ? 'selected' : ''} ${selected ? 'multi-selected' : ''} ${matched ? '' : 'filtered-out'}"
         data-node-id="${node.id}" style="left:${node.x}px;top:${node.y}px;width:${width}px;height:${height}px;min-height:${height}px;--node-color:${node.color};--node-bg:${color.bg}">
-        <div class="node-inner"><div class="node-top"><span class="node-kind">${preset ? preset.code : node.type.toUpperCase()}</span><span class="node-status"></span></div>
-        <div class="node-title">${escapeHtml(node.title || '未命名组件')}</div>
-        ${node.summary ? `<div class="node-summary">${escapeHtml(node.summary)}</div>` : ''}
-        ${(node.owner || tags.length || node.progress) ? `<div class="node-footer">${node.owner ? `<span class="node-chip">${escapeHtml(node.owner)}</span>` : ''}${tags[0] ? `<span class="node-chip">#${escapeHtml(tags[0])}</span>` : ''}${node.progress ? `<span class="progress-pill">${escapeHtml(node.progress)}</span>` : ''}</div>` : ''}</div>
-        <span class="resize-handle" title="拖动调整大小"></span>
+        ${content}<span class="resize-handle" title="拖动调整大小"></span>
       </article>`;
     }
 
@@ -3501,7 +3574,7 @@ using (
       if (action === 'projects') { persist(true); renderProjectList(); openModal('projectsModal'); }
       if (action === 'compare') setTimeout(() => openCompareModal(), 0);
       if (action === 'tutorial') setTimeout(() => startOnboarding(true), 0);
-      if (action === 'export') setTimeout(() => { const menu = $('#exportMenu'); menu.style.position = 'fixed'; menu.style.left = '50%'; menu.style.top = '50%'; menu.style.transform = 'translate(-50%,-50%)'; menu.classList.remove('hidden'); }, 0);
+      if (action === 'export') exportJson();
       if (action === 'import') $('#fileInput').click();
       if (action === 'add-stage') addStage();
       if (action === 'add-lane') addLane();
@@ -3535,7 +3608,12 @@ using (
       $$('.canvas-node').forEach(nodeEl => {
         nodeEl.addEventListener('pointerdown', startNodeDrag);
         nodeEl.addEventListener('click', event => { event.stopPropagation(); if (connectionMode) return; if (!dragState?.moved) selectNode(nodeEl.dataset.nodeId, event.shiftKey); });
-        nodeEl.addEventListener('dblclick', event => { event.stopPropagation(); selectNode(nodeEl.dataset.nodeId); $('#nodeTitle').focus(); $('#nodeTitle').select(); });
+        nodeEl.addEventListener('dblclick', event => {
+          event.stopPropagation();
+          const node = findNode(nodeEl.dataset.nodeId); selectNode(nodeEl.dataset.nodeId);
+          const editor = node?.type === 'plainText' ? $('#lightweightTextArea') : isLightweightNode(node) ? $('#lightweightTextInput') : $('#nodeTitle');
+          editor?.focus(); editor?.select?.();
+        });
         nodeEl.addEventListener('contextmenu', event => openNodeMenu(event, nodeEl.dataset.nodeId));
         const handle = $('.resize-handle', nodeEl);
         if (handle) handle.addEventListener('pointerdown', startNodeResize);
@@ -3940,9 +4018,11 @@ using (
 
     function renderInspector() {
       const node = findNode(selectedId); const note = findFreeText(selectedId); const selected = node || note;
+      const lightweight = !!node && isLightweightNode(node);
       $('#emptyInspector').classList.toggle('hidden', !!selected);
       $('#inspector').classList.toggle('hidden', !selected);
-      $('#standardInspectorFields').classList.toggle('hidden', !node);
+      $('#standardInspectorFields').classList.toggle('hidden', !node || lightweight);
+      $('#lightweightInspectorFields').classList.toggle('hidden', !lightweight);
       $('#richTextInspectorFields').classList.toggle('hidden', !note);
       $('#moveStagingBtn').classList.toggle('hidden', !node);
       if (!selected) return;
@@ -3953,6 +4033,21 @@ using (
         $('#richTextColor').value = note.color || '#173f40';
         $('#richBoldBtn').classList.toggle('active', !!note.bold);
         $('#richUnderlineBtn').classList.toggle('active', !!note.underline);
+        return;
+      }
+      if (lightweight) {
+        const isPerson = node.type === 'person'; const isPlainText = node.type === 'plainText'; const isShape = node.type === 'shape';
+        $('#lightweightInspectorTitle').textContent = isPerson ? '人名组件' : isPlainText ? '纯文字框' : '基础图形';
+        $('#lightweightSingleLineField').classList.toggle('hidden', isPlainText);
+        $('#lightweightMultilineField').classList.toggle('hidden', !isPlainText);
+        $('#shapeVariantField').classList.toggle('hidden', !isShape);
+        $('#lightweightTextLabel').textContent = isPerson ? '人名' : '图形内文字';
+        $('#lightweightTextInput').placeholder = isPerson ? '输入人名' : '输入图形内文字';
+        $('#lightweightTextInput').maxLength = isPerson ? 40 : 120;
+        $('#lightweightTextInput').value = node.title || '';
+        $('#lightweightTextArea').value = node.title || '';
+        $('#shapeVariantSelect').value = normalizeShapeVariant(node.shapeVariant);
+        $('#lightweightInspectorHelp').textContent = isPerson ? '人名组件仅编辑姓名，保持小巧，不显示其他内容详情。' : isPlainText ? '纯文字框用于记录较长文字，只编辑正文内容。' : '基础图形只编辑图形内文字和图形样式。';
         return;
       }
       $('#nodeTitle').value = node.title || '';
@@ -4053,6 +4148,12 @@ using (
         el.addEventListener('change', () => updateSelected({ nodePriority: 'priority', nodeProgress: 'progress', nodeEffect: 'effect' }[id], el.value));
       });
       bindContinuousNodeInput($('#nodeTags'), 'tags', value => value.split(/[,，]/).map(item => item.trim()).filter(Boolean));
+      bindContinuousNodeInput($('#lightweightTextInput'), 'title');
+      bindContinuousNodeInput($('#lightweightTextArea'), 'title');
+      $('#shapeVariantSelect').addEventListener('change', event => {
+        const node = findNode(selectedId); if (!isShapeNode(node) || node.shapeVariant === event.target.value) return;
+        checkpoint(); applyShapeVariant(node, event.target.value); renderAll(); persist(); toast(`图形已更改为${SHAPE_VARIANTS.find(item => item.value === node.shapeVariant)?.name || '矩形'}`);
+      });
       $$('.status-option').forEach(item => item.onclick = () => updateSelected('style', item.dataset.style));
       $$('.color-dot').forEach(item => item.onclick = () => updateSelected('color', item.dataset.color));
       $('#richTextContent').addEventListener('change', event => updateSelectedFreeText('content', event.target.value));
@@ -4147,7 +4248,7 @@ using (
 
     function addStage() {
       configDraft = deepClone({ stages: currentProject.stages, lanes: currentProject.lanes });
-      const name = `新阶段 ${configDraft.stages.length + 1}`;
+      const name = `COLUMN ${String(configDraft.stages.length + 1).padStart(2, '0')}`;
       configDraft.stages.push({ id: uid('stage'), name });
       configDraft.lanes.forEach(lane => { lane.phases ||= []; lane.phases.push(name); });
       openSettingsWithDraft();
@@ -4221,9 +4322,9 @@ using (
       currentProject.lanes.forEach((lane, laneIndex) => currentProject.stages.forEach((stage, stageIndex) => {
         if (!currentProject.nodes.some(node => node.laneId === lane.id && node.stageId === stage.id)) emptyRegions.push(`${lane.name} / ${lane.phases?.[stageIndex] || stage.name}`);
       }));
-      const noOwner = currentProject.nodes.filter(node => !node.owner && !SHAPES.some(shape => shape.type === node.type));
-      const noDetail = currentProject.nodes.filter(node => !node.detail && !SHAPES.some(shape => shape.type === node.type));
-      const plannedNoMetric = currentProject.nodes.filter(node => node.style === 'dashed' && !node.fields?.metric && node.type !== 'metric' && !SHAPES.some(shape => shape.type === node.type));
+      const noOwner = currentProject.nodes.filter(node => !node.owner && !isLightweightNode(node));
+      const noDetail = currentProject.nodes.filter(node => !node.detail && !isLightweightNode(node));
+      const plannedNoMetric = currentProject.nodes.filter(node => node.style === 'dashed' && !node.fields?.metric && node.type !== 'metric' && !isLightweightNode(node));
       const risksNoResponse = currentProject.nodes.filter(node => node.type === 'risk' && !node.fields?.response);
       if (emptyRegions.length) issues.push(`有 ${emptyRegions.length} 个阶段区域尚未规划：${emptyRegions.slice(0, 5).join('、')}${emptyRegions.length > 5 ? '……' : ''}`);
       if (noOwner.length) issues.push(`有 ${noOwner.length} 个运营组件未指定负责人：${noOwner.slice(0, 5).map(node => node.title).join('、')}`);
@@ -4301,6 +4402,11 @@ using (
     }
 
     function compareNodeFields(project, node) {
+      if (isLightweightNode(node)) {
+        const fields = [['文字', node.title || ''], ['组件类型', typeName(node.type)]];
+        if (isShapeNode(node)) fields.push(['图形样式', SHAPE_VARIANTS.find(item => item.value === normalizeShapeVariant(node.shapeVariant))?.name || '矩形']);
+        return fields;
+      }
       const fields = [
         ['标题', node.title || ''], ['组件类型', typeName(node.type)], ['卡片摘要', node.summary || ''], ['详细方案', node.detail || ''],
         ['负责人', node.owner || ''], ['优先级', node.priority || '中'], ['执行进度', node.progress || '未开始'], ['运营效果', node.effect || '未验证'],
@@ -4355,7 +4461,7 @@ using (
     }
 
     function compareProjectMetrics(project) {
-      const businessNodes = (project.nodes || []).filter(node => !SHAPES.some(shape => shape.type === node.type));
+      const businessNodes = (project.nodes || []).filter(node => !isLightweightNode(node));
       const totalCells = Math.max(1, (project.stages || []).length * (project.lanes || []).length);
       const occupiedCells = new Set((project.nodes || []).map(node => compareCellKey(project, node))).size;
       return {
@@ -4636,28 +4742,6 @@ using (
       reader.readAsText(file, 'utf-8');
     }
 
-    async function exportPng() {
-      closeMenus();
-      const board = $('#board');
-      const width = board.scrollWidth; const height = board.scrollHeight;
-      const clone = board.cloneNode(true);
-      clone.style.boxShadow = 'none'; clone.style.borderRadius = '0';
-      const style = [...document.styleSheets].map(sheet => {
-        try { return [...sheet.cssRules].map(rule => rule.cssText).join('\n'); } catch { return ''; }
-      }).join('\n');
-      const serialized = new XMLSerializer().serializeToString(clone);
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>${style}</style>${serialized}</div></foreignObject></svg>`;
-      const image = new Image();
-      const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
-      image.onload = () => {
-        const canvas = document.createElement('canvas'); canvas.width = width * 2; canvas.height = height * 2;
-        const context = canvas.getContext('2d'); context.scale(2, 2); context.fillStyle = '#fff'; context.fillRect(0, 0, width, height); context.drawImage(image, 0, 0);
-        URL.revokeObjectURL(url); canvas.toBlob(blob => { if (blob) { downloadBlob(blob, `${safeFileName(currentProject.name)}.png`); toast('PNG 图片已导出'); } else toast('PNG 导出失败，请使用打印功能', 'error'); }, 'image/png');
-      };
-      image.onerror = () => { URL.revokeObjectURL(url); toast('PNG 导出失败，请使用打印功能', 'error'); };
-      image.src = url;
-    }
-
     function downloadBlob(blob, name) {
       const url = URL.createObjectURL(blob); const link = document.createElement('a');
       link.href = url; link.download = name; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 500);
@@ -4732,7 +4816,7 @@ using (
       event.preventDefault(); event.stopPropagation(); contextNodeId = id; selectNode(id);
       const menu = $('#nodeMenu'); menu.style.left = `${Math.min(event.clientX, innerWidth - 170)}px`; menu.style.top = `${Math.min(event.clientY, innerHeight - 180)}px`; menu.classList.remove('hidden');
     }
-    function closeMenus() { $('#nodeMenu').classList.add('hidden'); $('#exportMenu').classList.add('hidden'); }
+    function closeMenus() { $('#nodeMenu').classList.add('hidden'); }
     function handleNodeMenu(action) {
       selectedId = contextNodeId;
       if (action === 'duplicate') duplicateSelected();
@@ -4753,7 +4837,7 @@ using (
     function openModal(id) { clearTransientCanvasUI(); $(`#${id}`).classList.remove('hidden'); }
     function closeModal(id) { $(`#${id}`).classList.add('hidden'); }
     function findNode(id) { return currentProject.nodes.find(item => item.id === id); }
-    function typeName(type) { return TYPES.find(item => item.type === type)?.name || SHAPES.find(item => item.type === type)?.name || '组件'; }
+    function typeName(type) { return TYPES.find(item => item.type === type)?.name || lightweightPreset(type)?.name || SHAPES.find(item => item.type === type)?.name || '组件'; }
     function clampRegionX(value, width = 156) { return Math.max(6, Math.min(Math.max(6, 185 - width - 6), value)); }
     function safeFileName(name) { return (name || '运营画布').replace(/[\\/:*?"<>|]/g, '-'); }
     function escapeHtml(value = '') { return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char])); }
@@ -4808,6 +4892,9 @@ using (
         if (action === 'tools') openModal('mobileToolsModal');
       });
       $('#mobileQuickCreateBtn').onclick = () => openMobileCreateModal();
+      $('#mobileCreateType').onchange = updateMobileCreateFields;
+      $('#mobileCreateStage').onchange = updateMobileCreateFields;
+      $('#mobileCreateLane').onchange = updateMobileCreateFields;
       $('#mobileCreateConfirmBtn').onclick = createMobileNode;
       $('#mobileMoveConfirmBtn').onclick = confirmMobileMove;
       $('#mobileBackToStructureBtn').onclick = leaveMobileCanvasView;
@@ -4851,7 +4938,7 @@ using (
       $('#settingsBtn').onclick = () => { configDraft = null; openSettingsWithDraft(); };
       $('#addStageBtn').onclick = addStage; $('#addLaneBtn').onclick = addLane;
       $('#modalAddStage').onclick = () => {
-        const name = `新阶段 ${configDraft.stages.length + 1}`;
+        const name = `COLUMN ${String(configDraft.stages.length + 1).padStart(2, '0')}`;
         configDraft.stages.push({ id: uid('stage'), name });
         configDraft.lanes.forEach(lane => { lane.phases ||= []; lane.phases.push(name); });
         renderConfigLists();
@@ -4890,20 +4977,11 @@ using (
       });
       notesCanvas.addEventListener('drop', handleNotesDrop);
       $('#mobilePanelSizeBtn').onclick = () => { layoutPrefs.mobileExpanded = !layoutPrefs.mobileExpanded; saveLayoutPrefs(); applyLayoutPrefs(); syncMobileViewportHeight(); };
-      $('#exportBtn').onclick = event => {
-        const menu = $('#exportMenu'); const rect = event.currentTarget.getBoundingClientRect();
-        menu.style.left = `${Math.min(rect.left, innerWidth - 180)}px`; menu.style.top = `${rect.bottom + 7}px`; menu.classList.toggle('hidden');
-      };
-      $$('[data-export]').forEach(button => button.onclick = () => {
-        if (button.dataset.export === 'json') exportJson();
-        if (button.dataset.export === 'png') exportPng();
-        if (button.dataset.export === 'print') window.print();
-        closeMenus();
-      });
+      $('#exportBtn').onclick = exportJson;
       $('#importBtn').onclick = () => $('#fileInput').click();
       $('#fileInput').onchange = event => { const file = event.target.files[0]; if (file) importJson(file); event.target.value = ''; };
       $$('[data-node-action]').forEach(button => button.onclick = () => handleNodeMenu(button.dataset.nodeAction));
-      document.addEventListener('click', event => { if (!event.target.closest('.context-menu') && !event.target.closest('#exportBtn')) closeMenus(); });
+      document.addEventListener('click', event => { if (!event.target.closest('.context-menu')) closeMenus(); });
       $('#mobileSaveBtn').onclick = () => { persist(true); toast('方案已保存'); };
       $('#mobileExitBtn').onclick = requestCanvasExit;
       $('#mobileLibraryBtn').onclick = () => openMobileDrawer('left', 'components');
