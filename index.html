@@ -88,6 +88,9 @@
     .cloud-state.online { color: #164448; background: #e8fff7; border-color: rgba(255,255,255,.4); font-weight: 700; }
     .cloud-state.syncing { color: #fff; background: rgba(217,139,43,.38); }
     .cloud-state.error { color: #fff; background: rgba(185,74,69,.55); }
+    .cloud-state-wrap { min-width: 126px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .cloud-sync-time { min-height: 11px; color: rgba(255,255,255,.58); font-size: 9px; line-height: 1.15; text-align: center; white-space: nowrap; }
+    .cloud-sync-time:empty { display: none; }
     .cloud-account-modal { width: min(520px, 94vw); }
     .cloud-panel { display: grid; gap: 14px; }
     .cloud-card { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: var(--shadow-soft); }
@@ -467,6 +470,29 @@
     .color-row { display: flex; flex-wrap: wrap; gap: 8px; }
     .color-dot { width: 28px; height: 28px; border: 3px solid #fff; border-radius: 50%; background: var(--c); cursor: pointer; box-shadow: 0 0 0 1px var(--line); }
     .color-dot.active { box-shadow: 0 0 0 2px var(--c); }
+    .node-images { margin: 2px 0 15px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(145deg, #f8fbfa, #eef5f2); }
+    .node-images-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .node-images-head strong { display: block; font-size: 12px; }
+    .node-images-head span { display: block; margin-top: 3px; color: var(--faint); font-size: 9px; line-height: 1.45; }
+    .image-upload-btn { flex: 0 0 auto; height: 32px; padding: 0 10px; border: 1px solid #86aaa4; border-radius: 8px; color: var(--brand); background: #fff; cursor: pointer; font-size: 10px; font-weight: 700; }
+    .image-upload-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .image-drop-zone { min-height: 66px; display: grid; place-items: center; padding: 10px; border: 1px dashed #a8beb9; border-radius: 10px; color: var(--muted); background: rgba(255,255,255,.72); text-align: center; font-size: 10px; line-height: 1.55; cursor: pointer; transition: .18s ease; }
+    .image-drop-zone.drag-over { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); transform: translateY(-1px); }
+    .image-drop-zone.is-busy { pointer-events: none; opacity: .68; }
+    .node-image-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+    .node-image-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .node-image-preview { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; color: var(--faint); background: #e8efec; font-size: 10px; }
+    .node-image-preview img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .node-image-cover { position: absolute; top: 6px; left: 6px; padding: 3px 6px; border-radius: 999px; color: #fff; background: rgba(13,93,90,.84); font-size: 8px; font-weight: 800; letter-spacing: .06em; }
+    .node-image-meta { padding: 7px 8px 8px; }
+    .node-image-name { overflow: hidden; color: var(--ink); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .node-image-size { margin-top: 3px; color: var(--faint); font-size: 8px; }
+    .node-image-actions { display: flex; gap: 5px; margin-top: 7px; }
+    .node-image-actions button, .node-image-actions a { min-width: 0; flex: 1; height: 27px; display: grid; place-items: center; padding: 0 5px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); background: #fff; text-decoration: none; cursor: pointer; font-size: 8px; }
+    .node-image-actions .danger { color: var(--danger); }
+    .node-image-actions .disabled { opacity: .45; pointer-events: none; }
+    .image-upload-status { min-height: 16px; margin-top: 8px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .image-upload-status.error { color: var(--danger); }
 
     .modal-backdrop { position: fixed; z-index: 200; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(17,39,41,.42); backdrop-filter: blur(5px); }
     .modal { width: min(640px, 94vw); max-height: min(780px, calc(100dvh - 48px)); min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,.5); border-radius: 18px; background: #fbfcfb; box-shadow: 0 28px 80px rgba(14,42,44,.27); }
@@ -720,7 +746,7 @@
         <button class="top-btn" id="openProjectsBtn" title="打开方案">方案</button>
         <button class="top-btn primary" id="saveBtn" title="立即保存">保存</button>
         <button class="top-btn" id="cloudBtn" title="云端保存与同步">云端</button>
-        <span id="cloudState" class="cloud-state">本地</span>
+        <div class="cloud-state-wrap"><span id="cloudState" class="cloud-state">本地</span><span id="cloudSyncTime" class="cloud-sync-time"></span></div>
       </div>
       <div class="divider"></div>
       <div class="tool-cluster">
@@ -856,6 +882,13 @@
             <div class="field"><label for="nodeTitle">标题</label><input id="nodeTitle" maxlength="80"></div>
             <div class="field"><label for="nodeSummary">卡片摘要</label><textarea id="nodeSummary" maxlength="180"></textarea></div>
             <div class="field"><label for="nodeDetail">详细方案</label><textarea id="nodeDetail" style="min-height:140px" placeholder="目标、策略、执行步骤、资源与风险……"></textarea></div>
+            <section class="node-images" aria-labelledby="nodeImagesTitle">
+              <div class="node-images-head"><div><strong id="nodeImagesTitle">内容图片</strong><span>登录后上传至私有云存储；最多 6 张，单张原图不超过 5 MB。</span></div><button class="image-upload-btn" id="nodeImageUploadBtn" type="button">选择图片</button></div>
+              <input class="hidden" id="nodeImageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+              <div class="image-drop-zone" id="nodeImageDropZone" tabindex="0" role="button">拖拽图片到这里，或点击选择<br>将自动压缩为 WebP，最长边 1600 px</div>
+              <div class="node-image-grid" id="nodeImageGrid"></div>
+              <div class="image-upload-status" id="nodeImageStatus" aria-live="polite"></div>
+            </section>
             <div class="field-row">
               <div class="field"><label for="nodeOwner">负责人</label><input id="nodeOwner" placeholder="待指定"></div>
               <div class="field"><label for="nodePriority">优先级</label><select id="nodePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div>
@@ -1034,6 +1067,12 @@
     const AUTO_SYNC_KEY = 'operationCanvas.cloud.autoSync.v1';
     const CLOUD_DELETE_QUEUE_KEY = 'operationCanvas.cloud.deleteQueue.v1';
     const CLOUD_LAST_USER_KEY = 'operationCanvas.cloud.lastUser.v1';
+    const CLOUD_LAST_SYNC_KEY = 'operationCanvas.cloud.lastSync.v1';
+    const IMAGE_BUCKET = 'operation-canvas-assets';
+    const MAX_NODE_IMAGES = 6;
+    const MAX_IMAGE_SOURCE_BYTES = 5 * 1024 * 1024;
+    const IMAGE_MAX_EDGE = 1600;
+    const IMAGE_WEBP_QUALITY = .84;
     const SITE_CLOUD_CONFIG = Object.freeze(window.OPERATION_CANVAS_CLOUD_CONFIG || { url: '', anonKey: '' });
     const CLOUD_ADMIN_MODE = new URLSearchParams(location.search).get('admin') === '1';
     const GRID = 12;
@@ -1162,7 +1201,7 @@
       return {
         id: uid('node'), type, title: patch.title || (preset ? preset.title : isShape ? '双击编辑图形' : '新组件'),
         summary: patch.summary || (preset ? preset.summary : ''), detail: patch.detail || '',
-        owner: patch.owner || '', priority: patch.priority || '中', tags: patch.tags || [],
+        owner: patch.owner || '', priority: patch.priority || '中', tags: patch.tags || [], images: Array.isArray(patch.images) ? patch.images : [],
         style: patch.style || 'solid', color: patch.color || COLORS[0].value,
         progress: patch.progress || '未开始', effect: patch.effect || '未验证', fields: patch.fields || {},
         stageId, laneId, x, y, width: patch.width || (type === 'circle' || type === 'diamond' ? 104 : 156),
@@ -1212,6 +1251,13 @@
         node.color = COLORS.some(item => item.value === node.color) ? node.color : COLORS[0].value;
         node.style = node.style === 'dashed' ? 'dashed' : 'solid';
         node.tags = Array.isArray(node.tags) ? node.tags : [];
+        node.images = Array.isArray(node.images) ? node.images.filter(image => image && image.path).slice(0, MAX_NODE_IMAGES).map((image, index) => ({
+          id: image.id || uid('image'), path: String(image.path), name: String(image.name || `图片 ${index + 1}`),
+          size: Number(image.size || 0), width: Number(image.width || 0), height: Number(image.height || 0),
+          createdAt: Number(image.createdAt || Date.now()), cover: index === 0 ? image.cover !== false : !!image.cover
+        })) : [];
+        if (node.images.length && !node.images.some(image => image.cover)) node.images[0].cover = true;
+        if (node.images.filter(image => image.cover).length > 1) node.images.forEach((image, index) => { image.cover = index === node.images.findIndex(item => item.cover); });
         node.progress ||= '未开始'; node.effect ||= '未验证'; node.fields ||= {};
       });
       const userPhases = ['新手期', '成熟期', '稳定期', '预流失', '流失', '回流'];
@@ -1233,6 +1279,8 @@
     let cloudSaveTimer = null;
     let cloudPushInFlight = false;
     let cloudPushQueued = false;
+    let imageUploadBusy = false;
+    const signedImageUrlCache = new Map();
     let cloudConfig = loadCloudConfig();
     let cloudSession = loadCloudSession();
     let autoSyncPrefs = loadAutoSyncPrefs();
@@ -1432,7 +1480,57 @@ with check ((select auth.uid()) = user_id);
 
 create policy "operation_canvas_delete_own" on public.operation_canvas_projects
 for delete to authenticated
-using ((select auth.uid()) = user_id);`;
+using ((select auth.uid()) = user_id);
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'operation-canvas-assets',
+  'operation-canvas-assets',
+  false,
+  5242880,
+  array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "operation_canvas_assets_select_own" on storage.objects;
+drop policy if exists "operation_canvas_assets_insert_own" on storage.objects;
+drop policy if exists "operation_canvas_assets_update_own" on storage.objects;
+drop policy if exists "operation_canvas_assets_delete_own" on storage.objects;
+
+create policy "operation_canvas_assets_select_own" on storage.objects
+for select to authenticated
+using (
+  bucket_id = 'operation-canvas-assets'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);
+
+create policy "operation_canvas_assets_insert_own" on storage.objects
+for insert to authenticated
+with check (
+  bucket_id = 'operation-canvas-assets'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);
+
+create policy "operation_canvas_assets_update_own" on storage.objects
+for update to authenticated
+using (
+  bucket_id = 'operation-canvas-assets'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+)
+with check (
+  bucket_id = 'operation-canvas-assets'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);
+
+create policy "operation_canvas_assets_delete_own" on storage.objects
+for delete to authenticated
+using (
+  bucket_id = 'operation-canvas-assets'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);`;
 
     function normalizeCloudConfig(value = {}) {
       return { url: String(value?.url || '').trim().replace(/\/+$/, ''), anonKey: String(value?.anonKey || '').trim() };
@@ -1507,6 +1605,28 @@ using ((select auth.uid()) = user_id);`;
     function cloudConfigured() { return validCloudConfig(cloudConfig); }
     function cloudBaseUrl() { return String(cloudConfig.url || '').replace(/\/+$/, ''); }
     function cloudLoggedIn() { return cloudConfigured() && !!cloudSession?.access_token && !!(cloudSession.user?.id); }
+    function loadCloudLastSyncMap() {
+      try { const value = JSON.parse(localStorage.getItem(CLOUD_LAST_SYNC_KEY) || '{}'); return value && typeof value === 'object' ? value : {}; }
+      catch { return {}; }
+    }
+    function formatCloudSyncTime(timestamp) {
+      const date = new Date(Number(timestamp));
+      if (!Number.isFinite(date.getTime())) return '';
+      const pad = value => String(value).padStart(2, '0');
+      return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${pad(date.getHours())}:${pad(date.getMinutes())} 已云端同步`;
+    }
+    function renderCloudSyncTime() {
+      const target = $('#cloudSyncTime'); if (!target) return;
+      const userId = cloudLoggedIn() ? cloudSession.user.id : '';
+      const timestamp = userId ? Number(loadCloudLastSyncMap()[userId] || 0) : 0;
+      target.textContent = timestamp ? formatCloudSyncTime(timestamp) : '';
+      target.title = timestamp ? `最近一次成功同步：${new Date(timestamp).toLocaleString()}` : '';
+    }
+    function markCloudSyncSuccess(timestamp = Date.now()) {
+      if (!cloudLoggedIn()) return;
+      const values = loadCloudLastSyncMap(); values[cloudSession.user.id] = Number(timestamp);
+      localStorage.setItem(CLOUD_LAST_SYNC_KEY, JSON.stringify(values)); renderCloudSyncTime();
+    }
     function updateCloudStatus(message = '') {
       const state = $('#cloudState'); const box = $('#cloudStatusBox');
       let label = '未启用'; let cls = 'cloud-state';
@@ -1515,6 +1635,7 @@ using ((select auth.uid()) = user_id);`;
       if (message?.includes('同步') || message?.includes('上传') || message?.includes('拉取') || message?.includes('登录中')) cls += ' syncing';
       if (message?.includes('失败') || message?.includes('错误')) cls += ' error';
       if (state) { state.textContent = label; state.className = cls; }
+      renderCloudSyncTime();
       const user = cloudSession?.user?.email || '';
       if (box) box.textContent = message || (cloudLoggedIn()
         ? `已登录 ${user}，本地修改会自动同步到你的其他设备。`
@@ -1555,6 +1676,159 @@ using ((select auth.uid()) = user_id);`;
       try { data = text ? JSON.parse(text) : null; } catch { data = text; }
       if (!response.ok) throw new Error((data && (data.msg || data.message || data.error_description || data.error)) || `HTTP ${response.status}`);
       return data;
+    }
+    function encodeStoragePath(path) {
+      return String(path || '').split('/').filter(Boolean).map(encodeURIComponent).join('/');
+    }
+    function formatFileSize(bytes = 0) {
+      const value = Number(bytes || 0);
+      if (value < 1024) return `${value} B`;
+      if (value < 1024 * 1024) return `${(value / 1024).toFixed(0)} KB`;
+      return `${(value / 1024 / 1024).toFixed(1)} MB`;
+    }
+    function setNodeImageStatus(message = '', error = false) {
+      const status = $('#nodeImageStatus');
+      if (!status) return;
+      status.textContent = message;
+      status.classList.toggle('error', !!error);
+    }
+    async function storageFetch(path, options = {}) {
+      await refreshCloudSessionIfNeeded();
+      if (!cloudLoggedIn()) throw new Error('请先登录云端账号');
+      const headers = { apikey: cloudConfig.anonKey, Authorization: `Bearer ${cloudSession.access_token}`, ...(options.headers || {}) };
+      const response = await fetch(`${cloudBaseUrl()}${path}`, { ...options, headers });
+      const text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+      if (!response.ok) throw new Error((data && (data.message || data.error || data.msg)) || `HTTP ${response.status}`);
+      return data;
+    }
+    async function createSignedImageUrl(path) {
+      const cached = signedImageUrlCache.get(path);
+      if (cached && cached.expiresAt > Date.now() + 60000) return cached.url;
+      const data = await storageFetch(`/storage/v1/object/sign/${IMAGE_BUCKET}/${encodeStoragePath(path)}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expiresIn: 3600 })
+      });
+      const signedPath = data?.signedURL || data?.signedUrl;
+      if (!signedPath) throw new Error('未取得图片预览地址');
+      const relativePath = signedPath.startsWith('/storage/v1/') ? signedPath : `/storage/v1${signedPath.startsWith('/') ? signedPath : `/${signedPath}`}`;
+      const url = /^https?:\/\//i.test(signedPath) ? signedPath : `${cloudBaseUrl()}${relativePath}`;
+      signedImageUrlCache.set(path, { url, expiresAt: Date.now() + 3500000 });
+      return url;
+    }
+    function loadImageElement(file) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file); const image = new Image();
+        image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
+        image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('无法读取图片')); };
+        image.src = url;
+      });
+    }
+    async function compressNodeImage(file) {
+      if (!file?.type?.startsWith('image/')) throw new Error(`${file?.name || '文件'} 不是图片`);
+      if (file.size > MAX_IMAGE_SOURCE_BYTES) throw new Error(`${file.name} 超过 5 MB`);
+      const source = await loadImageElement(file);
+      const scale = Math.min(1, IMAGE_MAX_EDGE / Math.max(source.naturalWidth || source.width, source.naturalHeight || source.height));
+      const width = Math.max(1, Math.round((source.naturalWidth || source.width) * scale));
+      const height = Math.max(1, Math.round((source.naturalHeight || source.height) * scale));
+      const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+      const context = canvas.getContext('2d', { alpha: false });
+      context.fillStyle = '#ffffff'; context.fillRect(0, 0, width, height); context.drawImage(source, 0, 0, width, height);
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', IMAGE_WEBP_QUALITY));
+      if (!blob) throw new Error(`${file.name} 压缩失败`);
+      return { blob, width, height, name: `${String(file.name || 'image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]+/g, '-').slice(0, 60) || 'image'}.webp` };
+    }
+    async function uploadNodeImages(fileList) {
+      const node = findNode(selectedId); const files = [...(fileList || [])];
+      if (!node || !files.length || imageUploadBusy) return;
+      if (!cloudLoggedIn()) { setNodeImageStatus('请先在“云端账号”中登录，再上传图片。', true); return openModal('cloudModal'); }
+      const available = Math.max(0, MAX_NODE_IMAGES - (node.images?.length || 0));
+      if (!available) return setNodeImageStatus(`每个组件最多 ${MAX_NODE_IMAGES} 张图片。`, true);
+      imageUploadBusy = true; renderNodeImages(node);
+      let uploaded = 0; const failures = [];
+      for (const file of files.slice(0, available)) {
+        try {
+          setNodeImageStatus(`正在处理 ${file.name}（${uploaded + 1}/${Math.min(files.length, available)}）……`);
+          const compressed = await compressNodeImage(file);
+          const objectPath = `${cloudSession.user.id}/${currentProject.id}/${node.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
+          await storageFetch(`/storage/v1/object/${IMAGE_BUCKET}/${encodeStoragePath(objectPath)}`, {
+            method: 'POST', headers: { 'Content-Type': 'image/webp', 'x-upsert': 'false', 'cache-control': '3600' }, body: compressed.blob
+          });
+          node.images ||= [];
+          node.images.push({ id: uid('image'), path: objectPath, name: compressed.name, size: compressed.blob.size, width: compressed.width, height: compressed.height, createdAt: Date.now(), cover: node.images.length === 0 });
+          node.updatedAt = Date.now(); uploaded += 1; persist(true); renderNodeImages(node);
+        } catch (error) { failures.push(`${file.name}：${error.message}`); }
+      }
+      imageUploadBusy = false; renderNodeImages(findNode(selectedId));
+      if (uploaded) setNodeImageStatus(`已上传 ${uploaded} 张图片${failures.length ? `，${failures.length} 张失败` : ''}。`, !!failures.length);
+      else setNodeImageStatus(failures[0] || '没有图片被上传。', true);
+      if (files.length > available) toast(`已达到上限，后面的 ${files.length - available} 张未上传`, 'error');
+    }
+    async function removeStoragePaths(paths = []) {
+      const prefixes = [...new Set(paths.filter(Boolean))];
+      if (!prefixes.length) return [];
+      return storageFetch(`/storage/v1/object/${IMAGE_BUCKET}`, {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prefixes })
+      });
+    }
+    function scrubImagePathsFromProject(project, paths = []) {
+      if (!project || !paths.length) return project;
+      const blocked = new Set(paths);
+      const cleanNodes = list => (list || []).forEach(node => {
+        if (!Array.isArray(node?.images)) return;
+        node.images = node.images.filter(image => !blocked.has(image.path));
+        if (node.images.length && !node.images.some(image => image.cover)) node.images[0].cover = true;
+      });
+      cleanNodes(project.nodes); cleanNodes(project.staging);
+      (project.snapshots || []).forEach(snapshot => scrubImagePathsFromProject(snapshot?.data, paths));
+      return project;
+    }
+    function scrubImagePathsFromHistory(stack, paths) {
+      return stack.map(value => {
+        try { return JSON.stringify(scrubImagePathsFromProject(JSON.parse(value), paths)); }
+        catch { return value; }
+      });
+    }
+    function scrubDeletedImagePaths(paths = []) {
+      const uniquePaths = [...new Set(paths.filter(Boolean))]; if (!uniquePaths.length) return;
+      projects.forEach(project => scrubImagePathsFromProject(project, uniquePaths));
+      scrubImagePathsFromProject(currentProject, uniquePaths);
+      undoStack = scrubImagePathsFromHistory(undoStack, uniquePaths);
+      redoStack = scrubImagePathsFromHistory(redoStack, uniquePaths);
+    }
+    async function removeNodeStorageImages(nodes = []) {
+      const paths = nodes.flatMap(node => Array.isArray(node?.images) ? node.images.map(image => image.path) : []).filter(Boolean);
+      if (!paths.length) return true;
+      if (!cloudLoggedIn()) { toast('该内容包含云端图片，请先登录后再删除', 'error'); openModal('cloudModal'); return false; }
+      try {
+        await removeStoragePaths(paths);
+        paths.forEach(path => signedImageUrlCache.delete(path));
+        scrubDeletedImagePaths(paths);
+        return true;
+      } catch (error) {
+        toast(`云端图片清理失败：${error.message}`, 'error');
+        return false;
+      }
+    }
+    async function removeNodeImage(imageId) {
+      const node = findNode(selectedId); const image = node?.images?.find(item => item.id === imageId);
+      if (!node || !image || imageUploadBusy) return;
+      if (!cloudLoggedIn()) return setNodeImageStatus('请重新登录后再删除云端图片。', true);
+      if (!confirm(`永久删除图片“${image.name}”？此操作不能通过撤销恢复。`)) return;
+      imageUploadBusy = true; renderNodeImages(node); setNodeImageStatus('正在删除图片……');
+      try {
+        await removeStoragePaths([image.path]);
+        signedImageUrlCache.delete(image.path);
+        scrubDeletedImagePaths([image.path]);
+        if (node.images.length && !node.images.some(item => item.cover)) node.images[0].cover = true;
+        node.updatedAt = Date.now(); persist(true); setNodeImageStatus('图片已删除。');
+      } catch (error) { setNodeImageStatus(`删除失败：${error.message}`, true); }
+      imageUploadBusy = false; renderNodeImages(findNode(selectedId));
+    }
+    function setNodeImageCover(imageId) {
+      const node = findNode(selectedId); if (!node?.images?.some(image => image.id === imageId)) return;
+      node.images.forEach(image => { image.cover = image.id === imageId; });
+      node.updatedAt = Date.now(); persist(true); renderNodeImages(node); setNodeImageStatus('封面图已更新。');
     }
     async function refreshCloudSessionIfNeeded() {
       if (!cloudSession?.refresh_token || !cloudSession?.expires_at) return cloudSession;
@@ -1604,20 +1878,22 @@ using ((select auth.uid()) = user_id);`;
         method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify(payload)
       });
     }
-    async function cloudPushAll(silent = false) {
-      if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return; }
+    async function cloudPushAll(silent = false, recordSuccess = true) {
+      if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return false; }
       try {
         await flushCloudDeleteQueue(true);
         const pendingDeletes = pendingCloudDeleteIds(cloudSession.user.id);
         const uploadProjects = projects.filter(project => !pendingDeletes.has(project.id));
         updateCloudStatus('正在上传本地方案……');
         for (const project of uploadProjects) await cloudPushProject(project);
+        if (recordSuccess) markCloudSyncSuccess();
         updateCloudStatus(`上传完成：${uploadProjects.length} 个方案`);
         if (!silent) toast('本地方案已上传云端');
-      } catch (error) { updateCloudStatus(`上传失败：${error.message}`); if (!silent) toast(`上传失败：${error.message}`, 'error'); }
+        return true;
+      } catch (error) { updateCloudStatus(`上传失败：${error.message}`); if (!silent) toast(`上传失败：${error.message}`, 'error'); return false; }
     }
-    async function cloudPullAll(silent = false) {
-      if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return []; }
+    async function cloudPullAll(silent = false, recordSuccess = true) {
+      if (!cloudLoggedIn()) { if (!silent) toast('请先登录云端账号', 'error'); return null; }
       try {
         await refreshCloudSessionIfNeeded(); updateCloudStatus('正在清理废弃方案并拉取云端……');
         await flushCloudDeleteQueue(true);
@@ -1626,10 +1902,11 @@ using ((select auth.uid()) = user_id);`;
         const remoteProjects = (rows || []).filter(row => !pendingDeletes.has(row.id)).map(row => normalizeProject(row.data));
         resetCanvasFilters(false);
         mergeRemoteProjects(remoteProjects); persist(true);
+        if (recordSuccess) markCloudSyncSuccess();
         updateCloudStatus(`拉取完成：${remoteProjects.length} 个云端方案`);
         if (!silent) toast('云端方案已合并到本地');
         return remoteProjects;
-      } catch (error) { updateCloudStatus(`拉取失败：${error.message}`); if (!silent) toast(`拉取失败：${error.message}`, 'error'); return []; }
+      } catch (error) { updateCloudStatus(`拉取失败：${error.message}`); if (!silent) toast(`拉取失败：${error.message}`, 'error'); return null; }
     }
     function mergeRemoteProjects(remoteProjects) {
       const pendingDeletes = pendingCloudDeleteIds();
@@ -1648,9 +1925,12 @@ using ((select auth.uid()) = user_id);`;
       try {
         updateCloudStatus('正在合并多设备方案……');
         await flushCloudDeleteQueue(true);
-        await cloudPullAll(true);
+        const pulled = await cloudPullAll(true, false);
+        if (pulled === null) throw new Error('云端方案拉取未完成');
         clearTimeout(cloudSaveTimer);
-        await cloudPushAll(true);
+        const pushed = await cloudPushAll(true, false);
+        if (!pushed) throw new Error('本地方案上传未完成');
+        markCloudSyncSuccess();
         updateCloudStatus('同步完成，所有设备将获取最新方案'); toast('云端同步完成');
       } catch (error) { updateCloudStatus(`同步失败：${error.message}`); toast(`同步失败：${error.message}`, 'error'); }
     }
@@ -1660,6 +1940,7 @@ using ((select auth.uid()) = user_id);`;
       cloudPushInFlight = true;
       try {
         await cloudPushProject(currentProject);
+        markCloudSyncSuccess();
         updateCloudStatus(`当前方案已自动同步（${autoSyncPrefs.interval} 秒）`);
       } catch (error) {
         updateCloudStatus(`自动同步失败：${error.message}`);
@@ -2681,8 +2962,9 @@ using ((select auth.uid()) = user_id);`;
     function updateBatchToolbar() {
       const count = selectedIds.size; $('#batchToolbar').classList.toggle('hidden', count < 2); $('#batchCount').textContent = `已选 ${count} 项`;
     }
-    function batchAction(action) {
+    async function batchAction(action) {
       const nodes = currentProject.nodes.filter(node => selectedIds.has(node.id)); if (!nodes.length) return;
+      if (action === 'delete' && !(await removeNodeStorageImages(nodes))) return;
       checkpoint();
       if (action === 'solid' || action === 'dashed') nodes.forEach(node => node.style = action);
       if (action === 'align-top') { const top = Math.min(...nodes.map(node => node.y)); nodes.forEach(node => node.y = top); }
@@ -2746,10 +3028,11 @@ using ((select auth.uid()) = user_id);`;
         const node = currentProject.staging.find(entry => entry.id === item.dataset.stagingId);
         bindMobileSource(item, { source: 'staging', id: item.dataset.stagingId }, node?.title || '灵感胶囊');
       });
-      $$('[data-staging-delete]').forEach(button => button.onclick = event => {
+      $$('[data-staging-delete]').forEach(button => button.onclick = async event => {
         event.stopPropagation();
         const id = button.dataset.stagingDelete; const element = button.closest('.staging-card');
         const node = currentProject.staging.find(item => item.id === id); if (!node) return;
+        if (!(await removeNodeStorageImages([node]))) return;
         checkpoint(); burstCapsuleAt(element, node.color); element?.classList.add('is-breaking');
         setTimeout(() => {
           currentProject.staging = currentProject.staging.filter(item => item.id !== id);
@@ -2804,7 +3087,52 @@ using ((select auth.uid()) = user_id);`;
       $('#nodeTags').value = (node.tags || []).join(', ');
       $$('.status-option').forEach(item => item.classList.toggle('active', item.dataset.style === node.style));
       $$('.color-dot').forEach(item => item.classList.toggle('active', item.dataset.color === node.color));
-      renderBusinessFields(node); renderConnectionList(node);
+      renderBusinessFields(node); renderConnectionList(node); renderNodeImages(node);
+    }
+
+    function renderNodeImages(node) {
+      const grid = $('#nodeImageGrid'); const button = $('#nodeImageUploadBtn'); const dropZone = $('#nodeImageDropZone');
+      if (!grid || !button || !dropZone) return;
+      const images = Array.isArray(node?.images) ? node.images : [];
+      const disabled = !node || imageUploadBusy || images.length >= MAX_NODE_IMAGES;
+      button.disabled = disabled;
+      button.textContent = imageUploadBusy ? '处理中…' : images.length >= MAX_NODE_IMAGES ? '已达上限' : '选择图片';
+      dropZone.classList.toggle('is-busy', imageUploadBusy);
+      dropZone.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      dropZone.innerHTML = !cloudLoggedIn()
+        ? '请先登录云端账号后上传图片'
+        : images.length >= MAX_NODE_IMAGES
+          ? `已上传 ${images.length} 张，达到当前上限`
+          : `拖拽图片到这里，或点击选择<br>将自动压缩为 WebP，最长边 ${IMAGE_MAX_EDGE} px`;
+      grid.innerHTML = images.map(image => `
+        <article class="node-image-card" data-node-image-id="${escapeAttr(image.id)}">
+          <div class="node-image-preview" data-node-image-preview="${escapeAttr(image.id)}"><span>正在加载…</span>${image.cover ? '<span class="node-image-cover">封面</span>' : ''}</div>
+          <div class="node-image-meta">
+            <div class="node-image-name" title="${escapeAttr(image.name)}">${escapeHtml(image.name)}</div>
+            <div class="node-image-size">${image.width && image.height ? `${image.width} × ${image.height} · ` : ''}${formatFileSize(image.size)}</div>
+            <div class="node-image-actions">
+              <a class="disabled" data-node-image-open="${escapeAttr(image.id)}" target="_blank" rel="noopener">查看</a>
+              <button type="button" data-node-image-cover="${escapeAttr(image.id)}" ${image.cover ? 'disabled' : ''}>${image.cover ? '当前封面' : '设为封面'}</button>
+              <button class="danger" type="button" data-node-image-delete="${escapeAttr(image.id)}">删除</button>
+            </div>
+          </div>
+        </article>`).join('');
+      images.forEach(async image => {
+        const card = grid.querySelector(`[data-node-image-id="${CSS.escape(image.id)}"]`); if (!card) return;
+        try {
+          const url = await createSignedImageUrl(image.path);
+          if (!card.isConnected || findNode(selectedId)?.id !== node.id) return;
+          const preview = card.querySelector('[data-node-image-preview]');
+          const cover = preview.querySelector('.node-image-cover');
+          preview.innerHTML = `<img src="${escapeAttr(url)}" alt="${escapeAttr(image.name)}">`;
+          if (cover) preview.appendChild(cover);
+          const open = card.querySelector('[data-node-image-open]'); open.href = url; open.classList.remove('disabled');
+        } catch (error) {
+          const preview = card.querySelector('[data-node-image-preview]'); if (preview) preview.querySelector('span')?.replaceChildren('预览失败');
+        }
+      });
+      $$('[data-node-image-cover]', grid).forEach(item => item.onclick = () => setNodeImageCover(item.dataset.nodeImageCover));
+      $$('[data-node-image-delete]', grid).forEach(item => item.onclick = () => removeNodeImage(item.dataset.nodeImageDelete));
     }
 
     function renderBusinessFields(node) {
@@ -2841,6 +3169,19 @@ using ((select auth.uid()) = user_id);`;
       $('#richTextColor').addEventListener('input', event => updateSelectedFreeText('color', event.target.value));
       $('#richBoldBtn').onclick = () => { const note = findFreeText(selectedId); if (note) updateSelectedFreeText('bold', !note.bold); };
       $('#richUnderlineBtn').onclick = () => { const note = findFreeText(selectedId); if (note) updateSelectedFreeText('underline', !note.underline); };
+      const imageInput = $('#nodeImageInput'); const imageButton = $('#nodeImageUploadBtn'); const imageDropZone = $('#nodeImageDropZone');
+      const chooseNodeImages = () => {
+        const node = findNode(selectedId); if (!node || imageUploadBusy || (node.images?.length || 0) >= MAX_NODE_IMAGES) return;
+        if (!cloudLoggedIn()) { setNodeImageStatus('请先登录云端账号，再上传图片。', true); return openModal('cloudModal'); }
+        imageInput.click();
+      };
+      imageButton.onclick = chooseNodeImages;
+      imageDropZone.onclick = chooseNodeImages;
+      imageDropZone.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseNodeImages(); } };
+      imageInput.onchange = async event => { await uploadNodeImages(event.target.files); event.target.value = ''; };
+      imageDropZone.ondragover = event => { if (!event.dataTransfer?.types?.includes('Files')) return; event.preventDefault(); if (!imageUploadBusy) imageDropZone.classList.add('drag-over'); };
+      imageDropZone.ondragleave = event => { if (!imageDropZone.contains(event.relatedTarget)) imageDropZone.classList.remove('drag-over'); };
+      imageDropZone.ondrop = async event => { event.preventDefault(); imageDropZone.classList.remove('drag-over'); await uploadNodeImages(event.dataTransfer?.files); };
       $('#duplicateBtn').onclick = duplicateSelected;
       $('#deleteNodeBtn').onclick = deleteSelected;
       $('#moveStagingBtn').onclick = moveSelectedToStaging;
@@ -2855,10 +3196,10 @@ using ((select auth.uid()) = user_id);`;
       }
       const node = findNode(selectedId); if (!node) return;
       checkpoint();
-      const copy = { ...deepClone(node), id: uid('node'), title: `${node.title}（副本）`, y: node.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
+      const copy = { ...deepClone(node), id: uid('node'), title: `${node.title}（副本）`, images: [], y: node.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
       currentProject.nodes.push(copy); selectedId = copy.id; renderAll(); persist(); toast('已复制组件');
     }
-    function deleteSelected() {
+    async function deleteSelected() {
       if (!selectedId) return;
       const id = selectedId; const note = findFreeText(id);
       if (note) {
@@ -2866,6 +3207,7 @@ using ((select auth.uid()) = user_id);`;
         selectedIds.clear(); selectedId = null; renderAll(); persist(); toast('文字说明已删除'); return;
       }
       const node = findNode(id); const element = document.querySelector(`[data-node-id="${id}"]`);
+      if (!(await removeNodeStorageImages([node]))) return;
       checkpoint(); burstCapsuleAt(element, node?.color);
       currentProject.nodes = currentProject.nodes.filter(item => item.id !== id);
       currentProject.edges = currentProject.edges.filter(edge => edge.from !== id && edge.to !== id);
@@ -3043,12 +3385,14 @@ using ((select auth.uid()) = user_id);`;
     function copyProject(id) {
       const source = projects.find(item => item.id === id); if (!source) return;
       const copy = deepClone(source); copy.id = uid('project'); copy.name = `${source.name}（副本）`; copy.createdAt = Date.now(); copy.updatedAt = Date.now();
+      [...(copy.nodes || []), ...(copy.staging || [])].forEach(node => { node.images = []; });
       projects.unshift(copy); localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); renderProjectList(); toast('方案已复制');
     }
-    function deleteProject(id) {
+    async function deleteProject(id) {
       if (projects.length <= 1) return toast('至少保留一个方案', 'error');
       const target = projects.find(item => item.id === id);
       if (!confirm(`确认删除“${target?.name || '该方案'}”？本地与云端存档都会删除。`)) return;
+      if (!(await removeNodeStorageImages([...(target?.nodes || []), ...(target?.staging || [])]))) return;
       const queuedForCloud = queueCloudProjectDelete(id);
       projects = projects.filter(item => item.id !== id);
       if (currentProject.id === id) { currentProject = normalizeProject(deepClone(projects[0])); resetCanvasFilters(false); localStorage.setItem(CURRENT_KEY, currentProject.id); renderAll(); }
@@ -3075,8 +3419,10 @@ using ((select auth.uid()) = user_id);`;
           const data = JSON.parse(reader.result); const project = data.project || data;
           if (!Array.isArray(project.stages) || !Array.isArray(project.lanes) || !Array.isArray(project.nodes)) throw new Error('结构不正确');
           project.id = uid('project'); project.name = `${project.name || '导入方案'}（导入）`; project.createdAt = Date.now(); project.updatedAt = Date.now(); project.staging ||= []; project.zoom ||= 1; project.grid ??= true;
-          projects.unshift(deepClone(project)); currentProject = project; selectedId = null; undoStack = []; redoStack = [];
-          persist(true); renderAll(); toast('方案导入成功');
+          const importedImageCount = [...(project.nodes || []), ...(project.staging || [])].reduce((count, node) => count + (Array.isArray(node.images) ? node.images.length : 0), 0);
+          [...(project.nodes || []), ...(project.staging || [])].forEach(node => { node.images = []; });
+          projects.unshift(deepClone(project)); currentProject = normalizeProject(project); selectedId = null; undoStack = []; redoStack = [];
+          persist(true); renderAll(); toast(importedImageCount ? `方案导入成功；${importedImageCount} 张私有图片需重新上传` : '方案导入成功');
         } catch (error) { toast(`导入失败：${error.message}`, 'error'); }
       };
       reader.readAsText(file, 'utf-8');
