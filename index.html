@@ -873,7 +873,7 @@
         <button class="top-btn" id="openProjectsBtn" title="打开方案">方案</button>
         <button class="top-btn primary" id="saveBtn" title="立即保存">保存</button>
         <button class="top-btn" id="cloudBtn" title="云端保存与同步">云端</button>
-        <div class="cloud-state-wrap"><span id="cloudState" class="cloud-state">本地</span><span id="cloudSyncTime" class="cloud-sync-time"></span></div>
+        <div class="cloud-state-wrap"><span id="cloudState" class="cloud-state">本地</span><span id="cloudSyncTime" class="cloud-sync-time" aria-live="polite"></span></div>
       </div>
       <div class="divider"></div>
       <div class="tool-cluster">
@@ -1968,31 +1968,49 @@ using (
       try { const value = JSON.parse(localStorage.getItem(CLOUD_LAST_SYNC_KEY) || '{}'); return value && typeof value === 'object' ? value : {}; }
       catch { return {}; }
     }
-    function formatCloudSyncTime(timestamp) {
-      const date = new Date(Number(timestamp));
+    function cloudLastSyncRecord(userId = cloudLoggedIn() ? cloudSession.user.id : '') {
+      if (!userId) return null;
+      const value = loadCloudLastSyncMap()[userId];
+      if (Number.isFinite(Number(value)) && Number(value) > 0) return { timestamp: Number(value), source: 'legacy', projectId: '', projectName: '' };
+      if (!value || typeof value !== 'object') return null;
+      const timestamp = Number(value.timestamp || 0);
+      return Number.isFinite(timestamp) && timestamp > 0 ? { timestamp, source: String(value.source || 'legacy'), projectId: String(value.projectId || ''), projectName: String(value.projectName || '') } : null;
+    }
+    function cloudSyncSourceLabel(source = '') {
+      if (source === 'auto') return '已自动同步';
+      if (source === 'manual-pull') return '已手动拉取';
+      if (source === 'manual-upload') return '已手动上传';
+      if (source === 'manual-sync') return '已手动同步';
+      return '已云端同步';
+    }
+    function formatCloudSyncTime(recordOrTimestamp) {
+      const record = recordOrTimestamp && typeof recordOrTimestamp === 'object' ? recordOrTimestamp : { timestamp: Number(recordOrTimestamp), source: 'legacy' };
+      const date = new Date(Number(record.timestamp));
       if (!Number.isFinite(date.getTime())) return '';
       const pad = value => String(value).padStart(2, '0');
-      return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${pad(date.getHours())}:${pad(date.getMinutes())} 已云端同步`;
+      return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${cloudSyncSourceLabel(record.source)}`;
     }
     function renderCloudSyncTime() {
       const target = $('#cloudSyncTime'); if (!target) return;
-      const userId = cloudLoggedIn() ? cloudSession.user.id : '';
-      const timestamp = userId ? Number(loadCloudLastSyncMap()[userId] || 0) : 0;
-      target.textContent = timestamp ? formatCloudSyncTime(timestamp) : '';
-      target.title = timestamp ? `最近一次成功同步：${new Date(timestamp).toLocaleString()}` : '';
+      const record = cloudLastSyncRecord();
+      target.textContent = record ? formatCloudSyncTime(record) : '';
+      target.title = record ? `最近一次成功${cloudSyncSourceLabel(record.source).replace(/^已/, '')}：${new Date(record.timestamp).toLocaleString()}${record.projectName ? ` · ${record.projectName}` : ''}` : '';
     }
-    function markCloudSyncSuccess(timestamp = Date.now()) {
+    function markCloudSyncSuccess(source = 'manual-sync', timestamp = Date.now(), project = currentProject) {
       if (!cloudLoggedIn()) return;
-      const values = loadCloudLastSyncMap(); values[cloudSession.user.id] = Number(timestamp);
-      localStorage.setItem(CLOUD_LAST_SYNC_KEY, JSON.stringify(values)); renderCloudSyncTime(); renderMobileCloudSummary();
+      const values = loadCloudLastSyncMap();
+      values[cloudSession.user.id] = { timestamp: Number(timestamp), source, projectId: String(project?.id || ''), projectName: String(project?.name || '') };
+      localStorage.setItem(CLOUD_LAST_SYNC_KEY, JSON.stringify(values));
+      renderCloudSyncTime(); renderMobileCloudSummary();
     }
     function updateCloudStatus(message = '') {
       const state = $('#cloudState'); const box = $('#cloudStatusBox');
       let label = '未启用'; let cls = 'cloud-state';
       if (cloudLoggedIn()) { label = '已同步'; cls += ' online'; }
       else if (cloudConfigured()) { label = '未登录'; }
-      if (message?.includes('同步') || message?.includes('上传') || message?.includes('拉取') || message?.includes('登录中')) cls += ' syncing';
-      if (message?.includes('失败') || message?.includes('错误')) cls += ' error';
+      const pending = ['正在', '同步中', '上传中', '拉取中', '登录中'].some(keyword => message?.includes(keyword));
+      if (pending) { label = message?.includes('自动同步') ? '自动同步中' : '同步中'; cls += ' syncing'; }
+      if (message?.includes('失败') || message?.includes('错误')) { label = '同步失败'; cls += ' error'; }
       if (state) { state.textContent = label; state.className = cls; }
       renderCloudSyncTime();
       const user = cloudSession?.user?.email || '';
@@ -2246,7 +2264,7 @@ using (
         const uploadProjects = projects.filter(project => !pendingDeletes.has(project.id));
         updateCloudStatus('正在上传本地方案……');
         for (const project of uploadProjects) await cloudPushProject(project);
-        if (recordSuccess) markCloudSyncSuccess();
+        if (recordSuccess) markCloudSyncSuccess('manual-upload');
         updateCloudStatus(`上传完成：${uploadProjects.length} 个方案`);
         if (!silent) toast('本地方案已上传云端');
         return true;
@@ -2262,7 +2280,7 @@ using (
         const remoteProjects = (rows || []).filter(row => !pendingDeletes.has(row.id)).map(row => normalizeProject(row.data));
         resetCanvasFilters(false);
         mergeRemoteProjects(remoteProjects); persist(true);
-        if (recordSuccess) markCloudSyncSuccess();
+        if (recordSuccess) markCloudSyncSuccess('manual-pull');
         updateCloudStatus(`拉取完成：${remoteProjects.length} 个云端方案`);
         if (!silent) toast('云端方案已合并到本地');
         return remoteProjects;
@@ -2290,7 +2308,7 @@ using (
         clearTimeout(cloudSaveTimer);
         const pushed = await cloudPushAll(true, false);
         if (!pushed) throw new Error('本地方案上传未完成');
-        markCloudSyncSuccess();
+        markCloudSyncSuccess('manual-sync');
         updateCloudStatus('同步完成，所有设备将获取最新方案'); toast('云端同步完成');
       } catch (error) { updateCloudStatus(`同步失败：${error.message}`); toast(`同步失败：${error.message}`, 'error'); }
     }
@@ -2298,10 +2316,12 @@ using (
       if (!cloudLoggedIn() || !autoSyncPrefs.enabled) return;
       if (cloudPushInFlight) { cloudPushQueued = true; return; }
       cloudPushInFlight = true;
+      const syncingProject = deepClone(currentProject);
       try {
-        await cloudPushProject(currentProject);
-        markCloudSyncSuccess();
-        updateCloudStatus(`当前方案已自动同步（${autoSyncPrefs.interval} 秒）`);
+        updateCloudStatus(`正在自动同步“${syncingProject.name || '当前方案'}”……`);
+        await cloudPushProject(syncingProject);
+        markCloudSyncSuccess('auto', Date.now(), syncingProject);
+        updateCloudStatus(`自动同步成功：${syncingProject.name || '当前方案'}`);
       } catch (error) {
         updateCloudStatus(`自动同步失败：${error.message}`);
       } finally {
@@ -2512,8 +2532,8 @@ using (
         text.textContent = cloudConfigured() ? '云端未登录 · 点击右上角登录' : '当前使用本地保存';
         return;
       }
-      const timestamp = Number(loadCloudLastSyncMap()[cloudSession.user.id] || 0);
-      text.textContent = timestamp ? formatCloudSyncTime(timestamp) : `已登录 ${cloudSession.user.email || '云端账号'} · 等待首次同步`;
+      const record = cloudLastSyncRecord();
+      text.textContent = record ? formatCloudSyncTime(record) : `已登录 ${cloudSession.user.email || '云端账号'} · 等待首次同步`;
     }
 
     function renderMobileDesigner() {
