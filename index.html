@@ -1027,7 +1027,7 @@
       <div class="divider"></div>
       <div class="tool-cluster">
         <button class="top-btn onboarding-replay-btn" id="onboardingReplayBtn">新手教程</button>
-        <button class="top-btn" id="exportBtn" title="导出可编辑 JSON">导出 JSON</button>
+        <button class="top-btn" id="exportBtn" title="导出 JSON、图片或 PDF">导出</button>
         <button class="top-btn" id="importBtn">导入</button>
         <button class="top-btn" id="settingsBtn">分区设置</button>
       </div>
@@ -1259,7 +1259,7 @@
     <div class="modal">
       <div class="modal-head"><div><h2>手机画布工具</h2><p>常用编辑和管理功能集中在这里。</p></div><button class="close-btn" data-close="mobileToolsModal">×</button></div>
       <div class="modal-body"><div class="mobile-tool-grid" id="mobileToolGrid">
-        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="compare">方案对比</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导出 JSON</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
+        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="compare">方案对比</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导出方案</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
       </div></div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileToolsModal">关闭</button></div>
     </div>
@@ -1296,6 +1296,21 @@
       <div class="modal-head"><div><h2>我的运营方案</h2><p>未登录时保存在当前浏览器；登录后可同步到其他设备，也可导出 JSON 备份。</p></div><button class="close-btn" data-close="projectsModal">×</button></div>
       <div class="modal-body"><div class="project-list" id="projectList"></div></div>
       <div class="modal-foot"><button class="modal-btn" data-close="projectsModal">关闭</button><button class="modal-btn primary" id="modalNewProject">新建画布</button></div>
+    </div>
+  </div>
+
+  <div id="exportModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head"><div><h2>导出运营画布</h2><p>导出完整画布和方案说明，不受当前缩放、滚动位置或设备尺寸影响。</p></div><button class="close-btn" data-close="exportModal">×</button></div>
+      <div class="modal-body">
+        <div class="export-options">
+          <button class="export-option" type="button" data-export-format="json"><span class="export-option-icon">JSON</span><strong>可编辑 JSON</strong><span>用于备份、迁移和重新导入，完整保留方案数据。</span></button>
+          <button class="export-option" type="button" data-export-format="png"><span class="export-option-icon">PNG</span><strong>高清图片</strong><span>导出完整画布、组件关系和画布外方案说明。</span></button>
+          <button class="export-option" type="button" data-export-format="pdf"><span class="export-option-icon">PDF</span><strong>分页 PDF</strong><span>按 A4 横向自动分页，适合分享、打印和方案评审。</span></button>
+        </div>
+        <div class="export-progress" id="exportProgress" aria-live="polite">请选择导出格式。</div>
+      </div>
+      <div class="modal-foot"><button class="modal-btn" data-close="exportModal">关闭</button></div>
     </div>
   </div>
 
@@ -3574,7 +3589,7 @@ using (
       if (action === 'projects') { persist(true); renderProjectList(); openModal('projectsModal'); }
       if (action === 'compare') setTimeout(() => openCompareModal(), 0);
       if (action === 'tutorial') setTimeout(() => startOnboarding(true), 0);
-      if (action === 'export') exportJson();
+      if (action === 'export') setTimeout(openExportModal, 0);
       if (action === 'import') $('#fileInput').click();
       if (action === 'add-stage') addStage();
       if (action === 'add-lane') addLane();
@@ -4721,6 +4736,310 @@ using (
       toast(queuedForCloud ? '方案已删除，云端删除已排队' : '方案已从本地删除');
     }
 
+    function setExportProgress(message, working = false) {
+      const element = $('#exportProgress');
+      if (!element) return;
+      element.textContent = message;
+      element.classList.toggle('working', working);
+    }
+
+    function openExportModal() {
+      setExportProgress('请选择导出格式。');
+      openModal('exportModal');
+    }
+
+    function exportRoundedPath(ctx, x, y, width, height, radius = 12) {
+      const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+      ctx.lineTo(x + r, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function exportTextLines(ctx, value, maxWidth, maxLines = Infinity) {
+      const paragraphs = String(value || '').replace(/\r/g, '').split('\n');
+      const lines = [];
+      paragraphs.forEach((paragraph, paragraphIndex) => {
+        if (!paragraph) {
+          if (lines.length < maxLines) lines.push('');
+          return;
+        }
+        let line = '';
+        Array.from(paragraph).forEach(char => {
+          const candidate = line + char;
+          if (line && ctx.measureText(candidate).width > maxWidth) {
+            if (lines.length < maxLines) lines.push(line);
+            line = char;
+          } else line = candidate;
+        });
+        if (line && lines.length < maxLines) lines.push(line);
+        if (paragraphIndex < paragraphs.length - 1 && lines.length < maxLines && !line) lines.push('');
+      });
+      if (lines.length >= maxLines && paragraphs.join('').length) {
+        const lastIndex = Math.max(0, maxLines - 1);
+        let last = lines[lastIndex] || '';
+        while (last && ctx.measureText(`${last}…`).width > maxWidth) last = last.slice(0, -1);
+        lines[lastIndex] = `${last}…`;
+      }
+      return lines.slice(0, maxLines);
+    }
+
+    function drawExportText(ctx, value, x, y, maxWidth, lineHeight, maxLines = Infinity, align = 'left') {
+      const lines = exportTextLines(ctx, value, maxWidth, maxLines);
+      ctx.textAlign = align;
+      const drawX = align === 'center' ? x + maxWidth / 2 : align === 'right' ? x + maxWidth : x;
+      lines.forEach((line, index) => ctx.fillText(line, drawX, y + index * lineHeight));
+      return lines.length * lineHeight;
+    }
+
+    function exportLayout(project) {
+      const margin = 36; const titleHeight = 84; const laneHeadWidth = 148; const stageWidth = 185; const stageHeadHeight = 56;
+      const laneHeights = project.lanes.map(lane => {
+        const maxBottom = Math.max(0, ...project.nodes.filter(node => node.laneId === lane.id).map(node => Number(node.y || 0) + Number(node.height || 82)));
+        return Math.max(230, maxBottom + 24);
+      });
+      const boardWidth = laneHeadWidth + Math.max(1, project.stages.length) * stageWidth;
+      const boardHeight = stageHeadHeight + laneHeights.reduce((sum, height) => sum + height, 0);
+      const sectionGap = 34; const cardGap = 16; const contentWidth = boardWidth;
+      const columns = Math.max(1, Math.min(4, Math.floor((contentWidth + cardGap) / (260 + cardGap))));
+      const cardWidth = (contentWidth - cardGap * (columns - 1)) / columns;
+      let cursorY = margin + titleHeight + boardHeight;
+      const sections = [];
+      const addSection = (kind, title, items, getHeight) => {
+        if (!items.length) return;
+        cursorY += sectionGap;
+        const sectionY = cursorY; const headerHeight = 48;
+        cursorY += headerHeight;
+        const placements = []; let rowY = cursorY;
+        for (let index = 0; index < items.length; index += columns) {
+          const rowItems = items.slice(index, index + columns);
+          const heights = rowItems.map(getHeight); const rowHeight = Math.max(...heights);
+          rowItems.forEach((item, offset) => placements.push({ item, x: margin + offset * (cardWidth + cardGap), y: rowY, width: cardWidth, height: heights[offset] }));
+          rowY += rowHeight + cardGap;
+        }
+        cursorY = rowY - cardGap;
+        sections.push({ kind, title, y: sectionY, headerHeight, placements });
+      };
+      addSection('notes', '方案说明', project.freeTexts || [], note => Math.max(126, Math.min(280, Number(note.height || 150))));
+      addSection('staging', '灵感池', project.staging || [], () => 96);
+      return {
+        margin, titleHeight, laneHeadWidth, stageWidth, stageHeadHeight, laneHeights,
+        boardX: margin, boardY: margin + titleHeight, boardWidth, boardHeight, sections,
+        logicalWidth: boardWidth + margin * 2, logicalHeight: cursorY + margin
+      };
+    }
+
+    function exportNodeBounds(project, layout, node) {
+      const stageIndex = project.stages.findIndex(stage => stage.id === node.stageId);
+      const laneIndex = project.lanes.findIndex(lane => lane.id === node.laneId);
+      if (stageIndex < 0 || laneIndex < 0) return null;
+      const laneTop = layout.boardY + layout.stageHeadHeight + layout.laneHeights.slice(0, laneIndex).reduce((sum, value) => sum + value, 0);
+      return {
+        x: layout.boardX + layout.laneHeadWidth + stageIndex * layout.stageWidth + Number(node.x || 0),
+        y: laneTop + Number(node.y || 0), width: Number(node.width || 156), height: Number(node.height || 82)
+      };
+    }
+
+    function drawExportArrow(ctx, x, y, color = '#78928f') {
+      ctx.save(); ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 9, y - 5); ctx.lineTo(x - 9, y + 5); ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+
+    function drawExportNode(ctx, node, bounds) {
+      const color = COLORS.find(item => item.value === node.color) || COLORS[0];
+      const lightweight = isLightweightNode(node); const shape = isShapeNode(node) ? normalizeShapeVariant(node.shapeVariant) : '';
+      ctx.save(); ctx.lineWidth = 1.5; ctx.strokeStyle = node.color || COLORS[0].value; ctx.fillStyle = color.bg;
+      ctx.setLineDash(node.style === 'dashed' ? [7, 5] : []);
+      if (node.type === 'person' || shape === 'ellipse' || shape === 'circle') {
+        ctx.beginPath(); ctx.ellipse(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2, bounds.width / 2, bounds.height / 2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      } else if (shape === 'diamond') {
+        ctx.beginPath(); ctx.moveTo(bounds.x + bounds.width / 2, bounds.y); ctx.lineTo(bounds.x + bounds.width, bounds.y + bounds.height / 2); ctx.lineTo(bounds.x + bounds.width / 2, bounds.y + bounds.height); ctx.lineTo(bounds.x, bounds.y + bounds.height / 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+      } else {
+        exportRoundedPath(ctx, bounds.x, bounds.y, bounds.width, bounds.height, shape === 'rounded' || node.type === 'plainText' ? 16 : lightweight ? 5 : 10); ctx.fill(); ctx.stroke();
+      }
+      ctx.setLineDash([]); ctx.fillStyle = '#173f40';
+      if (lightweight) {
+        ctx.font = `${node.type === 'person' ? 700 : 600} ${node.type === 'plainText' ? 13 : 14}px "Microsoft YaHei", sans-serif`;
+        ctx.textBaseline = 'middle';
+        if (node.type === 'plainText') {
+          ctx.textBaseline = 'top'; drawExportText(ctx, node.title || '点击编辑文字', bounds.x + 12, bounds.y + 12, bounds.width - 24, 19, Math.max(1, Math.floor((bounds.height - 24) / 19)));
+        } else {
+          const lines = exportTextLines(ctx, node.title || (node.type === 'person' ? '输入人名' : '双击编辑文字'), Math.max(24, bounds.width - 26), Math.max(1, Math.floor(bounds.height / 18)));
+          const startY = bounds.y + bounds.height / 2 - (lines.length - 1) * 9;
+          ctx.textAlign = 'center'; lines.forEach((line, index) => ctx.fillText(line, bounds.x + bounds.width / 2, startY + index * 18));
+        }
+        ctx.restore(); return;
+      }
+      const preset = TYPES.find(item => item.type === node.type);
+      ctx.textBaseline = 'top'; ctx.font = '700 9px "Microsoft YaHei", sans-serif'; ctx.fillStyle = node.color || COLORS[0].value;
+      ctx.fillText(preset?.code || String(node.type || '').toUpperCase(), bounds.x + 12, bounds.y + 9);
+      if (Array.isArray(node.images) && node.images.length) {
+        ctx.textAlign = 'right'; ctx.fillText(`图 ${node.images.length}`, bounds.x + bounds.width - 10, bounds.y + 9); ctx.textAlign = 'left';
+      }
+      ctx.fillStyle = '#173f40'; ctx.font = '700 13px "Microsoft YaHei", sans-serif';
+      const titleHeight = drawExportText(ctx, node.title || '未命名组件', bounds.x + 12, bounds.y + 26, bounds.width - 24, 18, 2);
+      if (node.summary && bounds.height >= 88) {
+        ctx.fillStyle = '#607370'; ctx.font = '400 10px "Microsoft YaHei", sans-serif';
+        drawExportText(ctx, node.summary, bounds.x + 12, bounds.y + 29 + titleHeight, bounds.width - 24, 15, Math.max(1, Math.floor((bounds.height - titleHeight - 60) / 15)));
+      }
+      const footer = [node.owner, node.progress, (node.tags || [])[0] ? `#${node.tags[0]}` : ''].filter(Boolean).join(' · ');
+      if (footer && bounds.height >= 68) {
+        ctx.fillStyle = '#49605d'; ctx.font = '500 8px "Microsoft YaHei", sans-serif';
+        drawExportText(ctx, footer, bounds.x + 12, bounds.y + bounds.height - 17, bounds.width - 24, 12, 1);
+      }
+      ctx.restore();
+    }
+
+    function drawExportSection(ctx, section) {
+      ctx.fillStyle = '#173f40'; ctx.font = '800 20px "Microsoft YaHei", sans-serif'; ctx.textBaseline = 'top'; ctx.fillText(section.title, section.placements[0]?.x || 36, section.y + 5);
+      ctx.fillStyle = '#7b8b88'; ctx.font = '500 10px "Microsoft YaHei", sans-serif'; ctx.fillText(`${section.placements.length} 项`, (section.placements[0]?.x || 36) + 92, section.y + 12);
+      section.placements.forEach(({ item, x, y, width, height }) => {
+        ctx.save(); ctx.fillStyle = '#fff'; ctx.strokeStyle = '#d8e0dd'; ctx.lineWidth = 1; exportRoundedPath(ctx, x, y, width, height, 12); ctx.fill(); ctx.stroke();
+        if (section.kind === 'notes') {
+          ctx.fillStyle = '#0d5d5a'; ctx.font = '800 9px "Microsoft YaHei", sans-serif'; ctx.fillText('NOTE', x + 14, y + 13);
+          ctx.fillStyle = item.color || '#173f40'; ctx.font = `${item.bold ? 800 : 400} ${Math.max(10, Math.min(22, Number(item.fontSize || 16)))}px "Microsoft YaHei", sans-serif`;
+          drawExportText(ctx, item.content || '空白说明', x + 14, y + 36, width - 28, Math.max(16, Number(item.fontSize || 16) * 1.45), Math.max(1, Math.floor((height - 50) / Math.max(16, Number(item.fontSize || 16) * 1.45))), item.align || 'left');
+        } else {
+          const preset = TYPES.find(value => value.type === item.type) || lightweightPreset(item.type);
+          ctx.fillStyle = item.color || '#0d5d5a'; ctx.font = '800 9px "Microsoft YaHei", sans-serif'; ctx.fillText(preset?.code || 'IDEA', x + 14, y + 13);
+          ctx.fillStyle = '#173f40'; ctx.font = '700 13px "Microsoft YaHei", sans-serif'; drawExportText(ctx, item.title || '未命名灵感', x + 14, y + 34, width - 28, 18, 2);
+          if (item.summary) { ctx.fillStyle = '#6b7d7a'; ctx.font = '400 10px "Microsoft YaHei", sans-serif'; drawExportText(ctx, item.summary, x + 14, y + 72, width - 28, 14, 1); }
+        }
+        ctx.restore();
+      });
+    }
+
+    function renderProjectExportCanvas(project = currentProject, preferredScale = 2) {
+      const normalized = normalizeProject(deepClone(project)); const layout = exportLayout(normalized);
+      const maxDimension = 14000; const maxArea = 72000000;
+      const scale = Math.max(.22, Math.min(preferredScale, maxDimension / layout.logicalWidth, maxDimension / layout.logicalHeight, Math.sqrt(maxArea / (layout.logicalWidth * layout.logicalHeight))));
+      const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.ceil(layout.logicalWidth * scale)); canvas.height = Math.max(1, Math.ceil(layout.logicalHeight * scale));
+      const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('当前浏览器无法创建导出画布');
+      ctx.scale(scale, scale); ctx.fillStyle = '#f4f6f2'; ctx.fillRect(0, 0, layout.logicalWidth, layout.logicalHeight);
+      ctx.textBaseline = 'top'; ctx.fillStyle = '#173f40'; ctx.font = '800 28px "Microsoft YaHei", sans-serif'; ctx.fillText(normalized.name || '运营画布', layout.margin, layout.margin + 2);
+      ctx.fillStyle = '#6d7e7b'; ctx.font = '500 10px "Microsoft YaHei", sans-serif';
+      ctx.fillText(`OPERATION CANVAS · ${normalized.stages.length} 个阶段 · ${normalized.lanes.length} 条泳道 · ${normalized.nodes.length} 个画布组件`, layout.margin, layout.margin + 45);
+      ctx.textAlign = 'right'; ctx.fillText(`导出时间 ${new Date().toLocaleString('zh-CN', { hour12: false })}`, layout.logicalWidth - layout.margin, layout.margin + 45); ctx.textAlign = 'left';
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#ccd8d4'; ctx.lineWidth = 1; ctx.fillRect(layout.boardX, layout.boardY, layout.boardWidth, layout.boardHeight); ctx.strokeRect(layout.boardX, layout.boardY, layout.boardWidth, layout.boardHeight);
+      ctx.fillStyle = '#173f40'; ctx.fillRect(layout.boardX, layout.boardY, layout.laneHeadWidth, layout.stageHeadHeight);
+      ctx.fillStyle = '#fff'; ctx.font = '800 13px "Microsoft YaHei", sans-serif'; ctx.fillText('运营全景', layout.boardX + 16, layout.boardY + 12);
+      ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '500 8px "Microsoft YaHei", sans-serif'; ctx.fillText(`${normalized.lanes.length} 条泳道 · ${normalized.stages.length} 个阶段`, layout.boardX + 16, layout.boardY + 34);
+      normalized.stages.forEach((stage, stageIndex) => {
+        const x = layout.boardX + layout.laneHeadWidth + stageIndex * layout.stageWidth;
+        ctx.fillStyle = '#eef3f0'; ctx.fillRect(x, layout.boardY, layout.stageWidth, layout.stageHeadHeight); ctx.strokeStyle = '#ccd8d4'; ctx.strokeRect(x, layout.boardY, layout.stageWidth, layout.stageHeadHeight);
+        ctx.fillStyle = '#0d5d5a'; ctx.font = '800 12px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`COLUMN ${String(stageIndex + 1).padStart(2, '0')}`, x + layout.stageWidth / 2, layout.boardY + 20); ctx.textAlign = 'left';
+      });
+      let laneTop = layout.boardY + layout.stageHeadHeight;
+      normalized.lanes.forEach((lane, laneIndex) => {
+        const laneHeight = layout.laneHeights[laneIndex];
+        ctx.fillStyle = '#f7f9f7'; ctx.fillRect(layout.boardX, laneTop, layout.laneHeadWidth, laneHeight); ctx.strokeStyle = '#ccd8d4'; ctx.strokeRect(layout.boardX, laneTop, layout.laneHeadWidth, laneHeight);
+        ctx.fillStyle = '#0d5d5a'; ctx.fillRect(layout.boardX, laneTop, 5, laneHeight);
+        ctx.fillStyle = '#173f40'; ctx.font = '800 13px "Microsoft YaHei", sans-serif'; drawExportText(ctx, lane.name || `泳道 ${laneIndex + 1}`, layout.boardX + 16, laneTop + 18, layout.laneHeadWidth - 28, 18, 2);
+        ctx.fillStyle = '#73827f'; ctx.font = '400 9px "Microsoft YaHei", sans-serif'; drawExportText(ctx, lane.note || '运营工作泳道', layout.boardX + 16, laneTop + 60, layout.laneHeadWidth - 28, 14, 4);
+        normalized.stages.forEach((stage, stageIndex) => {
+          const x = layout.boardX + layout.laneHeadWidth + stageIndex * layout.stageWidth;
+          ctx.fillStyle = (stageIndex + laneIndex) % 2 ? '#fbfcfa' : '#fff'; ctx.fillRect(x, laneTop, layout.stageWidth, laneHeight); ctx.strokeStyle = '#d9e1de'; ctx.strokeRect(x, laneTop, layout.stageWidth, laneHeight);
+          const phase = lane.phases?.[stageIndex] || stage.name || `阶段 ${stageIndex + 1}`;
+          ctx.fillStyle = '#778682'; ctx.font = '600 8px "Microsoft YaHei", sans-serif'; drawExportText(ctx, phase, x + 10, laneTop + 9, layout.stageWidth - 20, 11, 1);
+        });
+        laneTop += laneHeight;
+      });
+      const boundsById = new Map(normalized.nodes.map(node => [node.id, exportNodeBounds(normalized, layout, node)]));
+      ctx.save(); ctx.strokeStyle = '#78928f'; ctx.fillStyle = '#78928f'; ctx.lineWidth = 1.4;
+      (normalized.edges || []).forEach(edge => {
+        const from = boundsById.get(edge.from); const to = boundsById.get(edge.to); if (!from || !to) return;
+        const x1 = from.x + from.width; const y1 = from.y + from.height / 2; const x2 = to.x; const y2 = to.y + to.height / 2; const bend = Math.max(38, Math.abs(x2 - x1) * .45);
+        ctx.setLineDash(edge.style === 'dashed' ? [7, 5] : []); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.bezierCurveTo(x1 + bend, y1, x2 - bend, y2, x2, y2); ctx.stroke(); ctx.setLineDash([]); drawExportArrow(ctx, x2, y2);
+        if (edge.label) { ctx.fillStyle = '#607370'; ctx.font = '500 8px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(edge.label, (x1 + x2) / 2, (y1 + y2) / 2 - 10); ctx.textAlign = 'left'; ctx.fillStyle = '#78928f'; }
+      }); ctx.restore();
+      normalized.nodes.forEach(node => { const bounds = boundsById.get(node.id); if (bounds) drawExportNode(ctx, node, bounds); });
+      layout.sections.forEach(section => drawExportSection(ctx, section));
+      return { canvas, layout, scale };
+    }
+
+    function canvasBlob(canvas, type, quality) {
+      return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('浏览器未能生成导出文件')), type, quality));
+    }
+
+    async function exportPng() {
+      persist(true); setExportProgress('正在绘制完整画布和方案说明……', true);
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const { canvas } = renderProjectExportCanvas(currentProject, 2);
+      setExportProgress('正在生成高清 PNG……', true);
+      const blob = await canvasBlob(canvas, 'image/png');
+      downloadBlob(blob, `${safeFileName(currentProject.name)}.png`);
+      setExportProgress(`PNG 已生成 · ${canvas.width} × ${canvas.height} px`); toast('完整画布图片已导出');
+    }
+
+    function concatByteArrays(parts) {
+      const size = parts.reduce((sum, part) => sum + part.length, 0); const result = new Uint8Array(size); let offset = 0;
+      parts.forEach(part => { result.set(part, offset); offset += part.length; }); return result;
+    }
+
+    function asciiBytes(value) { return new TextEncoder().encode(value); }
+
+    function buildImagePdf(pageImages, pageWidth = 842, pageHeight = 595) {
+      const objectCount = 2 + pageImages.length * 3; const objects = new Array(objectCount + 1);
+      objects[1] = asciiBytes('<< /Type /Catalog /Pages 2 0 R >>');
+      const kids = pageImages.map((_, index) => `${3 + index * 3} 0 R`).join(' ');
+      objects[2] = asciiBytes(`<< /Type /Pages /Count ${pageImages.length} /Kids [${kids}] >>`);
+      pageImages.forEach((page, index) => {
+        const pageId = 3 + index * 3; const contentId = pageId + 1; const imageId = pageId + 2;
+        const content = asciiBytes(`q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ\n`);
+        objects[pageId] = asciiBytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /XObject << /Im0 ${imageId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+        objects[contentId] = concatByteArrays([asciiBytes(`<< /Length ${content.length} >>\nstream\n`), content, asciiBytes('endstream')]);
+        objects[imageId] = concatByteArrays([asciiBytes(`<< /Type /XObject /Subtype /Image /Width ${page.width} /Height ${page.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${page.bytes.length} >>\nstream\n`), page.bytes, asciiBytes('\nendstream')]);
+      });
+      const parts = [asciiBytes('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n')]; const offsets = new Array(objectCount + 1).fill(0); let length = parts[0].length;
+      for (let id = 1; id <= objectCount; id += 1) {
+        offsets[id] = length; const wrapped = concatByteArrays([asciiBytes(`${id} 0 obj\n`), objects[id], asciiBytes('\nendobj\n')]); parts.push(wrapped); length += wrapped.length;
+      }
+      const xrefOffset = length; let xref = `xref\n0 ${objectCount + 1}\n0000000000 65535 f \n`;
+      for (let id = 1; id <= objectCount; id += 1) xref += `${String(offsets[id]).padStart(10, '0')} 00000 n \n`;
+      xref += `trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+      parts.push(asciiBytes(xref)); return new Blob(parts, { type: 'application/pdf' });
+    }
+
+    async function exportPdf() {
+      persist(true); setExportProgress('正在绘制 PDF 原稿……', true);
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const { canvas, layout, scale } = renderProjectExportCanvas(currentProject, 1.6);
+      const tileWidth = 1120; const tileHeight = 770; const columns = Math.ceil(layout.logicalWidth / tileWidth); const rows = Math.ceil(layout.logicalHeight / tileHeight); const total = columns * rows;
+      const pageImages = []; let pageNumber = 0;
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          pageNumber += 1; setExportProgress(`正在生成 PDF 第 ${pageNumber} / ${total} 页……`, true);
+          const logicalX = column * tileWidth; const logicalY = row * tileHeight; const logicalW = Math.min(tileWidth, layout.logicalWidth - logicalX); const logicalH = Math.min(tileHeight, layout.logicalHeight - logicalY);
+          const pageCanvas = document.createElement('canvas'); pageCanvas.width = 1684; pageCanvas.height = 1190; const pageCtx = pageCanvas.getContext('2d');
+          pageCtx.fillStyle = '#fff'; pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+          const margin = 44; const availableW = pageCanvas.width - margin * 2; const availableH = pageCanvas.height - margin * 2 - 24;
+          const sourceW = logicalW * scale; const sourceH = logicalH * scale; const fit = Math.min(availableW / sourceW, availableH / sourceH); const drawW = sourceW * fit; const drawH = sourceH * fit;
+          pageCtx.drawImage(canvas, logicalX * scale, logicalY * scale, sourceW, sourceH, margin, margin, drawW, drawH);
+          pageCtx.fillStyle = '#6d7e7b'; pageCtx.font = '18px "Microsoft YaHei", sans-serif'; pageCtx.textAlign = 'right'; pageCtx.fillText(`${pageNumber} / ${total}`, pageCanvas.width - margin, pageCanvas.height - 18);
+          const jpeg = await canvasBlob(pageCanvas, 'image/jpeg', .92); pageImages.push({ width: pageCanvas.width, height: pageCanvas.height, bytes: new Uint8Array(await jpeg.arrayBuffer()) });
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+      const blob = buildImagePdf(pageImages); downloadBlob(blob, `${safeFileName(currentProject.name)}.pdf`);
+      setExportProgress(`PDF 已生成 · ${total} 页`); toast(`完整画布 PDF 已导出，共 ${total} 页`);
+    }
+
+    async function runExport(format) {
+      try {
+        if (format === 'json') { exportJson(); setExportProgress('JSON 已生成，可重新导入运营画布。'); return; }
+        if (format === 'png') await exportPng();
+        if (format === 'pdf') await exportPdf();
+      } catch (error) {
+        console.error('导出失败', error); setExportProgress(`导出失败：${error.message || '未知错误'}`); toast(`导出失败：${error.message || '未知错误'}`, 'error');
+      }
+    }
+
     function exportJson() {
       persist(true);
       downloadBlob(new Blob([JSON.stringify({ app: '运营画布', version: 1, exportedAt: new Date().toISOString(), project: currentProject }, null, 2)], { type: 'application/json' }), `${safeFileName(currentProject.name)}.json`);
@@ -4977,7 +5296,8 @@ using (
       });
       notesCanvas.addEventListener('drop', handleNotesDrop);
       $('#mobilePanelSizeBtn').onclick = () => { layoutPrefs.mobileExpanded = !layoutPrefs.mobileExpanded; saveLayoutPrefs(); applyLayoutPrefs(); syncMobileViewportHeight(); };
-      $('#exportBtn').onclick = exportJson;
+      $('#exportBtn').onclick = openExportModal;
+      $$('[data-export-format]').forEach(button => button.onclick = () => runExport(button.dataset.exportFormat));
       $('#importBtn').onclick = () => $('#fileInput').click();
       $('#fileInput').onchange = event => { const file = event.target.files[0]; if (file) importJson(file); event.target.value = ''; };
       $$('[data-node-action]').forEach(button => button.onclick = () => handleNodeMenu(button.dataset.nodeAction));
