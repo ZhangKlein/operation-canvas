@@ -88,9 +88,10 @@
     .cloud-state.online { color: #164448; background: #e8fff7; border-color: rgba(255,255,255,.4); font-weight: 700; }
     .cloud-state.syncing { color: #fff; background: rgba(217,139,43,.38); }
     .cloud-state.error { color: #fff; background: rgba(185,74,69,.55); }
-    .cloud-state-wrap { min-width: 126px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .cloud-sync-time { min-height: 11px; color: rgba(255,255,255,.58); font-size: 9px; line-height: 1.15; text-align: center; white-space: nowrap; }
-    .cloud-sync-time:empty { display: none; }
+    .cloud-state-wrap { min-width: 154px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .cloud-sync-time, .cloud-sync-pending { min-height: 11px; color: rgba(255,255,255,.58); font-size: 9px; line-height: 1.15; text-align: center; white-space: nowrap; }
+    .cloud-sync-pending { color: #ffd899; }
+    .cloud-sync-time:empty, .cloud-sync-pending:empty { display: none; }
     .cloud-account-modal { width: min(520px, 94vw); }
     .cloud-panel { display: grid; gap: 14px; }
     .cloud-card { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: var(--shadow-soft); }
@@ -562,6 +563,126 @@
     .project-actions button:hover { color: var(--brand); border-color: #95b8b2; }
     .project-actions button.danger:hover { color: var(--danger); border-color: #d9aaa7; }
 
+    .compare-modal { width: min(1180px, 96vw); max-height: min(880px, calc(100dvh - 32px)); }
+    .compare-modal .modal-head { color: #fff; background: linear-gradient(120deg, #133d42, #0d5d5a 62%, #1d756d); }
+    .compare-modal .modal-head p { color: rgba(255,255,255,.7); }
+    .compare-modal .close-btn { color: #fff; background: rgba(255,255,255,.12); }
+    .compare-controls { display: grid; grid-template-columns: minmax(0,1fr) 42px minmax(0,1fr) auto; align-items: end; gap: 10px; padding: 15px 22px; border-bottom: 1px solid var(--line); background: #f2f7f5; }
+    .compare-controls .field { margin: 0; }
+    .compare-swap { width: 42px; height: 38px; border: 1px solid #a7beb9; border-radius: 10px; color: var(--brand); background: #fff; cursor: pointer; font-size: 17px; font-weight: 900; }
+    .compare-run { height: 38px; padding: 0 16px; border: 0; border-radius: 10px; color: #fff; background: var(--brand); cursor: pointer; font-weight: 800; }
+    .compare-tabs { display: flex; gap: 5px; padding: 10px 22px 0; overflow-x: auto; background: #fbfcfb; scrollbar-width: none; }
+    .compare-tabs::-webkit-scrollbar { display: none; }
+    .compare-tabs button { flex: 0 0 auto; height: 35px; padding: 0 14px; border: 0; border-radius: 9px 9px 0 0; color: var(--muted); background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; }
+    .compare-tabs button.active { color: var(--brand); background: #eaf3f0; }
+    .compare-body { padding: 18px 22px 26px; background: #f7faf8; }
+    .compare-hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 18px; padding: 22px; border-radius: 18px; color: #fff; background: linear-gradient(125deg, #173f43, #0d5d5a 58%, #287b71); box-shadow: 0 18px 45px rgba(22,66,67,.18); }
+    .compare-hero::after { content: ""; position: absolute; right: -70px; top: -90px; width: 240px; height: 240px; border: 1px solid rgba(255,255,255,.17); border-radius: 50%; box-shadow: 0 0 0 35px rgba(255,255,255,.035), 0 0 0 72px rgba(255,255,255,.025); }
+    .compare-version { position: relative; z-index: 1; min-width: 0; }
+    .compare-version small { display: block; color: #f2b45e; font-size: 9px; font-weight: 900; letter-spacing: .14em; }
+    .compare-version strong { display: block; overflow: hidden; margin-top: 6px; font: 700 19px/1.35 Georgia, 'Songti SC', serif; text-overflow: ellipsis; white-space: nowrap; }
+    .compare-version span { display: block; margin-top: 5px; color: rgba(255,255,255,.65); font-size: 10px; }
+    .compare-arrow { position: relative; z-index: 1; width: 54px; height: 54px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; color: #f2b45e; background: rgba(255,255,255,.08); font-size: 24px; }
+    .compare-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 13px; }
+    .compare-stat { padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: #fff; box-shadow: 0 8px 22px rgba(32,69,68,.05); }
+    .compare-stat strong { display: block; font-size: 24px; line-height: 1; }
+    .compare-stat span { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; }
+    .compare-stat.added strong { color: #168265; }
+    .compare-stat.deleted strong { color: #b9574e; }
+    .compare-stat.modified strong { color: #b77a21; }
+    .compare-stat.moved strong { color: #397aa2; }
+    .compare-insight { margin-top: 12px; padding: 15px 16px; border-left: 4px solid #e2aa57; border-radius: 10px; color: #465e5c; background: #fffaf0; font-size: 12px; line-height: 1.75; }
+    .compare-metrics { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+    .compare-metric { padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .compare-metric-head { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 10px; }
+    .compare-metric-head strong { color: var(--ink); font-size: 12px; }
+    .compare-metric-track { position: relative; height: 7px; margin-top: 10px; overflow: hidden; border-radius: 999px; background: #e8eeeb; }
+    .compare-metric-before, .compare-metric-after { position: absolute; left: 0; top: 0; height: 100%; border-radius: inherit; }
+    .compare-metric-before { z-index: 1; background: #9eaaa7; opacity: .55; }
+    .compare-metric-after { z-index: 2; height: 4px; top: 1.5px; background: var(--brand); }
+    .compare-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .compare-section-head h3 { margin: 0; font: 700 17px/1.3 Georgia, 'Songti SC', serif; }
+    .compare-section-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .compare-heatmap-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .compare-heatmap { min-width: 680px; display: grid; gap: 1px; background: var(--line); }
+    .compare-heatmap > div, .compare-heatmap > button { min-height: 68px; padding: 10px; border: 0; background: #fff; text-align: left; }
+    .compare-heatmap .heat-corner, .compare-heatmap .heat-stage, .compare-heatmap .heat-lane { color: var(--muted); background: #f3f7f5; font-size: 10px; font-weight: 800; }
+    .compare-heatmap .heat-stage { display: grid; place-items: center; text-align: center; }
+    .compare-heatmap .heat-lane { display: flex; align-items: center; }
+    .compare-heat-cell { cursor: pointer; transition: .16s ease; }
+    .compare-heat-cell:hover { position: relative; z-index: 1; box-shadow: inset 0 0 0 2px var(--brand); }
+    .compare-heat-cell.no-change { color: #9ba8a5; background: #fafcfb; }
+    .compare-heat-cell.has-add { background: #edf8f3; }
+    .compare-heat-cell.has-delete { background: #fff1ef; }
+    .compare-heat-cell.has-modify { background: #fff8e9; }
+    .compare-heat-cell.has-move { background: #eef6fb; }
+    .heat-counts { display: flex; flex-wrap: wrap; gap: 5px; }
+    .heat-counts span { padding: 3px 6px; border-radius: 999px; background: rgba(255,255,255,.78); font-size: 9px; font-weight: 800; }
+    .heat-total { display: block; margin-top: 8px; color: var(--muted); font-size: 9px; }
+    .compare-filter-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+    .compare-filter-row button { height: 31px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: #fff; cursor: pointer; font-size: 10px; }
+    .compare-filter-row button.active { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .compare-change-layout { display: grid; grid-template-columns: minmax(280px,.85fr) minmax(340px,1.15fr); gap: 12px; }
+    .compare-change-list, .compare-detail { min-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+    .compare-change-list { max-height: 540px; padding: 7px; }
+    .compare-change-item { width: 100%; display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 10px; border: 0; border-radius: 9px; color: var(--ink); background: transparent; text-align: left; cursor: pointer; }
+    .compare-change-item:hover, .compare-change-item.active { background: #eef5f2; }
+    .change-badge { min-width: 44px; padding: 4px 6px; border-radius: 6px; color: #fff; text-align: center; font-size: 8px; font-weight: 900; }
+    .change-badge.added { background: #188466; }
+    .change-badge.deleted { background: #b9584f; }
+    .change-badge.modified { background: #b67a23; }
+    .change-badge.moved { background: #397aa2; }
+    .compare-change-item strong { display: block; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .compare-change-item small { display: block; margin-top: 4px; color: var(--faint); font-size: 9px; }
+    .compare-change-item > span:last-child { color: var(--faint); font-size: 14px; }
+    .compare-detail { padding: 16px; }
+    .compare-detail-empty { height: 100%; min-height: 300px; display: grid; place-items: center; color: var(--faint); text-align: center; font-size: 11px; }
+    .compare-detail h3 { margin: 0; font: 700 17px/1.35 Georgia, 'Songti SC', serif; }
+    .compare-detail-location { margin: 6px 0 15px; color: var(--muted); font-size: 10px; }
+    .compare-field-diff { margin-top: 9px; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
+    .compare-field-label { padding: 7px 10px; color: var(--muted); background: #f3f6f5; font-size: 9px; font-weight: 900; }
+    .compare-field-values { display: grid; grid-template-columns: 1fr 1fr; }
+    .compare-field-values > div { min-width: 0; padding: 10px; font-size: 10px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+    .compare-field-values > div:first-child { color: #795653; background: #fff7f5; border-right: 1px solid var(--line); }
+    .compare-field-values > div:last-child { color: #2c6356; background: #f4fbf7; }
+    .compare-field-values small { display: block; margin-bottom: 5px; color: var(--faint); font-size: 8px; font-weight: 800; }
+    .compare-board-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .compare-board { overflow: auto; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .compare-board-head { position: sticky; left: 0; z-index: 2; display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); background: #f3f7f5; }
+    .compare-board-head strong { font-size: 12px; }
+    .compare-board-head span { color: var(--muted); font-size: 9px; }
+    .compare-mini-grid { min-width: 520px; display: grid; gap: 1px; background: var(--line); }
+    .compare-mini-grid > div { min-height: 62px; padding: 8px; background: #fff; }
+    .compare-mini-stage, .compare-mini-lane, .compare-mini-corner { display: grid; place-items: center; color: var(--muted); background: #f5f8f7 !important; font-size: 9px; font-weight: 800; text-align: center; }
+    .compare-mini-cell { display: flex; align-content: flex-start; flex-wrap: wrap; gap: 5px; }
+    .compare-mini-node { max-width: 100%; padding: 5px 7px; border: 1px solid #bfcfcb; border-radius: 7px; overflow: hidden; color: #385452; background: #f8fbfa; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .compare-mini-node.added { border-color: #57a58c; background: #eef9f4; }
+    .compare-mini-node.deleted { border-style: dashed; border-color: #c77972; background: #fff2f0; }
+    .compare-mini-node.modified { border-color: #d6a14a; background: #fff8e9; }
+    .compare-mini-node.moved { border-color: #679abb; background: #eef6fb; }
+    .compare-empty { padding: 28px; border: 1px dashed #b9cbc7; border-radius: 13px; color: var(--muted); background: #fff; text-align: center; font-size: 11px; }
+
+    @media (max-width: 700px) {
+      .compare-modal { width: 100%; max-height: calc(100dvh - max(8px, env(safe-area-inset-top))); }
+      .compare-controls { grid-template-columns: 1fr 42px; padding: 12px 16px; }
+      .compare-controls .field:nth-child(3) { grid-column: 1 / 2; }
+      .compare-run { grid-column: 2; grid-row: 2; padding: 0 9px; }
+      .compare-tabs { padding-left: 16px; padding-right: 16px; }
+      .compare-body { padding: 14px 16px 24px; }
+      .compare-hero { grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 16px 13px; }
+      .compare-version strong { font-size: 14px; white-space: normal; }
+      .compare-version span { display: none; }
+      .compare-arrow { width: 38px; height: 38px; font-size: 17px; }
+      .compare-summary-grid { grid-template-columns: repeat(2,1fr); }
+      .compare-metrics { grid-template-columns: 1fr; }
+      .compare-change-layout { grid-template-columns: 1fr; }
+      .compare-change-list { min-height: 0; max-height: 300px; }
+      .compare-detail { min-height: 260px; }
+      .compare-board-pair { grid-template-columns: 1fr; }
+      .compare-field-values { grid-template-columns: 1fr; }
+      .compare-field-values > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+
     .toast-stack { position: fixed; z-index: 400; right: 22px; bottom: 22px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
     .toast { min-width: 220px; padding: 12px 15px; color: #fff; border-radius: 10px; background: #183e42; box-shadow: 0 14px 35px rgba(17,47,49,.22); animation: toastIn .22s ease both; font-size: 12px; }
     .toast.error { background: #8e3e39; }
@@ -871,9 +992,10 @@
       <div class="tool-cluster">
         <button class="top-btn" id="newProjectBtn" title="新建画布">新建</button>
         <button class="top-btn" id="openProjectsBtn" title="打开方案">方案</button>
+        <button class="top-btn" id="compareProjectsBtn" title="对比两个运营方案">对比</button>
         <button class="top-btn primary" id="saveBtn" title="立即保存">保存</button>
         <button class="top-btn" id="cloudBtn" title="云端保存与同步">云端</button>
-        <div class="cloud-state-wrap"><span id="cloudState" class="cloud-state">本地</span><span id="cloudSyncTime" class="cloud-sync-time" aria-live="polite"></span></div>
+        <div class="cloud-state-wrap"><span id="cloudState" class="cloud-state">本地</span><span id="cloudSyncTime" class="cloud-sync-time" aria-live="polite"></span><span id="cloudSyncPending" class="cloud-sync-pending" aria-live="polite"></span></div>
       </div>
       <div class="divider"></div>
       <div class="tool-cluster">
@@ -909,8 +1031,6 @@
             <button class="tab-btn" data-tab="staging">灵感胶囊 <span id="stagingCount">0</span></button>
           </div>
           <div class="panel-space-tools">
-            <button id="sidebarNarrowBtn" class="desktop-panel-action" title="缩小当前面板">− 面板</button>
-            <button id="sidebarWideBtn" class="desktop-panel-action" title="放大当前面板">＋ 面板</button>
             <button id="sidebarCollapseBtn" class="desktop-panel-action" title="收起组件与灵感池">收起</button>
             <button id="cleanCanvasBtn" class="desktop-panel-action" title="隐藏面板与画布工具">纯净画布</button>
             <button id="mobilePanelSizeBtn" class="mobile-only" title="切换抽屉高度">展开</button>
@@ -1117,7 +1237,7 @@
     <div class="modal">
       <div class="modal-head"><div><h2>手机画布工具</h2><p>常用编辑和管理功能集中在这里。</p></div><button class="close-btn" data-close="mobileToolsModal">×</button></div>
       <div class="modal-body"><div class="mobile-tool-grid" id="mobileToolGrid">
-        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导入导出</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
+        <button data-mobile-action="tutorial">新手教程</button><button data-mobile-action="compare">方案对比</button><button data-mobile-action="undo">撤销</button><button data-mobile-action="redo">重做</button><button data-mobile-action="multi-select">多选模式</button><button data-mobile-action="search">搜索筛选</button><button data-mobile-action="arrange">自动整理</button><button data-mobile-action="connect">连接组件</button><button data-mobile-action="audit">完整性检查</button><button data-mobile-action="snapshots">版本快照</button><button data-mobile-action="settings">分区设置</button><button data-mobile-action="projects">我的方案</button><button data-mobile-action="export">导入导出</button><button data-mobile-action="add-stage">新增阶段</button><button data-mobile-action="add-lane">新增泳道</button>
       </div></div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileToolsModal">关闭</button></div>
     </div>
@@ -1157,6 +1277,26 @@
     </div>
   </div>
 
+  <div id="compareModal" class="modal-backdrop hidden">
+    <div class="modal compare-modal">
+      <div class="modal-head"><div><h2>方案演进对比</h2><p>以 Before → After 的方式查看结构补齐、内容修改、位置调整与执行明确度变化。</p></div><button class="close-btn" data-close="compareModal">×</button></div>
+      <div class="compare-controls">
+        <div class="field"><label for="compareBeforeSelect">Before · 原始方案</label><select id="compareBeforeSelect"></select></div>
+        <button class="compare-swap" id="compareSwapBtn" type="button" title="交换 Before 与 After">⇄</button>
+        <div class="field"><label for="compareAfterSelect">After · 优化方案</label><select id="compareAfterSelect"></select></div>
+        <button class="compare-run" id="compareRunBtn" type="button">开始对比</button>
+      </div>
+      <nav class="compare-tabs" id="compareTabs" aria-label="方案对比视图">
+        <button class="active" data-compare-view="overview">对比总览</button>
+        <button data-compare-view="structure">结构地图</button>
+        <button data-compare-view="changes">变化清单</button>
+        <button data-compare-view="boards">画布对比</button>
+      </nav>
+      <div class="modal-body compare-body" id="compareContent"><div class="compare-empty">请选择两个不同方案开始对比。</div></div>
+      <div class="modal-foot"><span class="field-help" style="margin-right:auto">对比结果只读，不会修改 Before 或 After 方案。</span><button class="modal-btn" data-close="compareModal">关闭</button></div>
+    </div>
+  </div>
+
   <div id="cloudModal" class="modal-backdrop hidden">
     <div class="modal cloud-account-modal">
       <div class="modal-head"><div><h2>账号与同步</h2><p>登录后，运营方案会在你的电脑和手机之间自动同步。</p></div><button class="close-btn" data-close="cloudModal">×</button></div>
@@ -1171,7 +1311,7 @@
         <div class="cloud-card cloud-sync-card hidden" id="cloudSyncCard">
           <div class="cloud-user-row"><div class="cloud-avatar">云</div><div><strong id="cloudUserEmail">已登录</strong><span id="cloudAutoSyncSummary">本地修改会自动保存到云端</span></div></div>
           <div class="auto-sync-setting">
-            <label class="auto-sync-toggle" for="autoSyncEnabled"><input id="autoSyncEnabled" type="checkbox"><span><strong>自动同步</strong><span>停止编辑后，按右侧等待时间上传当前方案。</span></span></label>
+            <label class="auto-sync-toggle" for="autoSyncEnabled"><input id="autoSyncEnabled" type="checkbox"><span><strong>自动同步</strong><span>发生修改后开始计时；持续编辑不会重置，达到等待时间就上传最新内容。</span></span></label>
             <select id="autoSyncInterval" aria-label="自动同步等待时间"><option value="5">5 秒后</option><option value="15">15 秒后</option><option value="30">30 秒后</option><option value="60">1 分钟后</option><option value="300">5 分钟后</option></select>
           </div>
           <div class="cloud-actions"><button class="primary" id="cloudSyncBtn">立即同步</button><button id="cloudPullBtn">刷新云端方案</button><button class="danger" id="cloudLogoutBtn">退出登录</button></div>
@@ -1256,6 +1396,7 @@
     const CLOUD_CONFIG_KEY = 'operationCanvas.cloud.config.v1';
     const CLOUD_SESSION_KEY = 'operationCanvas.cloud.session.v1';
     const AUTO_SYNC_KEY = 'operationCanvas.cloud.autoSync.v1';
+    const CLOUD_PENDING_SYNC_KEY = 'operationCanvas.cloud.pendingSync.v1';
     const CLOUD_DELETE_QUEUE_KEY = 'operationCanvas.cloud.deleteQueue.v1';
     const CLOUD_LAST_USER_KEY = 'operationCanvas.cloud.lastUser.v1';
     const CLOUD_LAST_SYNC_KEY = 'operationCanvas.cloud.lastSync.v1';
@@ -1314,6 +1455,11 @@
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
     const uid = (prefix = 'id') => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
     const deepClone = value => JSON.parse(JSON.stringify(value));
+    const projectContentSignature = project => {
+      if (!project) return '';
+      const comparable = deepClone(project); delete comparable.updatedAt;
+      return JSON.stringify(comparable);
+    };
     const nowText = () => new Date().toLocaleString('zh-CN', { hour12: false });
     const snap = value => Math.max(6, Math.round(value / GRID) * GRID);
     const safeSetPointerCapture = (element, pointerId) => { try { element?.setPointerCapture?.(pointerId); } catch {} };
@@ -1473,6 +1619,7 @@
     let cloudSaveTimer = null;
     let cloudPushInFlight = false;
     let cloudPushQueued = false;
+    let cloudSyncStatusTimer = null;
     let imageUploadBusy = false;
     const signedImageUrlCache = new Map();
     let cloudConfig = loadCloudConfig();
@@ -1492,6 +1639,7 @@
     let mobileMoveNodeId = null;
     let mobileDesignState = { view: 'map', stageId: '', laneId: '', unitStageId: '', unitLaneId: '' };
     let onboardingState = { active: false, welcome: false, step: 0, manual: false, mobile: false, restoreMobileView: null };
+    let compareState = { view: 'overview', beforeId: '', afterId: '', result: null, filter: 'all', cellKey: '', selectedKey: '' };
     let onboardingResizeTimer = null;
     let suppressNodeClickUntil = 0;
     let edgeSwipeState = null;
@@ -1915,17 +2063,101 @@ using (
         return { enabled: saved.enabled !== false, interval };
       } catch { return { enabled: true, interval: 15 }; }
     }
-    function saveAutoSyncPrefs() {
+    function formatAutoSyncInterval(seconds = autoSyncPrefs.interval) {
+      const value = Number(seconds) || 15;
+      return value >= 60 ? `${value / 60} 分钟` : `${value} 秒`;
+    }
+    function saveAutoSyncPrefs(rebasePending = false) {
       localStorage.setItem(AUTO_SYNC_KEY, JSON.stringify(autoSyncPrefs));
+      if (rebasePending) rebasePendingCloudSyncDeadlines();
       updateAutoSyncUi();
-      if (!autoSyncPrefs.enabled) clearTimeout(cloudSaveTimer);
+      if (!autoSyncPrefs.enabled) { clearTimeout(cloudSaveTimer); cloudSaveTimer = null; renderPendingCloudSyncStatus(); }
       else if (cloudLoggedIn()) scheduleCloudSave();
     }
     function updateAutoSyncUi() {
       const enabled = $('#autoSyncEnabled'); const interval = $('#autoSyncInterval'); const summary = $('#cloudAutoSyncSummary');
       if (enabled) enabled.checked = !!autoSyncPrefs.enabled;
       if (interval) { interval.value = String(autoSyncPrefs.interval); interval.disabled = !autoSyncPrefs.enabled; }
-      if (summary) summary.textContent = autoSyncPrefs.enabled ? `停止编辑 ${autoSyncPrefs.interval} 秒后自动同步` : '自动同步已关闭，可使用“立即同步”';
+      if (summary) summary.textContent = autoSyncPrefs.enabled ? `修改后最迟 ${formatAutoSyncInterval()} 自动上传；持续编辑不会重置倒计时` : '自动同步已关闭，可使用“立即同步”';
+      renderPendingCloudSyncStatus();
+    }
+    function loadPendingCloudSyncMap() {
+      try { const value = JSON.parse(localStorage.getItem(CLOUD_PENDING_SYNC_KEY) || '{}'); return value && typeof value === 'object' ? value : {}; }
+      catch { return {}; }
+    }
+    function savePendingCloudSyncMap(value) { localStorage.setItem(CLOUD_PENDING_SYNC_KEY, JSON.stringify(value)); }
+    function pendingCloudSyncEntries(userId = cloudLoggedIn() ? cloudSession.user.id : '') {
+      if (!userId) return [];
+      const records = loadPendingCloudSyncMap()[userId];
+      return records && typeof records === 'object' ? Object.values(records).filter(record => record?.projectId) : [];
+    }
+    function queuePendingCloudSync(project = currentProject) {
+      if (!cloudLoggedIn() || !autoSyncPrefs.enabled || !project?.id) return;
+      const now = Date.now();
+      const map = loadPendingCloudSyncMap();
+      const userId = cloudSession.user.id;
+      const records = map[userId] && typeof map[userId] === 'object' ? map[userId] : {};
+      const previous = records[project.id];
+      records[project.id] = {
+        projectId: String(project.id),
+        projectName: String(project.name || '未命名运营画布'),
+        dirtyAt: Number(previous?.dirtyAt || now),
+        dueAt: Number(previous?.dueAt || (now + autoSyncPrefs.interval * 1000)),
+        updatedAt: Number(project.updatedAt || now)
+      };
+      map[userId] = records;
+      savePendingCloudSyncMap(map);
+      scheduleCloudSave();
+    }
+    function clearPendingCloudSync(projectId, uploadedUpdatedAt = Infinity, userId = cloudLoggedIn() ? cloudSession.user.id : '') {
+      if (!userId || !projectId) return false;
+      const map = loadPendingCloudSyncMap();
+      const records = map[userId];
+      const record = records?.[projectId];
+      if (!record || Number(record.updatedAt || 0) > Number(uploadedUpdatedAt)) return false;
+      delete records[projectId];
+      if (Object.keys(records).length) map[userId] = records; else delete map[userId];
+      savePendingCloudSyncMap(map);
+      renderPendingCloudSyncStatus();
+      return true;
+    }
+    function removePendingCloudSync(projectId, userId = cloudDeleteUserId()) {
+      if (!userId || !projectId) return;
+      const map = loadPendingCloudSyncMap();
+      const records = map[userId];
+      if (!records?.[projectId]) return;
+      delete records[projectId];
+      if (Object.keys(records).length) map[userId] = records; else delete map[userId];
+      savePendingCloudSyncMap(map);
+      scheduleCloudSave();
+    }
+    function rebasePendingCloudSyncDeadlines() {
+      if (!cloudLoggedIn()) return;
+      const map = loadPendingCloudSyncMap();
+      const records = map[cloudSession.user.id];
+      if (!records || typeof records !== 'object') return;
+      const dueAt = Date.now() + autoSyncPrefs.interval * 1000;
+      Object.values(records).forEach(record => { record.dueAt = dueAt; });
+      savePendingCloudSyncMap(map);
+    }
+    function pendingCloudSyncLabel() {
+      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) return '';
+      const entries = pendingCloudSyncEntries().sort((a, b) => Number(a.dueAt || 0) - Number(b.dueAt || 0));
+      if (!entries.length) return '';
+      if (cloudPushInFlight) return `正在上传 ${entries.length} 个待同步方案`;
+      const dueAt = Number(entries[0].dueAt || Date.now());
+      if (dueAt <= Date.now()) return `${entries.length} 个方案待自动同步 · 即将上传`;
+      const due = new Date(dueAt);
+      const pad = value => String(value).padStart(2, '0');
+      return `${entries.length} 个方案待自动同步 · 预计 ${pad(due.getHours())}:${pad(due.getMinutes())}:${pad(due.getSeconds())} 上传`;
+    }
+    function renderPendingCloudSyncStatus() {
+      const target = $('#cloudSyncPending');
+      const label = pendingCloudSyncLabel();
+      if (target) target.textContent = label;
+      clearTimeout(cloudSyncStatusTimer);
+      if (label && !cloudPushInFlight) cloudSyncStatusTimer = setTimeout(renderPendingCloudSyncStatus, 1000);
+      renderMobileCloudSummary();
     }
     function loadCloudDeleteQueue() {
       try { const value = JSON.parse(localStorage.getItem(CLOUD_DELETE_QUEUE_KEY) || '{}'); return value && typeof value === 'object' ? value : {}; }
@@ -2263,7 +2495,10 @@ using (
         const pendingDeletes = pendingCloudDeleteIds(cloudSession.user.id);
         const uploadProjects = projects.filter(project => !pendingDeletes.has(project.id));
         updateCloudStatus('正在上传本地方案……');
-        for (const project of uploadProjects) await cloudPushProject(project);
+        for (const project of uploadProjects) {
+          await cloudPushProject(project);
+          clearPendingCloudSync(project.id, Number(project.updatedAt || 0));
+        }
         if (recordSuccess) markCloudSyncSuccess('manual-upload');
         updateCloudStatus(`上传完成：${uploadProjects.length} 个方案`);
         if (!silent) toast('本地方案已上传云端');
@@ -2279,7 +2514,7 @@ using (
         const rows = await cloudFetch('/rest/v1/operation_canvas_projects?select=*&order=updated_at.desc');
         const remoteProjects = (rows || []).filter(row => !pendingDeletes.has(row.id)).map(row => normalizeProject(row.data));
         resetCanvasFilters(false);
-        mergeRemoteProjects(remoteProjects); persist(true);
+        mergeRemoteProjects(remoteProjects); persist(true, false);
         if (recordSuccess) markCloudSyncSuccess('manual-pull');
         updateCloudStatus(`拉取完成：${remoteProjects.length} 个云端方案`);
         if (!silent) toast('云端方案已合并到本地');
@@ -2312,27 +2547,57 @@ using (
         updateCloudStatus('同步完成，所有设备将获取最新方案'); toast('云端同步完成');
       } catch (error) { updateCloudStatus(`同步失败：${error.message}`); toast(`同步失败：${error.message}`, 'error'); }
     }
-    async function runScheduledCloudSave() {
-      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) return;
+    async function runScheduledCloudSave(forceDue = false) {
+      clearTimeout(cloudSaveTimer); cloudSaveTimer = null;
+      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) { renderPendingCloudSyncStatus(); return; }
       if (cloudPushInFlight) { cloudPushQueued = true; return; }
+      const userId = cloudSession.user.id;
+      const now = Date.now();
+      const dueEntries = pendingCloudSyncEntries(userId).filter(record => forceDue || Number(record.dueAt || 0) <= now).sort((a, b) => Number(a.dueAt || 0) - Number(b.dueAt || 0));
+      if (!dueEntries.length) { scheduleCloudSave(); return; }
       cloudPushInFlight = true;
-      const syncingProject = deepClone(currentProject);
+      renderPendingCloudSyncStatus();
+      let uploaded = 0;
+      let latestProject = null;
       try {
-        updateCloudStatus(`正在自动同步“${syncingProject.name || '当前方案'}”……`);
-        await cloudPushProject(syncingProject);
-        markCloudSyncSuccess('auto', Date.now(), syncingProject);
-        updateCloudStatus(`自动同步成功：${syncingProject.name || '当前方案'}`);
+        for (const entry of dueEntries) {
+          const source = currentProject.id === entry.projectId ? currentProject : projects.find(project => project.id === entry.projectId);
+          if (!source) { removePendingCloudSync(entry.projectId, userId); continue; }
+          const syncingProject = normalizeProject(deepClone(source));
+          const uploadedUpdatedAt = Number(syncingProject.updatedAt || 0);
+          updateCloudStatus(`正在自动同步“${syncingProject.name || '当前方案'}”……`);
+          await cloudPushProject(syncingProject);
+          clearPendingCloudSync(syncingProject.id, uploadedUpdatedAt, userId);
+          uploaded += 1; latestProject = syncingProject;
+        }
+        if (uploaded && latestProject) {
+          markCloudSyncSuccess('auto', Date.now(), latestProject);
+          updateCloudStatus(`自动同步成功：${uploaded} 个方案`);
+        }
       } catch (error) {
+        const map = loadPendingCloudSyncMap();
+        const records = map[userId];
+        if (records && typeof records === 'object') {
+          const retryAt = Date.now() + Math.min(autoSyncPrefs.interval, 60) * 1000;
+          dueEntries.forEach(entry => { if (records[entry.projectId]) records[entry.projectId].dueAt = retryAt; });
+          savePendingCloudSyncMap(map);
+        }
         updateCloudStatus(`自动同步失败：${error.message}`);
       } finally {
         cloudPushInFlight = false;
-        if (cloudPushQueued) { cloudPushQueued = false; scheduleCloudSave(); }
+        renderPendingCloudSyncStatus();
+        if (cloudPushQueued) cloudPushQueued = false;
+        scheduleCloudSave();
       }
     }
     function scheduleCloudSave() {
-      clearTimeout(cloudSaveTimer);
-      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) return;
-      cloudSaveTimer = setTimeout(runScheduledCloudSave, autoSyncPrefs.interval * 1000);
+      clearTimeout(cloudSaveTimer); cloudSaveTimer = null;
+      if (!cloudLoggedIn() || !autoSyncPrefs.enabled) { renderPendingCloudSyncStatus(); return; }
+      const entries = pendingCloudSyncEntries().sort((a, b) => Number(a.dueAt || 0) - Number(b.dueAt || 0));
+      renderPendingCloudSyncStatus();
+      if (!entries.length || cloudPushInFlight) return;
+      const delay = Math.max(0, Number(entries[0].dueAt || Date.now()) - Date.now());
+      cloudSaveTimer = setTimeout(runScheduledCloudSave, Math.min(delay, 2147483647));
     }
 
     function loadProjects() {
@@ -2353,19 +2618,24 @@ using (
       return current;
     }
 
-    function persist(immediate = false) {
+    function persist(immediate = false, queueCloud = true) {
       clearTimeout(saveTimer);
-      $('#saveState').textContent = '未保存';
+      const stored = projects.find(item => item.id === currentProject.id);
+      const changed = !stored || projectContentSignature(stored) !== projectContentSignature(currentProject);
+      if (changed) currentProject.updatedAt = Date.now();
+      if (queueCloud && changed) queuePendingCloudSync(currentProject);
+      $('#saveState').textContent = changed ? '未保存' : '已保存';
       const run = () => {
-        currentProject.updatedAt = Date.now();
-        const index = projects.findIndex(item => item.id === currentProject.id);
-        if (index >= 0) projects[index] = deepClone(currentProject); else projects.unshift(deepClone(currentProject));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+        if (changed) {
+          const index = projects.findIndex(item => item.id === currentProject.id);
+          if (index >= 0) projects[index] = deepClone(currentProject); else projects.unshift(deepClone(currentProject));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+        }
         localStorage.setItem(CURRENT_KEY, currentProject.id);
         $('#saveState').textContent = '已保存';
         scheduleCloudSave();
       };
-      if (immediate) run(); else {
+      if (immediate || !changed) run(); else {
         $('#saveState').textContent = '保存中';
         saveTimer = setTimeout(run, 650);
       }
@@ -2532,8 +2802,9 @@ using (
         text.textContent = cloudConfigured() ? '云端未登录 · 点击右上角登录' : '当前使用本地保存';
         return;
       }
+      const pending = pendingCloudSyncLabel();
       const record = cloudLastSyncRecord();
-      text.textContent = record ? formatCloudSyncTime(record) : `已登录 ${cloudSession.user.email || '云端账号'} · 等待首次同步`;
+      text.textContent = pending || (record ? formatCloudSyncTime(record) : `已登录 ${cloudSession.user.email || '云端账号'} · 等待首次同步`);
     }
 
     function renderMobileDesigner() {
@@ -3228,6 +3499,7 @@ using (
       if (action === 'snapshots') { renderSnapshotList(); openModal('snapshotsModal'); }
       if (action === 'settings') { configDraft = null; openSettingsWithDraft(); }
       if (action === 'projects') { persist(true); renderProjectList(); openModal('projectsModal'); }
+      if (action === 'compare') setTimeout(() => openCompareModal(), 0);
       if (action === 'tutorial') setTimeout(() => startOnboarding(true), 0);
       if (action === 'export') setTimeout(() => { const menu = $('#exportMenu'); menu.style.position = 'fixed'; menu.style.left = '50%'; menu.style.top = '50%'; menu.style.transform = 'translate(-50%,-50%)'; menu.classList.remove('hidden'); }, 0);
       if (action === 'import') $('#fileInput').click();
@@ -3749,24 +4021,38 @@ using (
       });
     }
 
-    function updateSelected(field, value, rerender = true) {
-      const node = findNode(selectedId); if (!node) return;
-      checkpoint(); node[field] = value; node.updatedAt = Date.now();
+    function updateSelected(field, value, rerender = true, recordHistory = true) {
+      const node = findNode(selectedId); if (!node || JSON.stringify(node[field]) === JSON.stringify(value)) return;
+      if (recordHistory) checkpoint();
+      node[field] = value; node.updatedAt = Date.now();
       if (rerender) renderBoard();
       renderMobileDesigner(); persist();
     }
 
-    function updateSelectedFreeText(field, value) {
-      const note = findFreeText(selectedId); if (!note) return;
-      checkpoint(); note[field] = value; note.updatedAt = Date.now(); renderFreeTexts(); renderInspector(); persist();
+    function updateSelectedFreeText(field, value, recordHistory = true) {
+      const note = findFreeText(selectedId); if (!note || JSON.stringify(note[field]) === JSON.stringify(value)) return;
+      if (recordHistory) checkpoint();
+      note[field] = value; note.updatedAt = Date.now(); renderFreeTexts(); renderInspector(); persist();
+    }
+
+    function bindContinuousNodeInput(element, field, transform = value => value) {
+      if (!element) return;
+      element.addEventListener('focus', () => {
+        if (element.dataset.editCheckpointed) return;
+        checkpoint(); element.dataset.editCheckpointed = '1';
+      });
+      element.addEventListener('input', () => updateSelected(field, transform(element.value), true, false));
+      element.addEventListener('blur', () => { delete element.dataset.editCheckpointed; });
     }
 
     function bindInspector() {
-      ['nodeTitle', 'nodeSummary', 'nodeDetail', 'nodeOwner', 'nodePriority', 'nodeProgress', 'nodeEffect'].forEach(id => {
+      const inspectorFields = { nodeTitle: 'title', nodeSummary: 'summary', nodeDetail: 'detail', nodeOwner: 'owner' };
+      Object.entries(inspectorFields).forEach(([id, field]) => bindContinuousNodeInput($(`#${id}`), field));
+      ['nodePriority', 'nodeProgress', 'nodeEffect'].forEach(id => {
         const el = $(`#${id}`);
-        el.addEventListener('change', () => updateSelected({ nodeTitle: 'title', nodeSummary: 'summary', nodeDetail: 'detail', nodeOwner: 'owner', nodePriority: 'priority', nodeProgress: 'progress', nodeEffect: 'effect' }[id], el.value));
+        el.addEventListener('change', () => updateSelected({ nodePriority: 'priority', nodeProgress: 'progress', nodeEffect: 'effect' }[id], el.value));
       });
-      $('#nodeTags').addEventListener('change', event => updateSelected('tags', event.target.value.split(/[,，]/).map(item => item.trim()).filter(Boolean)));
+      bindContinuousNodeInput($('#nodeTags'), 'tags', value => value.split(/[,，]/).map(item => item.trim()).filter(Boolean));
       $$('.status-option').forEach(item => item.onclick = () => updateSelected('style', item.dataset.style));
       $$('.color-dot').forEach(item => item.onclick = () => updateSelected('color', item.dataset.color));
       $('#richTextContent').addEventListener('change', event => updateSelectedFreeText('content', event.target.value));
@@ -3803,6 +4089,7 @@ using (
       const node = findNode(selectedId); if (!node) return;
       checkpoint();
       const copy = { ...deepClone(node), id: uid('node'), title: `${node.title}（副本）`, images: [], y: node.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
+      delete copy.sourceNodeId;
       currentProject.nodes.push(copy); selectedId = copy.id; renderAll(); persist(); toast('已复制组件');
     }
     async function deleteSelected() {
@@ -3972,14 +4259,321 @@ using (
       currentProject.snapshots = currentProject.snapshots.filter(item => item.id !== id); renderSnapshotList(); persist();
     }
 
+    function compareStageName(project, stageId) {
+      if (!stageId) return '灵感池';
+      return project.stages.find(stage => stage.id === stageId)?.name || '未命名阶段';
+    }
+
+    function compareLaneName(project, laneId) {
+      if (!laneId) return '未归位';
+      return project.lanes.find(lane => lane.id === laneId)?.name || '未命名泳道';
+    }
+
+    function compareCellKey(project, node, location = 'canvas') {
+      if (location === 'staging' || !node?.stageId || !node?.laneId) return '灵感池||未归位';
+      return `${compareStageName(project, node.stageId)}||${compareLaneName(project, node.laneId)}`;
+    }
+
+    function compareLocationLabel(project, node, location = 'canvas') {
+      if (location === 'staging' || !node?.stageId || !node?.laneId) return '灵感池 / 未归位';
+      return `${compareStageName(project, node.stageId)} / ${compareLaneName(project, node.laneId)}`;
+    }
+
+    function compareProjectItems(project) {
+      return [
+        ...(project.nodes || []).map(node => ({ node, location: 'canvas' })),
+        ...(project.staging || []).map(node => ({ node, location: 'staging' }))
+      ];
+    }
+
+    function compareStableValue(value) {
+      if (Array.isArray(value)) return JSON.stringify(value.map(item => typeof item === 'object' ? compareStableObject(item) : item).sort((a, b) => String(a).localeCompare(String(b), 'zh-CN')));
+      if (value && typeof value === 'object') return JSON.stringify(compareStableObject(value));
+      return String(value ?? '').trim();
+    }
+
+    function compareStableObject(value) {
+      return Object.keys(value || {}).sort().reduce((result, key) => { result[key] = value[key]; return result; }, {});
+    }
+
+    function compareRelationCount(project, nodeId) {
+      return (project.edges || []).filter(edge => edge.from === nodeId || edge.to === nodeId).length;
+    }
+
+    function compareNodeFields(project, node) {
+      const fields = [
+        ['标题', node.title || ''], ['组件类型', typeName(node.type)], ['卡片摘要', node.summary || ''], ['详细方案', node.detail || ''],
+        ['负责人', node.owner || ''], ['优先级', node.priority || '中'], ['执行进度', node.progress || '未开始'], ['运营效果', node.effect || '未验证'],
+        ['规划属性', node.style === 'dashed' ? '准备实施' : '现有内容'], ['标签', (node.tags || []).join('、')],
+        ['图片数量', (node.images || []).length], ['关系数量', compareRelationCount(project, node.id)]
+      ];
+      const template = FIELD_TEMPLATES[node.type] || [];
+      template.forEach(([label, key]) => fields.push([label, node.fields?.[key] || '']));
+      return fields;
+    }
+
+    function compareNodeDiffs(beforeProject, beforeNode, afterProject, afterNode) {
+      const beforeFields = new Map(compareNodeFields(beforeProject, beforeNode));
+      const afterFields = new Map(compareNodeFields(afterProject, afterNode));
+      const labels = [...new Set([...beforeFields.keys(), ...afterFields.keys()])];
+      return labels.map(label => ({ label, before: beforeFields.get(label) ?? '', after: afterFields.get(label) ?? '' }))
+        .filter(item => compareStableValue(item.before) !== compareStableValue(item.after));
+    }
+
+    function compareUniqueTitleKey(node) {
+      return `${node.type || ''}||${String(node.title || '').trim().toLocaleLowerCase('zh-CN')}`;
+    }
+
+    function compareMatchItems(beforeProject, afterProject) {
+      const beforeItems = compareProjectItems(beforeProject);
+      const afterItems = compareProjectItems(afterProject);
+      const unmatchedBefore = new Set(beforeItems.map((_, index) => index));
+      const beforeById = new Map(beforeItems.map((item, index) => [item.node.id, index]));
+      const titleBuckets = new Map();
+      beforeItems.forEach((item, index) => {
+        const key = compareUniqueTitleKey(item.node); if (!key.endsWith('||')) titleBuckets.set(key, [...(titleBuckets.get(key) || []), index]);
+      });
+      const matches = [];
+      afterItems.forEach(afterItem => {
+        let beforeIndex = null;
+        const sourceId = afterItem.node.sourceNodeId;
+        if (sourceId && beforeById.has(sourceId) && unmatchedBefore.has(beforeById.get(sourceId))) beforeIndex = beforeById.get(sourceId);
+        if (beforeIndex == null && beforeById.has(afterItem.node.id) && unmatchedBefore.has(beforeById.get(afterItem.node.id))) beforeIndex = beforeById.get(afterItem.node.id);
+        if (beforeIndex == null) {
+          const candidates = (titleBuckets.get(compareUniqueTitleKey(afterItem.node)) || []).filter(index => unmatchedBefore.has(index));
+          if (candidates.length === 1) beforeIndex = candidates[0];
+        }
+        if (beforeIndex == null) matches.push({ beforeItem: null, afterItem });
+        else { unmatchedBefore.delete(beforeIndex); matches.push({ beforeItem: beforeItems[beforeIndex], afterItem }); }
+      });
+      unmatchedBefore.forEach(index => matches.push({ beforeItem: beforeItems[index], afterItem: null }));
+      return matches;
+    }
+
+    function compareMetricPercent(value, total) {
+      return total ? Math.round(value / total * 100) : 0;
+    }
+
+    function compareProjectMetrics(project) {
+      const businessNodes = (project.nodes || []).filter(node => !SHAPES.some(shape => shape.type === node.type));
+      const totalCells = Math.max(1, (project.stages || []).length * (project.lanes || []).length);
+      const occupiedCells = new Set((project.nodes || []).map(node => compareCellKey(project, node))).size;
+      return {
+        structure: compareMetricPercent(occupiedCells, totalCells),
+        owner: compareMetricPercent(businessNodes.filter(node => String(node.owner || '').trim()).length, businessNodes.length),
+        detail: compareMetricPercent(businessNodes.filter(node => String(node.detail || '').trim()).length, businessNodes.length),
+        control: compareMetricPercent(businessNodes.filter(node => node.type === 'metric' || node.type === 'risk').length, businessNodes.length)
+      };
+    }
+
+    function buildProjectComparison(beforeProject, afterProject) {
+      const changes = [];
+      compareMatchItems(beforeProject, afterProject).forEach((match, index) => {
+        const beforeNode = match.beforeItem?.node || null; const afterNode = match.afterItem?.node || null;
+        const beforeLocation = match.beforeItem?.location || ''; const afterLocation = match.afterItem?.location || '';
+        const key = `${beforeNode?.id || 'new'}:${afterNode?.id || 'old'}:${index}`;
+        if (!beforeNode) {
+          changes.push({ key, status: 'added', types: ['added'], beforeNode: null, afterNode, beforeLocation: '', afterLocation, beforeCell: '', afterCell: compareCellKey(afterProject, afterNode, afterLocation), diffs: [] });
+          return;
+        }
+        if (!afterNode) {
+          changes.push({ key, status: 'deleted', types: ['deleted'], beforeNode, afterNode: null, beforeLocation, afterLocation: '', beforeCell: compareCellKey(beforeProject, beforeNode, beforeLocation), afterCell: '', diffs: [] });
+          return;
+        }
+        const diffs = compareNodeDiffs(beforeProject, beforeNode, afterProject, afterNode);
+        const beforeCell = compareCellKey(beforeProject, beforeNode, beforeLocation); const afterCell = compareCellKey(afterProject, afterNode, afterLocation);
+        const moved = beforeCell !== afterCell;
+        const types = []; if (diffs.length) types.push('modified'); if (moved) types.push('moved');
+        if (types.length) changes.push({ key, status: diffs.length ? 'modified' : 'moved', types, beforeNode, afterNode, beforeLocation, afterLocation, beforeCell, afterCell, diffs });
+      });
+      const stats = {
+        added: changes.filter(change => change.types.includes('added')).length,
+        deleted: changes.filter(change => change.types.includes('deleted')).length,
+        modified: changes.filter(change => change.types.includes('modified')).length,
+        moved: changes.filter(change => change.types.includes('moved')).length
+      };
+      const beforeNotes = (beforeProject.freeTexts || []).map(note => compareStableValue(note.content)).filter(Boolean);
+      const afterNotes = (afterProject.freeTexts || []).map(note => compareStableValue(note.content)).filter(Boolean);
+      const notesChanged = JSON.stringify(beforeNotes) !== JSON.stringify(afterNotes);
+      return { beforeProject, afterProject, changes, stats, notesChanged, beforeMetrics: compareProjectMetrics(beforeProject), afterMetrics: compareProjectMetrics(afterProject) };
+    }
+
+    function compareProjectOptions(selectedId = '') {
+      return projects.map(project => `<option value="${escapeAttr(project.id)}" ${project.id === selectedId ? 'selected' : ''}>${escapeHtml(project.name)}</option>`).join('');
+    }
+
+    function openCompareModal(afterId = currentProject.id, beforeId = '') {
+      persist(true);
+      if (projects.length < 2) return toast('至少需要两个方案才能对比，请先复制或新建方案', 'error');
+      const afterProject = projects.find(project => project.id === afterId) || currentProject;
+      const preferredBefore = beforeId || (afterProject.sourceProjectId && projects.some(project => project.id === afterProject.sourceProjectId) ? afterProject.sourceProjectId : '');
+      const resolvedBefore = preferredBefore && preferredBefore !== afterProject.id ? preferredBefore : projects.find(project => project.id !== afterProject.id)?.id;
+      compareState = { view: 'overview', beforeId: resolvedBefore || '', afterId: afterProject.id, result: null, filter: 'all', cellKey: '', selectedKey: '' };
+      $('#compareBeforeSelect').innerHTML = compareProjectOptions(compareState.beforeId);
+      $('#compareAfterSelect').innerHTML = compareProjectOptions(compareState.afterId);
+      runProjectComparison(); openModal('compareModal');
+    }
+
+    function runProjectComparison() {
+      compareState.beforeId = $('#compareBeforeSelect')?.value || compareState.beforeId;
+      compareState.afterId = $('#compareAfterSelect')?.value || compareState.afterId;
+      if (!compareState.beforeId || !compareState.afterId || compareState.beforeId === compareState.afterId) {
+        compareState.result = null; $('#compareContent').innerHTML = '<div class="compare-empty">Before 与 After 需要选择两个不同方案。</div>'; return;
+      }
+      const beforeProject = projects.find(project => project.id === compareState.beforeId);
+      const afterProject = projects.find(project => project.id === compareState.afterId);
+      if (!beforeProject || !afterProject) return;
+      compareState.result = buildProjectComparison(beforeProject, afterProject);
+      compareState.filter = 'all'; compareState.cellKey = ''; compareState.selectedKey = compareState.result.changes[0]?.key || '';
+      renderProjectComparison();
+    }
+
+    function compareInsightText(result) {
+      const { stats, changes, notesChanged } = result;
+      const cellCounts = new Map();
+      changes.forEach(change => {
+        const key = change.afterCell || change.beforeCell; if (key && key !== '灵感池||未归位') cellCounts.set(key, (cellCounts.get(key) || 0) + 1);
+      });
+      const focus = [...cellCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([key]) => key.replace('||', ' / '));
+      const actions = [];
+      if (stats.added) actions.push(`新增 ${stats.added} 项内容`);
+      if (stats.modified) actions.push(`细化 ${stats.modified} 项内容`);
+      if (stats.moved) actions.push(`调整 ${stats.moved} 项归属`);
+      if (stats.deleted) actions.push(`精简 ${stats.deleted} 项内容`);
+      if (notesChanged) actions.push('更新方案说明');
+      if (!actions.length) return '两个方案的结构与内容暂未发现可识别差异。';
+      return `${actions.join('，')}。${focus.length ? `变化主要集中在 ${focus.join('、')}。` : ''}此处仅陈述变化，不自动判断内容增加等同于方案更优。`;
+    }
+
+    function compareMetricHtml(label, beforeValue, afterValue) {
+      return `<div class="compare-metric"><div class="compare-metric-head"><strong>${escapeHtml(label)}</strong><span>${beforeValue}% → ${afterValue}%</span></div><div class="compare-metric-track"><i class="compare-metric-before" style="width:${beforeValue}%"></i><i class="compare-metric-after" style="width:${afterValue}%"></i></div></div>`;
+    }
+
+    function compareHeroHtml(result) {
+      return `<div class="compare-hero"><div class="compare-version"><small>BEFORE · 原始方案</small><strong>${escapeHtml(result.beforeProject.name)}</strong><span>${result.beforeProject.nodes.length} 个画布组件</span></div><div class="compare-arrow">→</div><div class="compare-version"><small>AFTER · 优化方案</small><strong>${escapeHtml(result.afterProject.name)}</strong><span>${result.afterProject.nodes.length} 个画布组件</span></div></div>`;
+    }
+
+    function renderCompareOverview(result) {
+      return `${compareHeroHtml(result)}<div class="compare-summary-grid"><div class="compare-stat added"><strong>+${result.stats.added}</strong><span>新增内容</span></div><div class="compare-stat deleted"><strong>−${result.stats.deleted}</strong><span>删除内容</span></div><div class="compare-stat modified"><strong>${result.stats.modified}</strong><span>修改内容</span></div><div class="compare-stat moved"><strong>${result.stats.moved}</strong><span>移动归属</span></div></div><div class="compare-insight">${escapeHtml(compareInsightText(result))}</div><div class="compare-metrics">${compareMetricHtml('结构覆盖率', result.beforeMetrics.structure, result.afterMetrics.structure)}${compareMetricHtml('负责人明确度', result.beforeMetrics.owner, result.afterMetrics.owner)}${compareMetricHtml('详细方案完整度', result.beforeMetrics.detail, result.afterMetrics.detail)}${compareMetricHtml('指标与风险覆盖', result.beforeMetrics.control, result.afterMetrics.control)}</div>${result.notesChanged ? '<div class="compare-insight">方案说明区内容也发生了变化，可结合两版方案说明进一步核对背景、策略与复盘内容。</div>' : ''}`;
+    }
+
+    function compareStructureAxes(result) {
+      const stages = []; const lanes = [];
+      [...result.afterProject.stages, ...result.beforeProject.stages].forEach(stage => { if (!stages.some(item => item.name === stage.name)) stages.push({ name: stage.name }); });
+      [...result.afterProject.lanes, ...result.beforeProject.lanes].forEach(lane => { if (!lanes.some(item => item.name === lane.name)) lanes.push({ name: lane.name }); });
+      return { stages, lanes };
+    }
+
+    function compareCellChanges(result, cellKey) {
+      return result.changes.filter(change => change.beforeCell === cellKey || change.afterCell === cellKey);
+    }
+
+    function renderCompareStructure(result) {
+      const axes = compareStructureAxes(result); const columns = axes.stages.length + 1;
+      let html = `<div class="compare-section-head"><div><h3>阶段 × 泳道变化地图</h3><p>点击格子可跳转到该区域的变化清单。</p></div></div><div class="compare-heatmap-wrap"><div class="compare-heatmap" style="grid-template-columns:150px repeat(${axes.stages.length},minmax(118px,1fr))"><div class="heat-corner">运营泳道 / 阶段</div>`;
+      axes.stages.forEach(stage => { html += `<div class="heat-stage">${escapeHtml(stage.name)}</div>`; });
+      axes.lanes.forEach(lane => {
+        html += `<div class="heat-lane">${escapeHtml(lane.name)}</div>`;
+        axes.stages.forEach(stage => {
+          const key = `${stage.name}||${lane.name}`; const changes = compareCellChanges(result, key);
+          const counts = { added: 0, deleted: 0, modified: 0, moved: 0 };
+          changes.forEach(change => change.types.forEach(type => { if (counts[type] != null) counts[type] += 1; }));
+          const className = counts.added ? 'has-add' : counts.deleted ? 'has-delete' : counts.modified ? 'has-modify' : counts.moved ? 'has-move' : 'no-change';
+          html += `<button class="compare-heat-cell ${className}" data-compare-cell="${escapeAttr(key)}"><div class="heat-counts">${counts.added ? `<span>+${counts.added}</span>` : ''}${counts.deleted ? `<span>−${counts.deleted}</span>` : ''}${counts.modified ? `<span>改 ${counts.modified}</span>` : ''}${counts.moved ? `<span>移 ${counts.moved}</span>` : ''}</div><span class="heat-total">${changes.length ? `${changes.length} 项变化` : '无变化'}</span></button>`;
+        });
+      });
+      html += `</div></div>`;
+      const stagingChanges = compareCellChanges(result, '灵感池||未归位');
+      if (stagingChanges.length) html += `<button class="compare-insight" style="width:100%;text-align:left;cursor:pointer" data-compare-cell="灵感池||未归位">灵感池还有 ${stagingChanges.length} 项变化，点击查看明细。</button>`;
+      return html;
+    }
+
+    function compareChangeTitle(change) { return change.afterNode?.title || change.beforeNode?.title || '未命名组件'; }
+    function compareChangeLocation(change, result) {
+      if (change.types.includes('moved')) return `${compareLocationLabel(result.beforeProject, change.beforeNode, change.beforeLocation)} → ${compareLocationLabel(result.afterProject, change.afterNode, change.afterLocation)}`;
+      if (change.afterNode) return compareLocationLabel(result.afterProject, change.afterNode, change.afterLocation);
+      return compareLocationLabel(result.beforeProject, change.beforeNode, change.beforeLocation);
+    }
+
+    function compareFilteredChanges(result) {
+      return result.changes.filter(change => (compareState.filter === 'all' || change.types.includes(compareState.filter)) && (!compareState.cellKey || change.beforeCell === compareState.cellKey || change.afterCell === compareState.cellKey));
+    }
+
+    function renderCompareDetail(result, change) {
+      if (!change) return '<div class="compare-detail-empty">选择左侧变化项，查看字段级 Before / After 差异。</div>';
+      const beforeNode = change.beforeNode; const afterNode = change.afterNode;
+      let diffs = [...change.diffs];
+      if (change.types.includes('moved')) diffs.unshift({ label: '所属位置', before: compareLocationLabel(result.beforeProject, beforeNode, change.beforeLocation), after: compareLocationLabel(result.afterProject, afterNode, change.afterLocation) });
+      if (change.types.includes('added')) diffs = compareNodeFields(result.afterProject, afterNode).filter(([, value]) => compareStableValue(value)).map(([label, value]) => ({ label, before: '', after: value }));
+      if (change.types.includes('deleted')) diffs = compareNodeFields(result.beforeProject, beforeNode).filter(([, value]) => compareStableValue(value)).map(([label, value]) => ({ label, before: value, after: '' }));
+      return `<h3>${escapeHtml(compareChangeTitle(change))}</h3><div class="compare-detail-location">${escapeHtml(compareChangeLocation(change, result))}</div>${diffs.length ? diffs.map(diff => `<div class="compare-field-diff"><div class="compare-field-label">${escapeHtml(diff.label)}</div><div class="compare-field-values"><div><small>BEFORE</small>${escapeHtml(compareStableValue(diff.before) || '—')}</div><div><small>AFTER</small>${escapeHtml(compareStableValue(diff.after) || '—')}</div></div></div>`).join('') : '<div class="compare-detail-empty">该变化没有额外字段差异。</div>'}`;
+    }
+
+    function renderCompareChanges(result) {
+      const changes = compareFilteredChanges(result);
+      if (!changes.some(change => change.key === compareState.selectedKey)) compareState.selectedKey = changes[0]?.key || '';
+      const selected = changes.find(change => change.key === compareState.selectedKey);
+      const labels = { all: '全部', added: '新增', deleted: '删除', modified: '修改', moved: '移动' };
+      const filters = ['all', 'added', 'deleted', 'modified', 'moved'];
+      return `<div class="compare-section-head"><div><h3>${compareState.cellKey ? escapeHtml(compareState.cellKey.replace('||', ' / ')) : '全部变化'}</h3><p>${changes.length} 项可识别变化 · 支持查看字段级差异</p></div></div><div class="compare-filter-row">${filters.map(filter => `<button class="${compareState.filter === filter ? 'active' : ''}" data-compare-filter="${filter}">${labels[filter]}${filter === 'all' ? ` ${result.changes.length}` : ` ${result.stats[filter] || 0}`}</button>`).join('')}${compareState.cellKey ? '<button data-compare-clear-cell>清除区域筛选</button>' : ''}</div><div class="compare-change-layout"><div class="compare-change-list">${changes.length ? changes.map(change => `<button class="compare-change-item ${change.key === compareState.selectedKey ? 'active' : ''}" data-compare-change="${escapeAttr(change.key)}"><span class="change-badge ${change.status}">${labels[change.status]}</span><span><strong>${escapeHtml(compareChangeTitle(change))}</strong><small>${escapeHtml(compareChangeLocation(change, result))}</small></span><span>›</span></button>`).join('') : '<div class="compare-empty">当前筛选下没有变化。</div>'}</div><div class="compare-detail">${renderCompareDetail(result, selected)}</div></div>`;
+    }
+
+    function compareNodeStatusMap(result, side) {
+      const map = new Map();
+      result.changes.forEach(change => {
+        const node = side === 'before' ? change.beforeNode : change.afterNode; if (!node) return;
+        const status = side === 'before' && change.types.includes('deleted') ? 'deleted' : side === 'after' && change.types.includes('added') ? 'added' : change.types.includes('moved') ? 'moved' : 'modified';
+        map.set(node.id, status);
+      });
+      return map;
+    }
+
+    function renderCompareMiniBoard(project, result, side) {
+      const statusMap = compareNodeStatusMap(result, side); const columns = project.stages.length + 1;
+      let html = `<div class="compare-board"><div class="compare-board-head"><strong>${side === 'before' ? 'Before' : 'After'} · ${escapeHtml(project.name)}</strong><span>${project.nodes.length} 个组件</span></div><div class="compare-mini-grid" style="grid-template-columns:110px repeat(${project.stages.length},minmax(100px,1fr))"><div class="compare-mini-corner">运营全景</div>`;
+      project.stages.forEach(stage => { html += `<div class="compare-mini-stage">${escapeHtml(stage.name)}</div>`; });
+      project.lanes.forEach(lane => {
+        html += `<div class="compare-mini-lane">${escapeHtml(lane.name)}</div>`;
+        project.stages.forEach(stage => {
+          const nodes = project.nodes.filter(node => node.stageId === stage.id && node.laneId === lane.id);
+          html += `<div class="compare-mini-cell">${nodes.map(node => `<span class="compare-mini-node ${statusMap.get(node.id) || ''}" title="${escapeAttr(node.title || '未命名组件')}">${escapeHtml(node.title || '未命名')}</span>`).join('')}</div>`;
+        });
+      });
+      return `${html}</div></div>`;
+    }
+
+    function renderCompareBoards(result) {
+      return `<div class="compare-section-head"><div><h3>Before / After 画布对比</h3><p>相同结构并排查看；移动、修改、新增和删除内容以不同描边高亮。</p></div></div><div class="compare-board-pair">${renderCompareMiniBoard(result.beforeProject, result, 'before')}${renderCompareMiniBoard(result.afterProject, result, 'after')}</div>`;
+    }
+
+    function bindProjectComparisonEvents() {
+      $$('#compareTabs [data-compare-view]').forEach(button => button.onclick = () => { compareState.view = button.dataset.compareView; renderProjectComparison(); });
+      $$('[data-compare-cell]', $('#compareContent')).forEach(button => button.onclick = () => { compareState.cellKey = button.dataset.compareCell; compareState.view = 'changes'; compareState.filter = 'all'; compareState.selectedKey = ''; renderProjectComparison(); });
+      $$('[data-compare-filter]', $('#compareContent')).forEach(button => button.onclick = () => { compareState.filter = button.dataset.compareFilter; compareState.selectedKey = ''; renderProjectComparison(); });
+      $('[data-compare-clear-cell]', $('#compareContent'))?.addEventListener('click', () => { compareState.cellKey = ''; compareState.selectedKey = ''; renderProjectComparison(); });
+      $$('[data-compare-change]', $('#compareContent')).forEach(button => button.onclick = () => { compareState.selectedKey = button.dataset.compareChange; renderProjectComparison(); });
+    }
+
+    function renderProjectComparison() {
+      const result = compareState.result; if (!result) return;
+      $$('#compareTabs [data-compare-view]').forEach(button => button.classList.toggle('active', button.dataset.compareView === compareState.view));
+      let html = '';
+      if (compareState.view === 'overview') html = renderCompareOverview(result);
+      if (compareState.view === 'structure') html = renderCompareStructure(result);
+      if (compareState.view === 'changes') html = renderCompareChanges(result);
+      if (compareState.view === 'boards') html = renderCompareBoards(result);
+      $('#compareContent').innerHTML = html; bindProjectComparisonEvents();
+    }
+
     function renderProjectList() {
       const list = $('#projectList');
       list.innerHTML = projects.sort((a, b) => b.updatedAt - a.updatedAt).map(project => `
         <div class="project-card ${project.id === currentProject.id ? 'current' : ''}">
           <div><h3>${escapeHtml(project.name)}</h3><div class="project-meta">${project.nodes.length} 个画布组件 · ${project.staging.length} 枚灵感胶囊 · 更新于 ${new Date(project.updatedAt).toLocaleString('zh-CN', { hour12: false })}</div></div>
-          <div class="project-actions"><button data-open-project="${project.id}">${project.id === currentProject.id ? '当前' : '打开'}</button><button data-copy-project="${project.id}">复制</button><button class="danger" data-delete-project="${project.id}">删除</button></div>
+          <div class="project-actions"><button data-open-project="${project.id}">${project.id === currentProject.id ? '当前' : '打开'}</button><button data-compare-project="${project.id}">对比</button><button data-copy-project="${project.id}">复制</button><button class="danger" data-delete-project="${project.id}">删除</button></div>
         </div>`).join('');
       $$('[data-open-project]').forEach(button => button.onclick = () => openProject(button.dataset.openProject));
+      $$('[data-compare-project]').forEach(button => button.onclick = () => { closeModal('projectsModal'); openCompareModal(currentProject.id, button.dataset.compareProject); });
       $$('[data-copy-project]').forEach(button => button.onclick = () => copyProject(button.dataset.copyProject));
       $$('[data-delete-project]').forEach(button => button.onclick = () => deleteProject(button.dataset.deleteProject));
     }
@@ -3990,9 +4584,16 @@ using (
     }
     function copyProject(id) {
       const source = projects.find(item => item.id === id); if (!source) return;
-      const copy = deepClone(source); copy.id = uid('project'); copy.name = `${source.name}（副本）`; copy.createdAt = Date.now(); copy.updatedAt = Date.now();
-      [...(copy.nodes || []), ...(copy.staging || [])].forEach(node => { node.images = []; });
-      projects.unshift(copy); localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); renderProjectList(); toast('方案已复制');
+      const copy = deepClone(source); const copiedAt = Date.now(); const nodeIdMap = new Map();
+      copy.id = uid('project'); copy.sourceProjectId = source.id; copy.createdFrom = 'copy'; copy.name = `${source.name}（副本）`; copy.createdAt = copiedAt; copy.updatedAt = copiedAt;
+      [...(copy.nodes || []), ...(copy.staging || [])].forEach(node => {
+        const sourceNodeId = node.id; const copiedNodeId = uid('node'); nodeIdMap.set(sourceNodeId, copiedNodeId);
+        node.id = copiedNodeId; node.sourceNodeId = sourceNodeId; node.images = []; node.createdAt = copiedAt; node.updatedAt = copiedAt;
+      });
+      (copy.freeTexts || []).forEach(note => { note.id = uid('text'); note.createdAt = copiedAt; note.updatedAt = copiedAt; });
+      copy.edges = (copy.edges || []).filter(edge => nodeIdMap.has(edge.from) && nodeIdMap.has(edge.to)).map(edge => ({ ...edge, id: uid('edge'), from: nodeIdMap.get(edge.from), to: nodeIdMap.get(edge.to) }));
+      copy.snapshots = [];
+      projects.unshift(normalizeProject(copy)); localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); renderProjectList(); toast('方案已复制，可直接与原方案对比');
     }
     async function deleteProject(id) {
       if (projects.length <= 1) return toast('至少保留一个方案', 'error');
@@ -4001,6 +4602,7 @@ using (
       if (!(await removeNodeStorageImages([...(target?.nodes || []), ...(target?.staging || [])]))) return;
       const queuedForCloud = queueCloudProjectDelete(id);
       projects = projects.filter(item => item.id !== id);
+      removePendingCloudSync(id);
       if (currentProject.id === id) { currentProject = normalizeProject(deepClone(projects[0])); resetCanvasFilters(false); localStorage.setItem(CURRENT_KEY, currentProject.id); renderAll(); }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); renderProjectList();
       if (cloudLoggedIn() && queuedForCloud) {
@@ -4182,6 +4784,14 @@ using (
       $('#mobileCloudBtn').onclick = openCloudAccount;
       $('#mobileHeroCloudBtn').onclick = openCloudAccount;
       $('#mobileProjectSwitcherBtn').onclick = () => { persist(true); renderProjectList(); openModal('projectsModal'); };
+      $('#compareProjectsBtn').onclick = () => openCompareModal();
+      $('#compareRunBtn').onclick = runProjectComparison;
+      $('#compareSwapBtn').onclick = () => {
+        const beforeId = $('#compareBeforeSelect').value; const afterId = $('#compareAfterSelect').value;
+        $('#compareBeforeSelect').value = afterId; $('#compareAfterSelect').value = beforeId; runProjectComparison();
+      };
+      $('#compareBeforeSelect').onchange = runProjectComparison;
+      $('#compareAfterSelect').onchange = runProjectComparison;
       $('#onboardingReplayBtn').onclick = () => startOnboarding(true);
       $('#onboardingCloseBtn').onclick = () => finishOnboarding('dismissed');
       $('#onboardingSkipBtn').onclick = () => finishOnboarding('skipped');
@@ -4221,8 +4831,17 @@ using (
       $('#cloudLogoutBtn').onclick = cloudLogout;
       $('#cloudPullBtn').onclick = () => cloudPullAll(false);
       $('#cloudSyncBtn').onclick = cloudSyncAll;
-      $('#autoSyncEnabled').onchange = event => { autoSyncPrefs.enabled = event.target.checked; saveAutoSyncPrefs(); toast(autoSyncPrefs.enabled ? `自动同步已开启：${autoSyncPrefs.interval} 秒` : '自动同步已关闭'); };
-      $('#autoSyncInterval').onchange = event => { autoSyncPrefs.interval = Number(event.target.value) || 15; saveAutoSyncPrefs(); toast(`自动同步等待时间已设为 ${autoSyncPrefs.interval} 秒`); };
+      $('#autoSyncEnabled').onchange = event => {
+        autoSyncPrefs.enabled = event.target.checked;
+        if (autoSyncPrefs.enabled && cloudLoggedIn()) queuePendingCloudSync(currentProject);
+        saveAutoSyncPrefs(true);
+        toast(autoSyncPrefs.enabled ? `自动同步已开启：修改后最迟 ${formatAutoSyncInterval()} 上传` : '自动同步已关闭');
+      };
+      $('#autoSyncInterval').onchange = event => {
+        autoSyncPrefs.interval = Number(event.target.value) || 15;
+        saveAutoSyncPrefs(true);
+        toast(`自动同步最长等待时间已设为 ${formatAutoSyncInterval()}`);
+      };
       $('#copyCloudSqlBtn').onclick = async () => { try { await navigator.clipboard.writeText(CLOUD_SQL); toast('SQL 已复制'); } catch { $('#cloudSql').select(); document.execCommand('copy'); toast('SQL 已复制'); } };
       $('#newProjectBtn').onclick = () => newProject(true);
       $('#modalNewProject').onclick = () => newProject(false);
@@ -4250,8 +4869,6 @@ using (
       $('#centerViewBtn').onclick = () => $('#canvasViewport').scrollTo({ left: 0, top: 0, behavior: 'smooth' });
       $('#deselectBtn').onclick = () => selectNode(null);
       $('#fullscreenBtn').onclick = toggleImmersiveFullscreen;
-      $('#sidebarNarrowBtn').onclick = () => setSidebarWidth(currentSidebarWidth() - 36);
-      $('#sidebarWideBtn').onclick = () => setSidebarWidth(currentSidebarWidth() + 36);
       $('#sidebarCollapseBtn').onclick = toggleSidebarCollapsed;
       $('#cleanCanvasBtn').onclick = () => toggleCleanCanvas(false);
       $('#panelRestoreBtn').onclick = restoreSidebarPanels;
@@ -4325,7 +4942,10 @@ using (
       window.visualViewport?.addEventListener('resize', () => { clearTransientCanvasUI(); if (isMobileLayout()) syncMobileViewportHeight(); });
       window.visualViewport?.addEventListener('scroll', () => { if (isMobileLayout()) syncMobileViewportHeight(); });
       window.addEventListener('blur', clearTransientCanvasUI);
-      document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') clearTransientCanvasUI(); });
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') { clearTransientCanvasUI(); return; }
+        scheduleCloudSave();
+      });
       document.addEventListener('pointercancel', clearTransientCanvasUI, true);
       document.addEventListener('fullscreenchange', () => {
         clearTransientCanvasUI(); updateOrientationUI(false);
@@ -4340,7 +4960,8 @@ using (
       });
       window.addEventListener('beforeunload', event => { persist(true); if (isMobileLayout() && !allowPageExit) { event.preventDefault(); event.returnValue = ''; } });
       document.addEventListener('keydown', event => {
-        const editing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+        const activeEditor = document.activeElement;
+        const editing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEditor?.tagName) || !!activeEditor?.isContentEditable || !!activeEditor?.closest?.('[contenteditable="true"]');
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); persist(true); toast('方案已保存'); }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z' && !event.shiftKey && !editing) { event.preventDefault(); undo(); }
         if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z')) && !editing) { event.preventDefault(); redo(); }
@@ -4351,11 +4972,11 @@ using (
       });
     }
 
-    initPalette(); bindInspector(); bindGlobalEvents(); initCloudUi(); applyLayoutPrefs(); renderAll();
+    initPalette(); bindInspector(); bindGlobalEvents(); initCloudUi(); applyLayoutPrefs(); renderAll(); scheduleCloudSave();
     if (isMobileLayout()) {
       syncMobileViewportHeight(); installMobileHistoryGuard(); updateOrientationUI(false);
       if ((currentProject.zoom || 1) < .65) currentProject.zoom = innerWidth > innerHeight ? .9 : .75;
-      requestAnimationFrame(() => { applyZoom(); $('#canvasViewport').scrollTo({ left: 0, top: 0 }); persist(); });
+      requestAnimationFrame(() => { applyZoom(); $('#canvasViewport').scrollTo({ left: 0, top: 0 }); persist(false, false); });
     }
     setTimeout(() => toast(isMobileLayout() ? '手机版结构设计器已就绪' : '画布已就绪，可从左侧拖入组件'), 500);
     setTimeout(() => scheduleFirstOnboarding(), 850);
