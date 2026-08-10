@@ -575,6 +575,75 @@
       .project-name { width: 170px; }
     }
 
+    .mobile-designer, .mobile-canvas-mode-bar, .mobile-design-dock, .mobile-quick-add { display: none; }
+    .mobile-design-scroll { height: 100%; overflow: auto; padding: 16px 14px 104px; overscroll-behavior: contain; }
+    .mobile-design-hero { position: relative; overflow: hidden; padding: 20px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, #123c41 0%, #0d5d5a 62%, #2b7c72 100%); box-shadow: 0 16px 38px rgba(18,61,65,.2); }
+    .mobile-design-hero::after { content: ''; position: absolute; right: -54px; top: -68px; width: 180px; height: 180px; border-radius: 50%; border: 34px solid rgba(255,255,255,.08); }
+    .mobile-design-kicker { position: relative; z-index: 1; color: #f1b45f; font-size: 10px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
+    .mobile-design-title-row { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 8px; }
+    .mobile-design-title-row h1 { margin: 0; font: 700 24px/1.2 Georgia, 'Songti SC', serif; letter-spacing: .02em; }
+    .mobile-design-title-row button { flex: 0 0 auto; min-height: 34px; padding: 0 11px; border: 1px solid rgba(255,255,255,.24); border-radius: 10px; color: #fff; background: rgba(255,255,255,.1); font-size: 11px; font-weight: 800; }
+    .mobile-cloud-summary { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; margin-top: 9px; color: rgba(255,255,255,.72); font-size: 10px; }
+    .mobile-cloud-dot { width: 7px; height: 7px; border-radius: 50%; background: #d6a65b; box-shadow: 0 0 0 4px rgba(214,166,91,.13); }
+    .mobile-cloud-summary.online .mobile-cloud-dot { background: #79d5b3; box-shadow: 0 0 0 4px rgba(121,213,179,.13); }
+    .mobile-design-metrics { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 18px; }
+    .mobile-design-metric { padding: 10px 9px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; background: rgba(255,255,255,.08); }
+    .mobile-design-metric strong, .mobile-design-metric span { display: block; }
+    .mobile-design-metric strong { font-size: 18px; }
+    .mobile-design-metric span { margin-top: 2px; color: rgba(255,255,255,.62); font-size: 9px; }
+    .mobile-view-switch { position: sticky; z-index: 12; top: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 14px 0; padding: 4px; border: 1px solid rgba(190,207,202,.8); border-radius: 14px; background: rgba(247,250,248,.94); box-shadow: 0 8px 22px rgba(20,50,52,.08); backdrop-filter: blur(14px); }
+    .mobile-view-switch button { min-width: 0; height: 38px; border: 0; border-radius: 10px; color: #71817e; background: transparent; font-size: 11px; font-weight: 800; }
+    .mobile-view-switch button.active { color: #fff; background: var(--brand); box-shadow: 0 7px 16px rgba(13,93,90,.2); }
+    .mobile-design-section { margin-top: 14px; }
+    .mobile-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
+    .mobile-section-head h2, .mobile-section-head h3 { margin: 0; color: #1f4547; font-size: 16px; }
+    .mobile-section-head p { margin: 4px 0 0; color: var(--faint); font-size: 10px; line-height: 1.5; }
+    .mobile-section-head button, .mobile-inline-action { min-height: 32px; padding: 0 10px; border: 1px solid #c9dad5; border-radius: 9px; color: var(--brand); background: #fff; font-size: 10px; font-weight: 800; }
+    .mobile-structure-scroll { overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: thin; }
+    .mobile-structure-grid { display: grid; gap: 6px; min-width: max-content; }
+    .mobile-map-corner, .mobile-map-stage, .mobile-map-lane, .mobile-map-cell { min-height: 62px; border: 1px solid #d5e1dd; border-radius: 12px; background: #fff; }
+    .mobile-map-corner { display: grid; place-items: center; color: var(--brand); background: #eaf4f0; font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+    .mobile-map-stage, .mobile-map-lane { padding: 9px; text-align: left; }
+    .mobile-map-stage { color: #fff; border-color: #174b4e; background: #174b4e; }
+    .mobile-map-lane { color: #315654; background: #f4f8f6; }
+    .mobile-map-stage strong, .mobile-map-lane strong { display: block; overflow: hidden; font-size: 11px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+    .mobile-map-stage span, .mobile-map-lane span { display: block; margin-top: 4px; color: inherit; opacity: .62; font-size: 9px; }
+    .mobile-map-cell { position: relative; min-width: 112px; padding: 10px; text-align: left; transition: transform .16s, border-color .16s; }
+    .mobile-map-cell:active { transform: scale(.97); border-color: var(--brand); }
+    .mobile-map-cell strong { display: block; color: #173f40; font-size: 20px; }
+    .mobile-map-cell span { display: block; margin-top: 4px; color: var(--faint); font-size: 9px; }
+    .mobile-map-cell em { position: absolute; right: 9px; top: 9px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; color: #9a531f; background: #fff0da; font-size: 9px; font-style: normal; line-height: 18px; text-align: center; }
+    .mobile-map-cell.empty { border-style: dashed; background: rgba(255,255,255,.54); }
+    .mobile-map-cell.empty strong { color: #9aaba7; font-size: 16px; }
+    .mobile-selector-strip { display: flex; gap: 7px; overflow-x: auto; margin: 0 -2px 12px; padding: 2px 2px 7px; scrollbar-width: none; }
+    .mobile-selector-strip::-webkit-scrollbar { display: none; }
+    .mobile-selector-chip { flex: 0 0 auto; min-height: 36px; padding: 0 12px; border: 1px solid #d2dfdb; border-radius: 999px; color: #627572; background: #fff; font-size: 11px; font-weight: 800; }
+    .mobile-selector-chip.active { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .mobile-group-card { overflow: hidden; margin-bottom: 11px; border: 1px solid #d6e1de; border-radius: 16px; background: #fff; box-shadow: 0 7px 20px rgba(26,58,59,.055); }
+    .mobile-group-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 13px 14px; border: 0; color: #284f4f; background: linear-gradient(90deg, #f1f7f4, #fff); text-align: left; }
+    .mobile-group-head strong, .mobile-group-head span { display: block; }
+    .mobile-group-head strong { font-size: 13px; }
+    .mobile-group-head span { margin-top: 3px; color: var(--faint); font-size: 9px; }
+    .mobile-group-count { flex: 0 0 auto; min-width: 28px; padding: 4px 8px; border-radius: 999px; color: var(--brand); background: #dfeee9; text-align: center; font-size: 10px; font-weight: 900; }
+    .mobile-node-list { padding: 0 10px 10px; }
+    .mobile-node-card { position: relative; margin-top: 9px; padding: 13px 12px 11px 15px; border: 1px solid #d9e3e0; border-left: 4px solid var(--node-color, var(--brand)); border-radius: 13px; background: #fff; box-shadow: 0 5px 14px rgba(31,68,69,.045); }
+    .mobile-node-card.dashed { border-style: dashed; border-left-style: solid; }
+    .mobile-node-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .mobile-node-kind { color: var(--node-color, var(--brand)); font-size: 9px; font-weight: 900; letter-spacing: .08em; }
+    .mobile-node-progress { padding: 3px 7px; border-radius: 999px; color: #5e706d; background: #edf2f0; font-size: 9px; }
+    .mobile-node-card h4 { margin: 8px 0 0; color: #203f41; font-size: 14px; line-height: 1.4; }
+    .mobile-node-card p { display: -webkit-box; overflow: hidden; margin: 5px 0 0; color: #73817f; font-size: 10px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .mobile-node-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+    .mobile-node-meta span { padding: 3px 6px; border-radius: 7px; color: #687976; background: #f2f6f4; font-size: 9px; }
+    .mobile-node-actions { display: grid; grid-template-columns: 1fr 38px 38px 54px; gap: 5px; margin-top: 10px; }
+    .mobile-node-actions button { min-height: 34px; border: 1px solid #d5e1dd; border-radius: 9px; color: #58706d; background: #fff; font-size: 10px; font-weight: 800; }
+    .mobile-node-actions button:first-child { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .mobile-empty-design { padding: 28px 16px; border: 1px dashed #cbdad6; border-radius: 15px; color: #879692; background: rgba(255,255,255,.55); text-align: center; font-size: 11px; line-height: 1.7; }
+    .mobile-unit-breadcrumb { display: flex; align-items: center; gap: 7px; margin-bottom: 11px; color: #7b8986; font-size: 10px; }
+    .mobile-unit-breadcrumb button { padding: 0; border: 0; color: var(--brand); background: transparent; font-weight: 800; }
+    .mobile-quick-add { position: fixed; z-index: 128; right: max(17px, env(safe-area-inset-right)); bottom: calc(78px + env(safe-area-inset-bottom)); width: 54px; height: 54px; border: 0; border-radius: 18px; color: #fff; background: linear-gradient(145deg, #d98b2b, #edaa4d); box-shadow: 0 12px 26px rgba(190,113,27,.3); font-size: 29px; line-height: 1; }
+    .mobile-create-context { padding: 10px 12px; border: 1px solid #d7e4df; border-radius: 11px; color: #4f6663; background: #f4f8f6; font-size: 11px; line-height: 1.6; }
+    .mobile-legacy-controls { display: none !important; }
     .mobile-only, .mobile-dock, .mobile-zoom-controls, .mobile-backdrop, .mobile-orientation, .mobile-drag-ghost { display: none; }
     .mobile-drawer-close { position: absolute; right: 13px; top: 13px; z-index: 5; }
     .mobile-tool-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
@@ -673,6 +742,37 @@
       .mobile-exit-symbol { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 14px; border-radius: 16px; color: #fff; background: var(--brand); font-size: 25px; }
       .mobile-exit-modal h3 { margin: 0 0 8px; }
       .mobile-exit-modal p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+      .mobile-designer { display: block; position: absolute; z-index: 16; inset: 0; background: linear-gradient(180deg, #edf2ef, #f7f9f7 36%, #eef3f0); }
+      body:not(.mobile-canvas-view) .canvas-toolbar,
+      body:not(.mobile-canvas-view) .canvas-viewport,
+      body:not(.mobile-canvas-view) .canvas-foot,
+      body:not(.mobile-canvas-view) .batch-toolbar,
+      body:not(.mobile-canvas-view) .mobile-zoom-controls,
+      body:not(.mobile-canvas-view) .mobile-orientation { display: none !important; }
+      body.mobile-canvas-view .mobile-designer,
+      body.mobile-canvas-view .mobile-design-dock,
+      body.mobile-canvas-view .mobile-quick-add { display: none !important; }
+      body.mobile-canvas-view .mobile-canvas-mode-bar { display: flex; position: fixed; z-index: 132; left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); align-items: center; justify-content: space-between; gap: 10px; min-height: 54px; padding: 6px 7px 6px 12px; border: 1px solid rgba(190,207,202,.85); border-radius: 15px; color: #42615e; background: rgba(255,255,255,.95); box-shadow: 0 14px 38px rgba(20,50,52,.2); backdrop-filter: blur(18px); }
+      .mobile-canvas-mode-bar strong { font-size: 11px; }
+      .mobile-canvas-mode-bar span { display: block; margin-top: 2px; color: var(--faint); font-size: 9px; }
+      .mobile-canvas-mode-bar button { min-height: 40px; padding: 0 14px; border: 0; border-radius: 11px; color: #fff; background: var(--brand); font-size: 11px; font-weight: 800; }
+      .mobile-design-dock { position: fixed; z-index: 130; left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; min-height: 58px; padding: 5px; border: 1px solid rgba(190,207,202,.8); border-radius: 16px; background: rgba(255,255,255,.95); box-shadow: 0 14px 38px rgba(20,50,52,.20); backdrop-filter: blur(18px); }
+      .mobile-design-dock button { min-width: 0; min-height: 48px; border: 0; border-radius: 11px; color: #617371; background: transparent; font-size: 10px; font-weight: 800; }
+      .mobile-design-dock button::before { content: attr(data-icon); display: block; margin-bottom: 3px; color: var(--brand); font-size: 17px; line-height: 1; }
+      .mobile-design-dock button.active { color: var(--brand); background: var(--brand-soft); }
+      .mobile-legacy-controls { display: none !important; }
+      body.mobile-canvas-view .mobile-zoom-controls { display: grid; bottom: calc(72px + env(safe-area-inset-bottom)); }
+      body.mobile-canvas-view .canvas-viewport { padding-bottom: 142px; }
+      .sidebar.right { z-index: 220 !important; inset: 0 !important; width: 100% !important; height: var(--mobile-vh, 100dvh) !important; max-height: none !important; border-radius: 0 !important; padding-top: env(safe-area-inset-top); }
+      .notes-panel { z-index: 220 !important; inset: 0 !important; width: 100% !important; height: var(--mobile-vh, 100dvh) !important; max-height: none !important; border-radius: 0 !important; padding-top: env(safe-area-inset-top); }
+      .sidebar.right .side-head::before, .notes-head::before { display: none; }
+      .sidebar.right .side-head, .notes-head { min-height: 64px; padding-top: 15px; }
+      .sidebar.right .mobile-drawer-close, .notes-panel .mobile-drawer-close { position: fixed; top: max(13px, env(safe-area-inset-top)); right: 13px; }
+      .config-item, .config-item.lane-config-item { grid-template-columns: 28px minmax(0, 1fr) 32px; align-items: center; }
+      .config-item.lane-config-item .config-field:nth-of-type(2) { grid-column: 2 / 4; }
+      .phase-config-block { grid-column: 1 / -1; }
+      .phase-config-grid { grid-template-columns: 1fr; }
+      .cloud-account-modal { width: 100%; }
     }
 
     @media (max-width: 700px), (max-height: 520px) and (pointer: coarse) {
@@ -812,6 +912,28 @@
       <section class="main-area" id="mainArea">
         <button class="panel-restore" id="panelRestoreBtn" title="展开组件与灵感池" aria-label="展开组件与灵感池">›</button>
         <button class="notes-restore" id="notesRestoreBtn" title="展开方案说明" aria-label="展开方案说明">‹</button>
+        <section class="mobile-designer" id="mobileDesigner" aria-label="手机版结构化画布设计器">
+          <div class="mobile-design-scroll" id="mobileDesignScroll">
+            <header class="mobile-design-hero">
+              <div class="mobile-design-kicker">Structured canvas</div>
+              <div class="mobile-design-title-row"><h1 id="mobileDesignTitle">运营画布</h1><button id="mobileHeroCloudBtn" type="button">账号与同步</button></div>
+              <div class="mobile-cloud-summary" id="mobileCloudSummary"><span class="mobile-cloud-dot"></span><span id="mobileCloudSummaryText">当前使用本地保存</span></div>
+              <div class="mobile-design-metrics">
+                <div class="mobile-design-metric"><strong id="mobileStageMetric">0</strong><span>设计阶段</span></div>
+                <div class="mobile-design-metric"><strong id="mobileLaneMetric">0</strong><span>运营泳道</span></div>
+                <div class="mobile-design-metric"><strong id="mobileNodeMetric">0</strong><span>画布内容</span></div>
+              </div>
+            </header>
+            <nav class="mobile-view-switch" aria-label="手机版画布视角">
+              <button class="active" data-mobile-design-view="map">结构地图</button>
+              <button data-mobile-design-view="stage">按阶段</button>
+              <button data-mobile-design-view="lane">按泳道</button>
+              <button data-mobile-design-view="unit">单元设计</button>
+            </nav>
+            <div id="mobileDesignContent"></div>
+          </div>
+          <button class="mobile-quick-add" id="mobileQuickCreateBtn" type="button" aria-label="新增画布内容">＋</button>
+        </section>
         <div class="canvas-toolbar">
           <div class="canvas-badge"><span class="live-dot"></span><strong id="boardStats">0 个运营组件</strong><span>自动吸附已开启</span></div>
           <div class="view-actions">
@@ -915,7 +1037,15 @@
       </aside>
     </main>
     <div class="mobile-backdrop" id="mobileBackdrop"></div>
-    <nav class="mobile-dock" id="mobileDock" aria-label="手机画布工具栏">
+    <nav class="mobile-design-dock" id="mobileDesignDock" aria-label="手机版结构设计导航">
+      <button class="active" data-icon="▦" data-mobile-design-nav="map">画布</button>
+      <button data-icon="◉" data-mobile-design-nav="staging">灵感</button>
+      <button data-icon="Aa" data-mobile-design-nav="notes">说明</button>
+      <button data-icon="◎" data-mobile-design-nav="canvas">全景</button>
+      <button data-icon="⋯" data-mobile-design-nav="tools">更多</button>
+    </nav>
+    <div class="mobile-canvas-mode-bar" id="mobileCanvasModeBar"><div><strong>全景画布</strong><span>支持缩放、拖动与空间编辑</span></div><button id="mobileBackToStructureBtn" type="button">返回结构设计</button></div>
+    <nav class="mobile-dock mobile-legacy-controls" id="mobileDock" aria-label="手机画布工具栏">
       <button id="mobileLibraryBtn" data-icon="＋">组件</button>
       <button id="mobileStagingBtn" data-icon="◉">胶囊</button>
       <button id="mobileNotesBtn" data-icon="Aa">说明</button>
@@ -930,6 +1060,29 @@
       <button id="mobileZoomInBtn" aria-label="放大画布">＋</button>
     </div>
     <div class="mobile-orientation" id="mobileOrientation"><span>↻</span><strong id="orientationText">竖屏布局</strong></div>
+  </div>
+
+  <div id="mobileCreateModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head"><div><h2>新增画布内容</h2><p>通过阶段与泳道归属完成结构化编排，无需拖动整张画布。</p></div><button class="close-btn" data-close="mobileCreateModal">×</button></div>
+      <div class="modal-body">
+        <div class="mobile-create-context" id="mobileCreateContext">将根据当前视角自动选择阶段与泳道。</div>
+        <div class="field"><label for="mobileCreateType">内容类型</label><select id="mobileCreateType"></select></div>
+        <div class="field"><label for="mobileCreateTitle">标题</label><input id="mobileCreateTitle" maxlength="80" placeholder="输入一个清晰的运营内容标题"></div>
+        <div class="field"><label for="mobileCreateSummary">卡片摘要</label><textarea id="mobileCreateSummary" maxlength="180" placeholder="简要说明目标、动作或判断"></textarea></div>
+        <div class="field-row"><div class="field"><label for="mobileCreateStage">所属阶段</label><select id="mobileCreateStage"></select></div><div class="field"><label for="mobileCreateLane">所属泳道</label><select id="mobileCreateLane"></select></div></div>
+        <div class="field-row"><div class="field"><label for="mobileCreateProgress">执行进度</label><select id="mobileCreateProgress"><option>未开始</option><option>进行中</option><option>已完成</option><option>已暂停</option><option>有风险</option></select></div><div class="field"><label for="mobileCreatePriority">优先级</label><select id="mobileCreatePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div></div>
+      </div>
+      <div class="modal-foot"><button class="modal-btn" data-close="mobileCreateModal">取消</button><button class="modal-btn primary" id="mobileCreateConfirmBtn">创建并编辑详情</button></div>
+    </div>
+  </div>
+
+  <div id="mobileMoveModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head"><div><h2>移动画布内容</h2><p id="mobileMoveCopy">重新选择阶段和泳道，桌面画布位置会自动同步。</p></div><button class="close-btn" data-close="mobileMoveModal">×</button></div>
+      <div class="modal-body"><div class="field-row"><div class="field"><label for="mobileMoveStage">目标阶段</label><select id="mobileMoveStage"></select></div><div class="field"><label for="mobileMoveLane">目标泳道</label><select id="mobileMoveLane"></select></div></div></div>
+      <div class="modal-foot"><button class="modal-btn" data-close="mobileMoveModal">取消</button><button class="modal-btn primary" id="mobileMoveConfirmBtn">确认移动</button></div>
+    </div>
   </div>
 
   <div id="mobileToolsModal" class="modal-backdrop hidden">
@@ -1295,6 +1448,8 @@
     let mobilePlacementPayload = null;
     let mobileSourceDrag = null;
     let mobileMultiSelect = false;
+    let mobileMoveNodeId = null;
+    let mobileDesignState = { view: 'map', stageId: '', laneId: '', unitStageId: '', unitLaneId: '' };
     let suppressNodeClickUntil = 0;
     let edgeSwipeState = null;
     let pinchState = null;
@@ -1625,7 +1780,7 @@ using (
     function markCloudSyncSuccess(timestamp = Date.now()) {
       if (!cloudLoggedIn()) return;
       const values = loadCloudLastSyncMap(); values[cloudSession.user.id] = Number(timestamp);
-      localStorage.setItem(CLOUD_LAST_SYNC_KEY, JSON.stringify(values)); renderCloudSyncTime();
+      localStorage.setItem(CLOUD_LAST_SYNC_KEY, JSON.stringify(values)); renderCloudSyncTime(); renderMobileCloudSummary();
     }
     function updateCloudStatus(message = '') {
       const state = $('#cloudState'); const box = $('#cloudStatusBox');
@@ -1648,6 +1803,7 @@ using (
       const disabled = !cloudConfigured();
       if ($('#cloudLoginBtn')) $('#cloudLoginBtn').disabled = disabled;
       if ($('#cloudSignupBtn')) $('#cloudSignupBtn').disabled = disabled;
+      renderMobileCloudSummary();
     }
     function initCloudUi() {
       if ($('#cloudSql')) $('#cloudSql').value = CLOUD_SQL;
@@ -1823,7 +1979,7 @@ using (
         if (node.images.length && !node.images.some(item => item.cover)) node.images[0].cover = true;
         node.updatedAt = Date.now(); persist(true); setNodeImageStatus('图片已删除。');
       } catch (error) { setNodeImageStatus(`删除失败：${error.message}`, true); }
-      imageUploadBusy = false; renderNodeImages(findNode(selectedId));
+      imageUploadBusy = false; renderNodeImages(findNode(selectedId)); renderMobileDesigner();
     }
     function setNodeImageCover(imageId) {
       const node = findNode(selectedId); if (!node?.images?.some(image => image.id === imageId)) return;
@@ -2050,11 +2206,236 @@ using (
       $('#batchNoteType').innerHTML = TYPES.map(item => `<option value="${item.type}">${item.name}</option>`).join('');
     }
 
+    function ensureMobileDesignState() {
+      const firstStage = currentProject.stages[0]?.id || '';
+      const firstLane = currentProject.lanes[0]?.id || '';
+      const validStage = id => currentProject.stages.some(stage => stage.id === id);
+      const validLane = id => currentProject.lanes.some(lane => lane.id === id);
+      if (!validStage(mobileDesignState.stageId)) mobileDesignState.stageId = firstStage;
+      if (!validLane(mobileDesignState.laneId)) mobileDesignState.laneId = firstLane;
+      if (!validStage(mobileDesignState.unitStageId)) mobileDesignState.unitStageId = mobileDesignState.stageId || firstStage;
+      if (!validLane(mobileDesignState.unitLaneId)) mobileDesignState.unitLaneId = mobileDesignState.laneId || firstLane;
+      if (!['map', 'stage', 'lane', 'unit'].includes(mobileDesignState.view)) mobileDesignState.view = 'map';
+    }
+
+    function mobileRegionNodes(stageId, laneId) {
+      return currentProject.nodes.filter(node => node.stageId === stageId && node.laneId === laneId).sort((a, b) => Number(a.y || 0) - Number(b.y || 0) || Number(a.x || 0) - Number(b.x || 0));
+    }
+
+    function mobileStageLabel(stageId) {
+      return currentProject.stages.find(stage => stage.id === stageId)?.name || '未命名阶段';
+    }
+
+    function mobileLaneLabel(laneId) {
+      return currentProject.lanes.find(lane => lane.id === laneId)?.name || '未命名泳道';
+    }
+
+    function mobilePhaseLabel(stageId, laneId) {
+      const stageIndex = currentProject.stages.findIndex(stage => stage.id === stageId);
+      const lane = currentProject.lanes.find(item => item.id === laneId);
+      return lane?.phases?.[stageIndex] || mobileStageLabel(stageId);
+    }
+
+    function mobileNodeCardHtml(node, index, total) {
+      const preset = TYPES.find(item => item.type === node.type);
+      const imageCount = Array.isArray(node.images) ? node.images.length : 0;
+      const relationCount = (currentProject.edges || []).filter(edge => edge.from === node.id || edge.to === node.id).length;
+      return `<article class="mobile-node-card ${node.style === 'dashed' ? 'dashed' : ''}" data-mobile-node-id="${escapeAttr(node.id)}" style="--node-color:${escapeAttr(node.color || COLORS[0].value)}">
+        <div class="mobile-node-card-top"><span class="mobile-node-kind">${escapeHtml(preset?.code || typeName(node.type))}</span><span class="mobile-node-progress">${escapeHtml(node.progress || '未开始')}</span></div>
+        <h4>${escapeHtml(node.title || '未命名组件')}</h4>${node.summary ? `<p>${escapeHtml(node.summary)}</p>` : ''}
+        <div class="mobile-node-meta">${node.owner ? `<span>${escapeHtml(node.owner)}</span>` : ''}<span>${escapeHtml(node.priority || '中')}优先级</span>${imageCount ? `<span>${imageCount} 张图片</span>` : ''}${relationCount ? `<span>${relationCount} 个关系</span>` : ''}</div>
+        <div class="mobile-node-actions"><button data-mobile-node-action="edit" data-node-id="${escapeAttr(node.id)}">编辑详情</button><button data-mobile-node-action="up" data-node-id="${escapeAttr(node.id)}" ${index === 0 ? 'disabled' : ''} aria-label="上移">↑</button><button data-mobile-node-action="down" data-node-id="${escapeAttr(node.id)}" ${index === total - 1 ? 'disabled' : ''} aria-label="下移">↓</button><button data-mobile-node-action="move" data-node-id="${escapeAttr(node.id)}">移动</button></div>
+      </article>`;
+    }
+
+    function mobileGroupHtml(title, subtitle, nodes, stageId, laneId) {
+      return `<section class="mobile-group-card"><button class="mobile-group-head" data-mobile-open-unit="${escapeAttr(stageId)}:${escapeAttr(laneId)}"><span><strong>${escapeHtml(title)}</strong><span>${escapeHtml(subtitle || '点击进入单元设计')}</span></span><span class="mobile-group-count">${nodes.length}</span></button><div class="mobile-node-list">${nodes.length ? nodes.map((node, index) => mobileNodeCardHtml(node, index, nodes.length)).join('') : '<div class="mobile-empty-design">这个设计单元还没有内容。<br>点击右下角＋直接在当前阶段与泳道中创建。</div>'}</div></section>`;
+    }
+
+    function renderMobileStructureMap() {
+      const columns = `132px repeat(${Math.max(1, currentProject.stages.length)}, 112px)`;
+      let html = `<section class="mobile-design-section"><div class="mobile-section-head"><div><h2>结构地图</h2><p>从全局选择“阶段 × 泳道”单元进行设计</p></div><button data-mobile-structure-settings>编辑骨架</button></div><div class="mobile-structure-scroll"><div class="mobile-structure-grid" style="grid-template-columns:${columns}"><div class="mobile-map-corner">运营全景</div>`;
+      currentProject.stages.forEach((stage, index) => {
+        const count = currentProject.nodes.filter(node => node.stageId === stage.id).length;
+        html += `<button class="mobile-map-stage" data-mobile-select-stage="${escapeAttr(stage.id)}"><strong>${escapeHtml(stage.name || `阶段 ${index + 1}`)}</strong><span>${count} 个内容</span></button>`;
+      });
+      currentProject.lanes.forEach(lane => {
+        const laneCount = currentProject.nodes.filter(node => node.laneId === lane.id).length;
+        html += `<button class="mobile-map-lane" data-mobile-select-lane="${escapeAttr(lane.id)}"><strong>${escapeHtml(lane.name)}</strong><span>${laneCount} 个内容</span></button>`;
+        currentProject.stages.forEach(stage => {
+          const nodes = mobileRegionNodes(stage.id, lane.id);
+          const riskCount = nodes.filter(node => node.progress === '有风险' || node.type === 'risk').length;
+          html += `<button class="mobile-map-cell ${nodes.length ? '' : 'empty'}" data-mobile-open-unit="${escapeAttr(stage.id)}:${escapeAttr(lane.id)}"><strong>${nodes.length || '＋'}</strong><span>${escapeHtml(mobilePhaseLabel(stage.id, lane.id))}</span>${riskCount ? `<em>${riskCount} 风险</em>` : ''}</button>`;
+        });
+      });
+      return `${html}</div></div></section>`;
+    }
+
+    function renderMobileStageView() {
+      const stageId = mobileDesignState.stageId;
+      const stage = currentProject.stages.find(item => item.id === stageId);
+      const chips = currentProject.stages.map(item => `<button class="mobile-selector-chip ${item.id === stageId ? 'active' : ''}" data-mobile-select-stage="${escapeAttr(item.id)}">${escapeHtml(item.name)}</button>`).join('');
+      const groups = currentProject.lanes.map(lane => {
+        const nodes = mobileRegionNodes(stageId, lane.id);
+        return mobileGroupHtml(lane.name, `${mobilePhaseLabel(stageId, lane.id)} · ${lane.note || '运营泳道'}`, nodes, stageId, lane.id);
+      }).join('');
+      return `<section class="mobile-design-section"><div class="mobile-section-head"><div><h2>${escapeHtml(stage?.name || '阶段设计')}</h2><p>横切当前阶段，编排各条泳道的运营内容</p></div><button data-mobile-structure-settings>阶段设置</button></div><div class="mobile-selector-strip">${chips}</div>${groups || '<div class="mobile-empty-design">当前画布还没有泳道。</div>'}</section>`;
+    }
+
+    function renderMobileLaneView() {
+      const laneId = mobileDesignState.laneId;
+      const lane = currentProject.lanes.find(item => item.id === laneId);
+      const chips = currentProject.lanes.map(item => `<button class="mobile-selector-chip ${item.id === laneId ? 'active' : ''}" data-mobile-select-lane="${escapeAttr(item.id)}">${escapeHtml(item.name)}</button>`).join('');
+      const groups = currentProject.stages.map(stage => {
+        const nodes = mobileRegionNodes(stage.id, laneId);
+        return mobileGroupHtml(stage.name, mobilePhaseLabel(stage.id, laneId), nodes, stage.id, laneId);
+      }).join('');
+      return `<section class="mobile-design-section"><div class="mobile-section-head"><div><h2>${escapeHtml(lane?.name || '泳道设计')}</h2><p>${escapeHtml(lane?.note || '纵向设计这条泳道的完整运营链路')}</p></div><button data-mobile-structure-settings>泳道设置</button></div><div class="mobile-selector-strip">${chips}</div>${groups || '<div class="mobile-empty-design">当前画布还没有阶段。</div>'}</section>`;
+    }
+
+    function renderMobileUnitView() {
+      const stageId = mobileDesignState.unitStageId;
+      const laneId = mobileDesignState.unitLaneId;
+      const nodes = mobileRegionNodes(stageId, laneId);
+      return `<section class="mobile-design-section"><div class="mobile-unit-breadcrumb"><button data-mobile-design-back>结构地图</button><span>›</span><span>${escapeHtml(mobileStageLabel(stageId))}</span><span>›</span><span>${escapeHtml(mobileLaneLabel(laneId))}</span></div><div class="mobile-section-head"><div><h2>${escapeHtml(mobilePhaseLabel(stageId, laneId))}</h2><p>${escapeHtml(mobileStageLabel(stageId))} / ${escapeHtml(mobileLaneLabel(laneId))} · 局部内容编排</p></div><button data-mobile-create-here>＋ 新增</button></div>${mobileGroupHtml('内容编排', '使用上下按钮调整顺序，使用移动按钮改变归属', nodes, stageId, laneId)}</section>`;
+    }
+
+    function renderMobileCloudSummary() {
+      const wrap = $('#mobileCloudSummary'); const text = $('#mobileCloudSummaryText');
+      if (!wrap || !text) return;
+      wrap.classList.toggle('online', cloudLoggedIn());
+      if (!cloudLoggedIn()) {
+        text.textContent = cloudConfigured() ? '云端未登录 · 点击右上角登录' : '当前使用本地保存';
+        return;
+      }
+      const timestamp = Number(loadCloudLastSyncMap()[cloudSession.user.id] || 0);
+      text.textContent = timestamp ? formatCloudSyncTime(timestamp) : `已登录 ${cloudSession.user.email || '云端账号'} · 等待首次同步`;
+    }
+
+    function renderMobileDesigner() {
+      const content = $('#mobileDesignContent'); if (!content) return;
+      ensureMobileDesignState();
+      $('#mobileDesignTitle').textContent = currentProject.name || '未命名运营画布';
+      $('#mobileStageMetric').textContent = String(currentProject.stages.length);
+      $('#mobileLaneMetric').textContent = String(currentProject.lanes.length);
+      $('#mobileNodeMetric').textContent = String(currentProject.nodes.length);
+      renderMobileCloudSummary();
+      $$('[data-mobile-design-view]').forEach(button => button.classList.toggle('active', button.dataset.mobileDesignView === mobileDesignState.view));
+      content.innerHTML = mobileDesignState.view === 'stage' ? renderMobileStageView() : mobileDesignState.view === 'lane' ? renderMobileLaneView() : mobileDesignState.view === 'unit' ? renderMobileUnitView() : renderMobileStructureMap();
+      bindMobileDesignerContent();
+    }
+
+    function bindMobileDesignerContent() {
+      const content = $('#mobileDesignContent'); if (!content) return;
+      $$('[data-mobile-open-unit]', content).forEach(button => button.onclick = () => {
+        const [stageId, laneId] = button.dataset.mobileOpenUnit.split(':');
+        mobileDesignState = { ...mobileDesignState, view: 'unit', stageId, laneId, unitStageId: stageId, unitLaneId: laneId };
+        renderMobileDesigner(); $('#mobileDesignScroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      $$('[data-mobile-select-stage]', content).forEach(button => button.onclick = () => {
+        mobileDesignState.stageId = button.dataset.mobileSelectStage;
+        if (mobileDesignState.view === 'map') mobileDesignState.view = 'stage';
+        renderMobileDesigner();
+      });
+      $$('[data-mobile-select-lane]', content).forEach(button => button.onclick = () => {
+        mobileDesignState.laneId = button.dataset.mobileSelectLane;
+        if (mobileDesignState.view === 'map') mobileDesignState.view = 'lane';
+        renderMobileDesigner();
+      });
+      $$('[data-mobile-node-action]', content).forEach(button => button.onclick = event => {
+        event.stopPropagation(); handleMobileNodeAction(button.dataset.mobileNodeAction, button.dataset.nodeId);
+      });
+      $$('[data-mobile-structure-settings]', content).forEach(button => button.onclick = () => { configDraft = null; openSettingsWithDraft(); });
+      $('[data-mobile-design-back]', content)?.addEventListener('click', () => { mobileDesignState.view = 'map'; renderMobileDesigner(); });
+      $('[data-mobile-create-here]', content)?.addEventListener('click', () => openMobileCreateModal(mobileDesignState.unitStageId, mobileDesignState.unitLaneId));
+    }
+
+    function layoutMobileRegion(stageId, laneId, orderedNodes = mobileRegionNodes(stageId, laneId)) {
+      let nextY = REGION_CONTENT_TOP;
+      orderedNodes.forEach(node => { node.y = nextY; nextY += Number(node.height || 82) + 12; });
+    }
+
+    function moveMobileNodeOrder(nodeId, direction) {
+      const node = findNode(nodeId); if (!node) return;
+      const nodes = mobileRegionNodes(node.stageId, node.laneId);
+      const index = nodes.findIndex(item => item.id === nodeId);
+      const target = index + (direction === 'up' ? -1 : 1);
+      if (index < 0 || target < 0 || target >= nodes.length) return;
+      checkpoint(); [nodes[index], nodes[target]] = [nodes[target], nodes[index]];
+      layoutMobileRegion(node.stageId, node.laneId, nodes); renderAll(); persist();
+      toast(direction === 'up' ? '内容已上移' : '内容已下移');
+    }
+
+    function handleMobileNodeAction(action, nodeId) {
+      const node = findNode(nodeId); if (!node) return;
+      if (action === 'edit') { selectedId = nodeId; selectedIds = new Set([nodeId]); renderInspector(); openMobileDrawer('right'); }
+      if (action === 'up' || action === 'down') moveMobileNodeOrder(nodeId, action);
+      if (action === 'move') openMobileMoveModal(nodeId);
+    }
+
+    function fillMobileStructureSelects(stageSelect, laneSelect, stageId = '', laneId = '') {
+      if (stageSelect) { stageSelect.innerHTML = currentProject.stages.map(stage => `<option value="${escapeAttr(stage.id)}">${escapeHtml(stage.name)}</option>`).join(''); stageSelect.value = stageId || currentProject.stages[0]?.id || ''; }
+      if (laneSelect) { laneSelect.innerHTML = currentProject.lanes.map(lane => `<option value="${escapeAttr(lane.id)}">${escapeHtml(lane.name)}</option>`).join(''); laneSelect.value = laneId || currentProject.lanes[0]?.id || ''; }
+    }
+
+    function openMobileCreateModal(stageId = '', laneId = '') {
+      ensureMobileDesignState();
+      const resolvedStage = stageId || (mobileDesignState.view === 'stage' ? mobileDesignState.stageId : mobileDesignState.unitStageId) || currentProject.stages[0]?.id;
+      const resolvedLane = laneId || (mobileDesignState.view === 'lane' ? mobileDesignState.laneId : mobileDesignState.unitLaneId) || currentProject.lanes[0]?.id;
+      $('#mobileCreateType').innerHTML = [...TYPES, ...SHAPES].map(item => `<option value="${escapeAttr(item.type)}">${escapeHtml(item.name)}</option>`).join('');
+      fillMobileStructureSelects($('#mobileCreateStage'), $('#mobileCreateLane'), resolvedStage, resolvedLane);
+      $('#mobileCreateTitle').value = ''; $('#mobileCreateSummary').value = ''; $('#mobileCreateProgress').value = '未开始'; $('#mobileCreatePriority').value = '中';
+      $('#mobileCreateContext').textContent = `${mobileStageLabel(resolvedStage)} / ${mobileLaneLabel(resolvedLane)} · 创建后可继续编辑完整详情与图片`;
+      openModal('mobileCreateModal'); setTimeout(() => $('#mobileCreateTitle')?.focus(), 120);
+    }
+
+    function createMobileNode() {
+      const stageId = $('#mobileCreateStage').value; const laneId = $('#mobileCreateLane').value; const type = $('#mobileCreateType').value;
+      if (!stageId || !laneId) return toast('请先创建并选择阶段与泳道', 'error');
+      const title = $('#mobileCreateTitle').value.trim(); const preset = TYPES.find(item => item.type === type);
+      const nodes = mobileRegionNodes(stageId, laneId);
+      const nextY = nodes.reduce((bottom, node) => Math.max(bottom, Number(node.y || REGION_CONTENT_TOP) + Number(node.height || 82) + 12), REGION_CONTENT_TOP);
+      checkpoint();
+      const node = makeNode(type, stageId, laneId, 12, nextY, { title: title || preset?.title || typeName(type), summary: $('#mobileCreateSummary').value.trim(), progress: $('#mobileCreateProgress').value, priority: $('#mobileCreatePriority').value });
+      currentProject.nodes.push(node); selectedId = node.id; selectedIds = new Set([node.id]);
+      mobileDesignState = { ...mobileDesignState, view: 'unit', stageId, laneId, unitStageId: stageId, unitLaneId: laneId };
+      closeModal('mobileCreateModal'); renderAll(); persist(); selectNode(node.id, false, true); toast('内容已加入结构化画布');
+    }
+
+    function openMobileMoveModal(nodeId) {
+      const node = findNode(nodeId); if (!node) return;
+      mobileMoveNodeId = nodeId;
+      fillMobileStructureSelects($('#mobileMoveStage'), $('#mobileMoveLane'), node.stageId, node.laneId);
+      $('#mobileMoveCopy').textContent = `移动“${node.title || '未命名组件'}”，桌面画布位置会自动同步。`;
+      openModal('mobileMoveModal');
+    }
+
+    function confirmMobileMove() {
+      const node = findNode(mobileMoveNodeId); if (!node) return closeModal('mobileMoveModal');
+      const stageId = $('#mobileMoveStage').value; const laneId = $('#mobileMoveLane').value;
+      if (!stageId || !laneId) return toast('请选择目标阶段和泳道', 'error');
+      if (stageId === node.stageId && laneId === node.laneId) { closeModal('mobileMoveModal'); return toast('组件仍位于原设计单元'); }
+      checkpoint(); const oldStageId = node.stageId; const oldLaneId = node.laneId;
+      const targetNodes = currentProject.nodes.filter(item => item.id !== node.id && item.stageId === stageId && item.laneId === laneId);
+      const targetY = targetNodes.reduce((bottom, item) => Math.max(bottom, Number(item.y || REGION_CONTENT_TOP) + Number(item.height || 82) + 12), REGION_CONTENT_TOP);
+      node.stageId = stageId; node.laneId = laneId; node.x = 12; node.y = targetY; node.updatedAt = Date.now();
+      layoutMobileRegion(oldStageId, oldLaneId); mobileDesignState = { ...mobileDesignState, view: 'unit', stageId, laneId, unitStageId: stageId, unitLaneId: laneId };
+      mobileMoveNodeId = null; closeModal('mobileMoveModal'); renderAll(); persist(); toast('组件归属已更新');
+    }
+
+    function enterMobileCanvasView() {
+      document.body.classList.add('mobile-canvas-view'); closeMobileDrawers(); renderBoard(); applyZoom(); requestAnimationFrame(fitView);
+    }
+
+    function leaveMobileCanvasView() {
+      document.body.classList.remove('mobile-canvas-view'); cancelMobilePlacement(); closeMobileDrawers(); renderMobileDesigner();
+    }
+
     function renderAll() {
       currentProject = normalizeProject(currentProject);
       $('#projectName').value = currentProject.name;
       currentProject.zoom = Number(currentProject.zoom || 1);
-      renderBoard(); renderFreeTexts(); renderStaging(); renderInspector(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
+      renderBoard(); renderFreeTexts(); renderStaging(); renderInspector(); renderMobileDesigner(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
       if (document.fullscreenElement || $('#appRoot').classList.contains('pseudo-fullscreen')) requestAnimationFrame(centerCanvasInViewport);
     }
 
@@ -3139,7 +3520,7 @@ using (
       const fields = FIELD_TEMPLATES[node.type] || [];
       $('#businessFields').innerHTML = fields.length ? `<div class="business-title">${escapeHtml(typeName(node.type))}业务字段</div>${fields.map(([label, key]) => `<div class="field"><label for="biz_${key}">${escapeHtml(label)}</label><input id="biz_${key}" data-business-field="${key}" value="${escapeAttr(node.fields?.[key] || '')}" placeholder="待补充"></div>`).join('')}` : '';
       $$('[data-business-field]').forEach(input => input.onchange = () => {
-        const current = findNode(selectedId); if (!current) return; checkpoint(); current.fields ||= {}; current.fields[input.dataset.businessField] = input.value; current.updatedAt = Date.now(); persist();
+        const current = findNode(selectedId); if (!current) return; checkpoint(); current.fields ||= {}; current.fields[input.dataset.businessField] = input.value; current.updatedAt = Date.now(); renderMobileDesigner(); persist();
       });
     }
 
@@ -3147,7 +3528,7 @@ using (
       const node = findNode(selectedId); if (!node) return;
       checkpoint(); node[field] = value; node.updatedAt = Date.now();
       if (rerender) renderBoard();
-      persist();
+      renderMobileDesigner(); persist();
     }
 
     function updateSelectedFreeText(field, value) {
@@ -3156,9 +3537,9 @@ using (
     }
 
     function bindInspector() {
-      ['nodeTitle', 'nodeSummary', 'nodeDetail', 'nodeOwner', 'nodePriority'].forEach(id => {
+      ['nodeTitle', 'nodeSummary', 'nodeDetail', 'nodeOwner', 'nodePriority', 'nodeProgress', 'nodeEffect'].forEach(id => {
         const el = $(`#${id}`);
-        el.addEventListener('change', () => updateSelected({ nodeTitle: 'title', nodeSummary: 'summary', nodeDetail: 'detail', nodeOwner: 'owner', nodePriority: 'priority' }[id], el.value));
+        el.addEventListener('change', () => updateSelected({ nodeTitle: 'title', nodeSummary: 'summary', nodeDetail: 'detail', nodeOwner: 'owner', nodePriority: 'priority', nodeProgress: 'progress', nodeEffect: 'effect' }[id], el.value));
       });
       $('#nodeTags').addEventListener('change', event => updateSelected('tags', event.target.value.split(/[,，]/).map(item => item.trim()).filter(Boolean)));
       $$('.status-option').forEach(item => item.onclick = () => updateSelected('style', item.dataset.style));
@@ -3574,6 +3955,21 @@ using (
       const openCloudAccount = () => { initCloudUi(); openModal('cloudModal'); };
       $('#cloudBtn').onclick = openCloudAccount;
       $('#mobileCloudBtn').onclick = openCloudAccount;
+      $('#mobileHeroCloudBtn').onclick = openCloudAccount;
+      $$('[data-mobile-design-view]').forEach(button => button.onclick = () => { mobileDesignState.view = button.dataset.mobileDesignView; renderMobileDesigner(); $('#mobileDesignScroll')?.scrollTo({ top: 0, behavior: 'smooth' }); });
+      $$('[data-mobile-design-nav]').forEach(button => button.onclick = () => {
+        const action = button.dataset.mobileDesignNav;
+        $$('#mobileDesignDock button').forEach(item => item.classList.toggle('active', item === button));
+        if (action === 'map') { mobileDesignState.view = 'map'; renderMobileDesigner(); }
+        if (action === 'staging') openMobileDrawer('left', 'staging');
+        if (action === 'notes') openMobileDrawer('notes');
+        if (action === 'canvas') enterMobileCanvasView();
+        if (action === 'tools') openModal('mobileToolsModal');
+      });
+      $('#mobileQuickCreateBtn').onclick = () => openMobileCreateModal();
+      $('#mobileCreateConfirmBtn').onclick = createMobileNode;
+      $('#mobileMoveConfirmBtn').onclick = confirmMobileMove;
+      $('#mobileBackToStructureBtn').onclick = leaveMobileCanvasView;
       $('#saveCloudConfigBtn').onclick = () => {
         cloudConfig = normalizeCloudConfig({ url: $('#cloudUrl').value, anonKey: $('#cloudAnonKey').value });
         saveCloudConfig(); updateCloudStatus('云端连接已保存到当前浏览器'); toast('云端配置已保存');
