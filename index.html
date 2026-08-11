@@ -135,7 +135,7 @@
     .divider { width: 1px; height: 24px; margin: 0 3px; background: rgba(255,255,255,.15); }
     .zoom-value { width: 50px; text-align: center; color: rgba(255,255,255,.72); font-size: 12px; }
 
-    .workspace { min-height: 0; display: grid; grid-template-columns: var(--leftbar) minmax(0, 1fr) var(--notesbar); transition: grid-template-columns .2s ease; }
+    .workspace { min-height: 0; display: grid; grid-template-columns: var(--leftbar) minmax(0, 1fr); transition: grid-template-columns .2s ease; }
     .sidebar {
       position: relative; z-index: 20; min-height: 0; display: flex; flex-direction: column;
       background: rgba(251, 252, 251, .96); backdrop-filter: blur(16px);
@@ -169,11 +169,10 @@
     .panel-space-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
     .panel-space-tools button { height: 30px; min-width: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: #fff; cursor: pointer; font-size: 11px; }
     .panel-space-tools button:hover { color: var(--brand); border-color: #9dbab5; background: var(--brand-soft); }
-    .workspace.sidebar-collapsed { grid-template-columns: minmax(0, 1fr) var(--notesbar); }
+    .workspace.sidebar-collapsed { grid-template-columns: minmax(0, 1fr); }
     .workspace.sidebar-collapsed .sidebar.left { display: none; }
     .workspace.sidebar-collapsed .main-area { grid-column: 1; }
-    .workspace.sidebar-collapsed .notes-panel { grid-column: 2; }
-    .workspace.sidebar-collapsed .sidebar-resizer { display: none; }
+        .workspace.sidebar-collapsed .sidebar-resizer { display: none; }
     .workspace.notes-collapsed { grid-template-columns: var(--leftbar) minmax(0, 1fr); }
     .workspace.notes-collapsed .notes-panel { display: none; }
     .workspace.notes-collapsed .main-area { grid-column: 2; }
@@ -183,7 +182,7 @@
     .workspace.sidebar-collapsed .panel-restore, .workspace.clean-canvas .panel-restore { display: grid; }
     .workspace.notes-collapsed:not(.clean-canvas) .notes-restore { display: grid; }
     .workspace.clean-canvas { grid-template-columns: minmax(0, 1fr); }
-    .workspace.clean-canvas .sidebar.left, .workspace.clean-canvas .notes-panel { display: none; }
+    .workspace.clean-canvas .sidebar.left { display: none; }
     .workspace.clean-canvas .main-area { grid-column: 1; }
     .workspace.clean-canvas .canvas-toolbar, .workspace.clean-canvas .canvas-foot, .workspace.clean-canvas .batch-toolbar { opacity: 0; pointer-events: none; }
     .workspace.clean-canvas .panel-restore { opacity: .35; transition: opacity .18s; }
@@ -286,9 +285,9 @@
     .canvas-viewport {
       position: absolute; inset: 0; overflow: auto; padding: 76px 52px 74px;
       background-color: #eef2ef;
-      background-image: radial-gradient(#cbd7d3 1px, transparent 1px);
-      background-size: 22px 22px;
+      cursor: default;
     }
+    .canvas-viewport.is-panning { cursor: grabbing; user-select: none; }
     .board-scale-shell { position: relative; width: max-content; min-width: 100%; overflow: visible; }
     .board-transform { position: absolute; left: 0; top: 0; width: max-content; transform-origin: top left; transition: transform .12s ease; will-change: transform; }
     .board-transform.pinching { transition: none; }
@@ -307,7 +306,6 @@
     .rich-text-handle::before { content: ''; width: 24px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--brand), var(--accent)); }
     .rich-text-handle span { margin-left: auto; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
     .rich-text-content { flex: 1; min-height: 52px; padding: 12px 14px 15px; outline: none; white-space: pre-wrap; overflow-wrap: anywhere; cursor: text; line-height: 1.6; }
-    .rich-text-content:empty::before { content: '输入方案说明…'; color: #9aa7a5; font-weight: 400; }
     .rich-text-resize { position: absolute; right: -6px; bottom: -6px; width: 16px; height: 16px; border: 3px solid #fff; border-radius: 5px; background: linear-gradient(145deg, var(--brand), var(--accent)); cursor: nwse-resize; box-shadow: 0 2px 7px rgba(20,50,52,.28); }
     .rich-text-controls { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
     .rich-text-control { min-width: 38px; height: 36px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: #fff; cursor: pointer; }
@@ -338,9 +336,12 @@
     .region {
       position: relative; width: 185px; min-height: 230px;
       background-color: #fff;
-      background-image: linear-gradient(rgba(13,93,90,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(13,93,90,.035) 1px, transparent 1px);
+      background-image: none;
       background-size: 12px 12px;
       transition: background .16s, box-shadow .16s;
+    }
+    .board.show-grid .region {
+      background-image: linear-gradient(rgba(13,93,90,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(13,93,90,.055) 1px, transparent 1px);
     }
     .region:nth-child(even) { background-color: #fcfdfc; }
     .region.drag-over { background-color: #e7f3ef; box-shadow: inset 0 0 0 2px #72a99f; }
@@ -348,8 +349,11 @@
       position: absolute; z-index: 2; left: 10px; right: 10px; top: 8px; min-height: 30px; display: flex; align-items: center;
       padding: 6px 9px; color: #164b4b; border: 1px solid rgba(109,157,149,.32); border-radius: 8px;
       background: rgba(232,241,237,.96); box-shadow: 0 3px 10px rgba(31,76,73,.07);
-      font-size: 13px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none;
+      font-size: 13px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text;
     }
+    .editable-board-label { cursor: text; }
+    .editable-board-label:hover { filter: brightness(.97); box-shadow: inset 0 0 0 1px rgba(217,139,43,.32); }
+    .canvas-title-label { padding: 0; border: 0; color: inherit; background: transparent; font: inherit; font-weight: 900; text-align: left; }
     .region-label { position: absolute; right: 8px; bottom: 6px; color: rgba(64,91,90,.20); font-size: 9px; pointer-events: none; }
 
     .canvas-node {
@@ -426,6 +430,18 @@
     .progress-pill { max-width: 70px; padding: 2px 6px; border-radius: 8px; color: #526866; background: rgba(255,255,255,.75); font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .batch-note { width: 100%; min-height: 190px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; outline: none; resize: vertical; line-height: 1.8; }
     .batch-note:focus { border-color: #87afa8; box-shadow: 0 0 0 3px rgba(13,93,90,.08); }
+    .export-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .export-option { position: relative; min-height: 168px; padding: 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; overflow: hidden; border: 1px solid #d7e1de; border-radius: 18px; color: var(--ink); background: linear-gradient(145deg, #fff 0%, #f4f8f5 70%, #fff8ed 100%); box-shadow: 0 12px 30px rgba(25,60,61,.08); cursor: pointer; text-align: left; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .export-option::after { content: ''; position: absolute; right: -24px; bottom: -30px; width: 96px; height: 96px; border-radius: 50%; background: rgba(217,139,43,.10); }
+    .export-option:hover { transform: translateY(-3px); border-color: #91b3ab; box-shadow: 0 18px 38px rgba(25,60,61,.14); }
+    .export-option:focus-visible { outline: 3px solid rgba(13,93,90,.18); outline-offset: 2px; }
+    .export-option-icon { min-width: 58px; height: 30px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: #fff; background: linear-gradient(135deg, var(--brand), #3e8f83); font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+    .export-option:nth-child(2) .export-option-icon { background: linear-gradient(135deg, #d17f22, #eba94c); }
+    .export-option:nth-child(3) .export-option-icon { background: linear-gradient(135deg, #244f68, #4e8398); }
+    .export-option strong { position: relative; z-index: 1; margin-top: 4px; font-size: 16px; }
+    .export-option > span:last-child { position: relative; z-index: 1; color: var(--muted); font-size: 11px; line-height: 1.65; }
+    .export-progress { margin-top: 14px; padding: 11px 13px; border: 1px solid #dfe8e5; border-radius: 11px; color: var(--muted); background: #f7faf8; font-size: 11px; }
+    @media (max-width: 720px) { .export-options { grid-template-columns: 1fr; } .export-option { min-height: 132px; } }
     .staging-tools { display: flex; gap: 7px; margin-bottom: 12px; }
     .staging-tools button { flex: 1; height: 34px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: #fff; cursor: pointer; font-size: 11px; }
     .staging-tools button:hover { color: var(--brand); border-color: #9dbab5; }
@@ -1046,7 +1062,6 @@
             <button class="tab-btn" data-tab="staging">灵感胶囊 <span id="stagingCount">0</span></button>
           </div>
           <div class="panel-space-tools">
-            <button id="sidebarCollapseBtn" class="desktop-panel-action" title="收起组件与灵感池">收起</button>
             <button id="cleanCanvasBtn" class="desktop-panel-action" title="隐藏面板与画布工具">纯净画布</button>
             <button id="mobilePanelSizeBtn" class="mobile-only" title="切换抽屉高度">展开</button>
           </div>
@@ -1056,7 +1071,7 @@
           <div class="component-grid" id="businessComponents"></div>
           <div class="section-label"><strong>基础图形</strong><span>Draw style</span></div>
           <div class="component-grid" id="shapeComponents"></div>
-          <div class="section-label"><strong>文字与标注</strong><span>轻量文字放画布 · 说明卡放外侧</span></div>
+          <div class="section-label"><strong>文字与标注</strong><span>人名和大段文字</span></div>
           <div class="component-grid" id="textComponents"></div>
         </div>
         <div class="side-scroll hidden" id="stagingPanel">
@@ -1064,17 +1079,17 @@
             <input id="quickNoteInput" placeholder="捕捉一个灵感标题">
             <button class="mini-btn" id="quickAddBtn">添加</button>
           </div>
-          <div class="staging-tools"><button id="batchNoteBtn">批量录入</button><button id="sortStagingBtn">整理胶囊</button></div>
+          <div class="staging-tools"><button id="batchNoteBtn">批量录入</button></div>
           <div class="staging-drop-zone" id="stagingDropZone">松开鼠标，让组件重新合拢为灵感胶囊<br>之后可再次释放到任意阶段</div>
           <div class="section-label"><strong>灵感胶囊</strong><span>只显示标题 · 支持双向拖拽</span></div>
           <div class="staging-list" id="stagingList"></div>
         </div>
+        <button id="sidebarCollapseBtn" class="panel-collapse-edge desktop-only" title="收起组件与灵感池" aria-label="收起组件与灵感池">‹</button>
         <div class="sidebar-resizer" id="sidebarResizer" role="separator" aria-orientation="vertical" aria-label="调整组件与灵感池宽度"></div>
       </aside>
 
       <section class="main-area" id="mainArea">
         <button class="panel-restore" id="panelRestoreBtn" title="展开组件与灵感池" aria-label="展开组件与灵感池">›</button>
-        <button class="notes-restore" id="notesRestoreBtn" title="展开方案说明" aria-label="展开方案说明">‹</button>
         <section class="mobile-designer" id="mobileDesigner" aria-label="手机版结构化画布设计器">
           <div class="mobile-design-scroll" id="mobileDesignScroll">
             <header class="mobile-design-hero">
@@ -1083,14 +1098,14 @@
               <div class="mobile-cloud-summary" id="mobileCloudSummary"><span class="mobile-cloud-dot"></span><span id="mobileCloudSummaryText">当前使用本地保存</span></div>
               <div class="mobile-design-metrics">
                 <div class="mobile-design-metric"><strong id="mobileStageMetric">0</strong><span>设计阶段</span></div>
-                <div class="mobile-design-metric"><strong id="mobileLaneMetric">0</strong><span>运营泳道</span></div>
+                <div class="mobile-design-metric"><strong id="mobileLaneMetric">0</strong><span>内容分类</span></div>
                 <div class="mobile-design-metric"><strong id="mobileNodeMetric">0</strong><span>画布内容</span></div>
               </div>
             </header>
             <nav class="mobile-view-switch" aria-label="手机版画布视角">
               <button class="active" data-mobile-design-view="map">结构地图</button>
               <button data-mobile-design-view="stage">按阶段</button>
-              <button data-mobile-design-view="lane">按泳道</button>
+              <button data-mobile-design-view="lane">按分类</button>
               <button data-mobile-design-view="unit">单元设计</button>
             </nav>
             <div id="mobileDesignContent"></div>
@@ -1119,33 +1134,12 @@
         </div>
         <div class="canvas-foot">
           <button class="foot-btn" id="addStageBtn">＋ 阶段</button>
-          <button class="foot-btn" id="addLaneBtn">＋ 泳道</button>
+          <button class="foot-btn" id="addLaneBtn">＋ 内容分类</button>
           <span class="foot-sep"></span>
           <button class="foot-btn" id="centerViewBtn">回到起点</button>
           <button class="foot-btn" id="deselectBtn">取消选择</button>
         </div>
       </section>
-
-      <aside class="notes-panel is-empty" id="notesPanel" aria-label="画布外方案说明区">
-        <div class="notes-head">
-          <button class="close-btn mobile-only mobile-drawer-close" id="closeNotesPanelBtn" aria-label="关闭方案说明抽屉">×</button>
-          <div class="notes-kicker">Briefing</div>
-          <div class="notes-title-row"><h2>方案说明</h2><span class="notes-count" id="notesCount">0</span></div>
-          <p class="notes-copy">画布外的辅助说明区，不参与泳道排布、缩放和自动整理。</p>
-          <div class="notes-actions">
-            <button id="addNoteBtn">＋ 新增说明</button>
-            <button class="desktop-notes-action" id="notesNarrowBtn" title="缩小说明区">−</button>
-            <button class="desktop-notes-action" id="notesWideBtn" title="放大说明区">＋</button>
-            <button class="desktop-notes-action" id="notesCollapseBtn">收起</button>
-          </div>
-        </div>
-        <div class="notes-scroll" id="notesScroll">
-          <div class="notes-canvas" id="notesCanvas">
-            <div class="notes-empty">从左侧拖入“辅助说明卡”，或点击上方“新增说明”。<br>这里的内容位于画布外，不会遮挡泳道。</div>
-            <div class="free-text-layer" id="freeTextLayer"></div>
-          </div>
-        </div>
-      </aside>
 
       <aside class="sidebar right" id="rightSidebar">
         <div class="side-head">
@@ -1155,7 +1149,7 @@
           <button class="close-btn mobile-drawer-close" id="closeRightDrawerBtn" aria-label="关闭详情抽屉">×</button>
         </div>
         <div class="empty-inspector" id="emptyInspector">
-          <div><div class="empty-symbol"></div><strong>选择组件或文字说明</strong><p>点击运营组件可编辑方案字段；点击文字说明可调整内容、字号、颜色和样式。</p></div>
+          <div><div class="empty-symbol"></div><strong>选择一个组件</strong><p>点击画布中的组件，可在这里编辑标题、详情、状态、图片和样式。</p></div>
         </div>
         <div class="inspector hidden" id="inspector">
           <div class="inspector-actions">
@@ -1195,14 +1189,6 @@
             <div class="field hidden" id="shapeVariantField"><label for="shapeVariantSelect">图形样式</label><select id="shapeVariantSelect"><option value="rectangle">矩形</option><option value="rounded">圆角矩形</option><option value="ellipse">椭圆形</option><option value="circle">圆形</option><option value="diamond">菱形</option></select></div>
             <div class="field-help" id="lightweightInspectorHelp">轻量组件只编辑必要内容，不显示复杂业务详情。</div>
           </div>
-          <div class="hidden" id="richTextInspectorFields">
-            <div class="business-title">画布外辅助说明</div>
-            <div class="rich-text-controls"><button class="rich-text-control" id="richBoldBtn" title="加粗"><strong>B</strong></button><button class="rich-text-control" id="richUnderlineBtn" title="下划线"><u>U</u></button></div>
-            <div class="field"><label for="richTextContent">说明文字</label><textarea id="richTextContent" style="min-height:150px" placeholder="输入目标、背景、假设或评审结论……"></textarea></div>
-            <div class="field-row"><div class="field"><label for="richFontSize">字号</label><select id="richFontSize"><option value="13">小号</option><option value="16">正文</option><option value="20">强调</option><option value="26">标题</option><option value="32">大标题</option></select></div><div class="field"><label for="richTextAlign">对齐</label><select id="richTextAlign"><option value="left">左对齐</option><option value="center">居中</option><option value="right">右对齐</option></select></div></div>
-            <div class="field"><label for="richTextColor">文字颜色</label><input class="rich-text-color" id="richTextColor" type="color" value="#173f40"></div>
-            <div class="field-help">辅助说明位于画布外侧，不参与泳道排布、画布缩放或自动整理；可在说明区内拖动、缩放并直接编辑正文。</div>
-          </div>
         </div>
       </aside>
     </main>
@@ -1210,7 +1196,6 @@
     <nav class="mobile-design-dock" id="mobileDesignDock" aria-label="手机版结构设计导航">
       <button class="active" data-icon="▦" data-mobile-design-nav="map">画布</button>
       <button data-icon="◉" data-mobile-design-nav="staging">灵感</button>
-      <button data-icon="Aa" data-mobile-design-nav="notes">说明</button>
       <button data-icon="◎" data-mobile-design-nav="canvas">全景</button>
       <button data-icon="⋯" data-mobile-design-nav="tools">更多</button>
     </nav>
@@ -1218,7 +1203,6 @@
     <nav class="mobile-dock mobile-legacy-controls" id="mobileDock" aria-label="手机画布工具栏">
       <button id="mobileLibraryBtn" data-icon="＋">组件</button>
       <button id="mobileStagingBtn" data-icon="◉">胶囊</button>
-      <button id="mobileNotesBtn" data-icon="Aa">说明</button>
       <button id="mobileArrangeBtn" data-icon="≋">整理</button>
       <button id="mobileToolsBtn" data-icon="⋯">工具</button>
       <button id="mobileFitBtn" data-icon="◎">全局</button>
@@ -1234,13 +1218,13 @@
 
   <div id="mobileCreateModal" class="modal-backdrop hidden">
     <div class="modal">
-      <div class="modal-head"><div><h2>新增画布内容</h2><p>通过阶段与泳道归属完成结构化编排，无需拖动整张画布。</p></div><button class="close-btn" data-close="mobileCreateModal">×</button></div>
+      <div class="modal-head"><div><h2>新增画布内容</h2><p>通过步骤与内容分类归属完成结构化编排，无需拖动整张画布。</p></div><button class="close-btn" data-close="mobileCreateModal">×</button></div>
       <div class="modal-body">
-        <div class="mobile-create-context" id="mobileCreateContext">将根据当前视角自动选择阶段与泳道。</div>
+        <div class="mobile-create-context" id="mobileCreateContext">将根据当前视角自动选择步骤和内容分类。</div>
         <div class="field"><label for="mobileCreateType">内容类型</label><select id="mobileCreateType"></select></div>
         <div class="field"><label for="mobileCreateTitle" id="mobileCreateTitleLabel">标题</label><input id="mobileCreateTitle" maxlength="80" placeholder="输入一个清晰的运营内容标题"></div>
         <div class="field" id="mobileCreateSummaryField"><label for="mobileCreateSummary">卡片摘要</label><textarea id="mobileCreateSummary" maxlength="180" placeholder="简要说明目标、动作或判断"></textarea></div>
-        <div class="field-row"><div class="field"><label for="mobileCreateStage">所属阶段</label><select id="mobileCreateStage"></select></div><div class="field"><label for="mobileCreateLane">所属泳道</label><select id="mobileCreateLane"></select></div></div>
+        <div class="field-row"><div class="field"><label for="mobileCreateStage">所属步骤</label><select id="mobileCreateStage"></select></div><div class="field"><label for="mobileCreateLane">所属分类</label><select id="mobileCreateLane"></select></div></div>
         <div class="field-row" id="mobileCreateBusinessFields"><div class="field"><label for="mobileCreateProgress">执行进度</label><select id="mobileCreateProgress"><option>未开始</option><option>进行中</option><option>已完成</option><option>已暂停</option><option>有风险</option></select></div><div class="field"><label for="mobileCreatePriority">优先级</label><select id="mobileCreatePriority"><option>低</option><option selected>中</option><option>高</option><option>关键</option></select></div></div>
       </div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileCreateModal">取消</button><button class="modal-btn primary" id="mobileCreateConfirmBtn">创建并编辑详情</button></div>
@@ -1249,8 +1233,8 @@
 
   <div id="mobileMoveModal" class="modal-backdrop hidden">
     <div class="modal">
-      <div class="modal-head"><div><h2>移动画布内容</h2><p id="mobileMoveCopy">重新选择阶段和泳道，桌面画布位置会自动同步。</p></div><button class="close-btn" data-close="mobileMoveModal">×</button></div>
-      <div class="modal-body"><div class="field-row"><div class="field"><label for="mobileMoveStage">目标阶段</label><select id="mobileMoveStage"></select></div><div class="field"><label for="mobileMoveLane">目标泳道</label><select id="mobileMoveLane"></select></div></div></div>
+      <div class="modal-head"><div><h2>移动画布内容</h2><p id="mobileMoveCopy">重新选择步骤和内容分类，桌面画布位置会自动同步。</p></div><button class="close-btn" data-close="mobileMoveModal">×</button></div>
+      <div class="modal-body"><div class="field-row"><div class="field"><label for="mobileMoveStage">目标步骤</label><select id="mobileMoveStage"></select></div><div class="field"><label for="mobileMoveLane">目标分类</label><select id="mobileMoveLane"></select></div></div></div>
       <div class="modal-foot"><button class="modal-btn" data-close="mobileMoveModal">取消</button><button class="modal-btn primary" id="mobileMoveConfirmBtn">确认移动</button></div>
     </div>
   </div>
@@ -1282,10 +1266,10 @@
 
   <div id="settingsModal" class="modal-backdrop hidden">
     <div class="modal wide">
-      <div class="modal-head"><div><h2>画布分区设置</h2><p>配置阶段列数量，并分别设置每条泳道的标题与阶段名称。</p></div><button class="close-btn" data-close="settingsModal">×</button></div>
+      <div class="modal-head"><div><h2>画布分区设置</h2><p>配置横向步骤，并分别设置每个内容分类及各格子的标题。</p></div><button class="close-btn" data-close="settingsModal">×</button></div>
       <div class="modal-body">
         <div class="config-section"><div class="config-title"><div><strong>阶段列</strong><div class="field-help">用于增删和命名横向列；阶段列说明已取消。</div></div><button class="add-link" id="modalAddStage">＋ 添加阶段列</button></div><div class="config-list" id="stageConfigList"></div></div>
-        <div class="config-section"><div class="config-title"><div><strong>运营泳道与独立阶段</strong><div class="field-help">每条泳道均可单独设置标题、说明，以及各列对应的阶段名称。</div></div><button class="add-link" id="modalAddLane">＋ 添加泳道</button></div><div class="config-list" id="laneConfigList"></div></div>
+        <div class="config-section"><div class="config-title"><div><strong>内容分类与区域标题</strong><div class="field-help">每个内容分类都可设置名称、简短说明，以及各步骤对应的区域标题。</div></div><button class="add-link" id="modalAddLane">＋ 添加内容分类</button></div><div class="config-list" id="laneConfigList"></div></div>
       </div>
       <div class="modal-foot"><button class="modal-btn" data-close="settingsModal">取消</button><button class="modal-btn primary" id="applySettingsBtn">应用设置</button></div>
     </div>
@@ -1301,11 +1285,11 @@
 
   <div id="exportModal" class="modal-backdrop hidden">
     <div class="modal">
-      <div class="modal-head"><div><h2>导出运营画布</h2><p>导出完整画布和方案说明，不受当前缩放、滚动位置或设备尺寸影响。</p></div><button class="close-btn" data-close="exportModal">×</button></div>
+      <div class="modal-head"><div><h2>导出运营画布</h2><p>导出完整画布，不受当前缩放、滚动位置或设备尺寸影响。</p></div><button class="close-btn" data-close="exportModal">×</button></div>
       <div class="modal-body">
         <div class="export-options">
           <button class="export-option" type="button" data-export-format="json"><span class="export-option-icon">JSON</span><strong>可编辑 JSON</strong><span>用于备份、迁移和重新导入，完整保留方案数据。</span></button>
-          <button class="export-option" type="button" data-export-format="png"><span class="export-option-icon">PNG</span><strong>高清图片</strong><span>导出完整画布、组件关系和画布外方案说明。</span></button>
+          <button class="export-option" type="button" data-export-format="png"><span class="export-option-icon">PNG</span><strong>高清图片</strong><span>导出完整画布和组件关系，适合直接分享。</span></button>
           <button class="export-option" type="button" data-export-format="pdf"><span class="export-option-icon">PDF</span><strong>分页 PDF</strong><span>按 A4 横向自动分页，适合分享、打印和方案评审。</span></button>
         </div>
         <div class="export-progress" id="exportProgress" aria-live="polite">请选择导出格式。</div>
@@ -1477,7 +1461,6 @@
       { value: 'diamond', name: '菱形' }
     ];
     const LEGACY_SHAPE_TYPES = { rectangle: 'rectangle', round: 'rounded', circle: 'circle', diamond: 'diamond' };
-    const RICH_TEXT_PRESET = { type: 'richText', code: 'Aa', name: '辅助说明卡', desc: '放在画布外说明区，支持富文本编辑' };
 
     function lightweightPreset(type) { return LIGHTWEIGHT_TYPES.find(item => item.type === type); }
     function isShapeNode(nodeOrType) { return (typeof nodeOrType === 'string' ? nodeOrType : nodeOrType?.type) === 'shape'; }
@@ -1577,7 +1560,7 @@
         { id: uid('lane'), name: '用户生命周期', note: '围绕用户成长、留存、流失与召回', phases: ['新手期', '成熟期', '稳定期', '预流失', '流失', '回流'] }
       ];
       const project = {
-        id: uid('project'), name: '用户运营体系', createdAt: Date.now(), updatedAt: Date.now(),
+        id: uid('project'), name: '用户运营体系', canvasTitle: '运营全景', createdAt: Date.now(), updatedAt: Date.now(),
         stages, lanes, nodes: [], freeTexts: [], staging: [], edges: [], snapshots: [], zoom: 1, grid: true
       };
       project.nodes.push(
@@ -1610,16 +1593,6 @@
       };
     }
 
-    function makeRichText(x = 180, y = 80, patch = {}) {
-      return {
-        id: uid('text'), type: 'richText', content: patch.content || '在这里补充方案背景、目标或关键说明',
-        x, y, width: patch.width || 300, height: patch.height || 150,
-        bold: !!patch.bold, underline: !!patch.underline, color: patch.color || '#173f40',
-        fontSize: Number(patch.fontSize || 16), align: patch.align || 'left',
-        createdAt: Date.now(), updatedAt: Date.now()
-      };
-    }
-
     function makeStaging(type, title, summary = '', style = 'solid') {
       return { ...makeNode(type, null, null, 0, 0, { title, summary, style }), location: 'staging' };
     }
@@ -1632,6 +1605,7 @@
       project.staging ||= [];
       project.edges ||= [];
       project.snapshots ||= [];
+      project.canvasTitle = String(project.canvasTitle || '运营全景');
       project.zoom ||= 1;
       project.grid ??= true;
       project.freeTexts.forEach((note, index) => {
@@ -1696,6 +1670,7 @@
     let dragState = null;
     let resizeState = null;
     let selectionState = null;
+    let panState = null;
     let contextNodeId = null;
     let configDraft = null;
     let connectionMode = false;
@@ -1718,8 +1693,6 @@
     let fullscreenCenterPending = false;
     let sidebarResizeState = null;
     let activePaletteDragType = null;
-    let freeTextDragState = null;
-    let freeTextResizeState = null;
     let activeSidebarTab = 'components';
     let layoutPrefs = loadLayoutPrefs();
     const isMobileLayout = () => matchMedia('(max-width: 700px), (max-height: 520px) and (pointer: coarse)').matches;
@@ -1727,9 +1700,9 @@
 
     function loadLayoutPrefs() {
       try {
-        return { componentWidth: 286, stagingWidth: 320, notesWidth: 340, collapsed: false, notesCollapsed: false, clean: false, mobileExpanded: false, ...JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}') };
+        return { componentWidth: 286, stagingWidth: 320, collapsed: false, clean: false, mobileExpanded: false, ...JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}') };
       } catch {
-        return { componentWidth: 286, stagingWidth: 320, notesWidth: 340, collapsed: false, notesCollapsed: false, clean: false, mobileExpanded: false };
+        return { componentWidth: 286, stagingWidth: 320, collapsed: false, clean: false, mobileExpanded: false };
       }
     }
 
@@ -1762,12 +1735,12 @@
         { kicker: '07 / 07 · 云端协作', title: '手机和电脑使用同一份方案', copy: '通过账号与同步登录 Supabase，手机结构设计会与电脑画布同步；成功后会显示最近同步时间。', target: '#mobileHeroCloudBtn', view: 'map' }
       ];
       return [
-        { kicker: '01 / 06 · 画布结构', title: '先理解运营画布的二维骨架', copy: '横向是运营阶段，纵向是运营泳道。两者的交叉区域用于承载具体运营内容。', target: '#canvasViewport' },
-        { kicker: '02 / 06 · 阶段与泳道', title: '用结构拆解完整运营体系', copy: '阶段描述方案如何推进，泳道描述产品、用户、内容、活动和数据等运营模块。', target: '.stage-head' },
-        { kicker: '03 / 06 · 组件库', title: '把运营内容放进对应区域', copy: '从左侧添加运营动作、活动、任务、指标、风险和里程碑等组件，再放入合适的阶段与泳道。', target: '#componentPanel' },
-        { kicker: '04 / 06 · 内容详情', title: '点击组件继续完善方案', copy: '在内容详情中填写目标、负责人、进度、优先级和业务字段，也可以上传相关图片。', target: '.canvas-node', fallback: '#componentPanel' },
-        { kicker: '05 / 06 · 方案说明', title: '把背景与规则放在画布外', copy: '独立说明区适合记录方案背景、策略、指标口径和复盘内容，不会遮挡主画布。', target: '#notesPanel' },
-        { kicker: '06 / 06 · 云端同步', title: '登录后在不同设备继续设计', copy: '云端登录、自动同步和手动同步都在这里。同步成功后，“已同步”下方会显示最近时间。', target: '#cloudBtn' }
+        { kicker: '01 / 06 · 画布结构', title: '先看清计划的时间与分类', copy: '横向是推进步骤，纵向是内容分类。交叉格子用于放任务、活动、人员、指标或其他计划内容。', target: '#canvasViewport' },
+        { kicker: '02 / 06 · 使用场景', title: '不只用于运营工作', copy: '你也可以用它规划旅游行程、生活计划、学习安排、产品路线或活动筹备。', target: '.stage-head' },
+        { kicker: '03 / 06 · 组件库', title: '把要做的事放进对应格子', copy: '从左侧选择任务、活动、指标、人名、文字或基础图形，再拖到合适的步骤和内容分类。', target: '#componentPanel' },
+        { kicker: '04 / 06 · 内容详情', title: '点击组件补充具体信息', copy: '可以填写负责人、进度、优先级、详细内容，也可以上传相关图片。', target: '.canvas-node', fallback: '#componentPanel' },
+        { kicker: '05 / 06 · 画布操作', title: '框选、移动与整理都在画布上完成', copy: '拖动空白区域可框选多个组件；按住空白区域后拖动可以移动整张画布。', target: '#canvasViewport' },
+        { kicker: '06 / 06 · 云端同步', title: '登录后在不同设备继续编辑', copy: '自动或手动同步成功后，顶部会显示最近一次成功同步的时间。', target: '#cloudBtn' }
       ];
     }
 
@@ -1836,8 +1809,8 @@
       if (onboardingState.welcome) {
         $('#onboardingKicker').textContent = onboardingState.mobile ? 'Mobile structured canvas' : 'Operation canvas quick start';
         $('#onboardingTitle').textContent = onboardingState.mobile ? '欢迎使用手机版运营画布' : '欢迎使用运营画布';
-        $('#onboardingCopy').textContent = onboardingState.mobile ? '手机版是一套完整的结构化画布设计器，不是电脑版画布的简单缩小。' : '用阶段、泳道和运营组件，把复杂方案整理成可设计、可执行、可复盘的运营体系。';
-        const principles = onboardingState.mobile ? ['结构地图：查看完整阶段与泳道', '多种视角：按阶段或泳道持续设计', '同一份数据：手机和电脑云端同步'] : ['阶段：描述运营过程如何推进', '泳道：拆分不同运营模块', '组件：记录动作、任务、指标与风险'];
+        $('#onboardingCopy').textContent = onboardingState.mobile ? '手机版可以直接设计同一张画布，并用更适合小屏幕的方式查看和编辑。也适合旅游行程、生活计划和学习安排。' : '把推进步骤、内容分类和具体事项放进一张图，运营工作、旅游行程、生活计划、学习安排都能使用。';
+        const principles = onboardingState.mobile ? ['结构地图：查看全部步骤与内容分类', '多种视角：按步骤或内容分类查看', '同一份数据：手机和电脑云端同步'] : ['步骤：事情按什么顺序推进', '内容分类：把同类事项放在一起', '组件：记录任务、人员、指标和提醒'];
         $('#onboardingPrinciples').innerHTML = principles.map((item, index) => `<li data-index="${index + 1}">${escapeHtml(item)}</li>`).join('');
         $('#onboardingPrinciples').classList.remove('hidden');
         $('#onboardingHint').textContent = '关闭或跳过后不会再次自动出现，可随时从“新手教程”重新学习。';
@@ -1916,46 +1889,19 @@
       const workspace = $('.workspace');
       if (!workspace) return;
       const mobile = isMobileLayout();
-      if (!mobile) {
-        document.documentElement.style.setProperty('--leftbar', `${currentSidebarWidth()}px`);
-        document.documentElement.style.setProperty('--notesbar', `${notesWidthLimit(layoutPrefs.notesWidth)}px`);
-      }
+      if (!mobile) document.documentElement.style.setProperty('--leftbar', `${currentSidebarWidth()}px`);
       workspace.classList.toggle('sidebar-collapsed', !mobile && !!layoutPrefs.collapsed && !layoutPrefs.clean);
-      workspace.classList.toggle('notes-collapsed', !mobile && !!layoutPrefs.notesCollapsed && !layoutPrefs.clean);
       workspace.classList.toggle('clean-canvas', !mobile && !!layoutPrefs.clean);
       $('#appRoot')?.classList.toggle('clean-canvas-mode', !mobile && !!layoutPrefs.clean);
       $('.sidebar.left')?.classList.toggle('mobile-expanded', mobile && !!layoutPrefs.mobileExpanded);
       const mobileSizeButton = $('#mobilePanelSizeBtn');
       if (mobileSizeButton) mobileSizeButton.textContent = layoutPrefs.mobileExpanded ? '半屏' : '展开';
       const collapseButton = $('#sidebarCollapseBtn');
-      if (collapseButton) collapseButton.textContent = layoutPrefs.collapsed ? '展开' : '收起';
-      const notesCollapseButton = $('#notesCollapseBtn');
-      if (notesCollapseButton) notesCollapseButton.textContent = layoutPrefs.notesCollapsed ? '展开' : '收起';
-    }
-
-    function setNotesWidth(value) {
-      layoutPrefs.notesWidth = notesWidthLimit(value);
-      layoutPrefs.notesCollapsed = false;
-      layoutPrefs.clean = false;
-      saveLayoutPrefs(); applyLayoutPrefs();
-      requestAnimationFrame(renderFreeTexts);
-    }
-
-    function toggleNotesCollapsed() {
-      if (isMobileLayout()) return closeMobileDrawers();
-      layoutPrefs.clean = false;
-      layoutPrefs.notesCollapsed = !layoutPrefs.notesCollapsed;
-      saveLayoutPrefs(); applyLayoutPrefs();
-      requestAnimationFrame(() => { applyZoom(); renderEdges(); });
-    }
-
-    function restoreNotesPanel() {
-      if (isMobileLayout()) return openMobileDrawer('notes');
-      layoutPrefs.notesCollapsed = false;
-      layoutPrefs.clean = false;
-      saveLayoutPrefs(); applyLayoutPrefs();
-      requestAnimationFrame(() => { renderFreeTexts(); applyZoom(); renderEdges(); });
-      toast('已展开画布外方案说明');
+      if (collapseButton) {
+        collapseButton.textContent = layoutPrefs.collapsed ? '›' : '‹';
+        collapseButton.title = layoutPrefs.collapsed ? '展开组件和灵感' : '收起组件和灵感';
+        collapseButton.setAttribute('aria-label', collapseButton.title);
+      }
     }
 
     function setSidebarWidth(value) {
@@ -1989,7 +1935,10 @@
       if (forceRestore) return restoreSidebarPanels();
       layoutPrefs.clean = !layoutPrefs.clean;
       saveLayoutPrefs(); applyLayoutPrefs();
-      requestAnimationFrame(() => { applyZoom(); if (document.fullscreenElement || $('#appRoot').classList.contains('pseudo-fullscreen')) centerCanvasInViewport(); else renderEdges(); });
+      requestAnimationFrame(() => {
+        if (layoutPrefs.clean) centerCanvasInViewport();
+        else { clearFullscreenCanvasOffset(); renderEdges(); }
+      });
       toast(layoutPrefs.clean ? '已进入纯净画布，点击左上角可恢复工具' : '已恢复组件与工具');
     }
 
@@ -2748,10 +2697,10 @@ using (
         <div class="palette-item" draggable="true" data-create-type="${item.type}">
           <div class="shape-icon ${item.className}"></div><div class="palette-name">${item.name}</div><div class="palette-desc">基础表达图形</div>
         </div>`).join('');
-      $('#textComponents').innerHTML = `${LIGHTWEIGHT_TYPES.map(item => `
+      $('#textComponents').innerHTML = LIGHTWEIGHT_TYPES.map(item => `
         <div class="palette-item" draggable="true" data-create-type="${item.type}">
           <div class="palette-icon">${item.code}</div><div class="palette-name">${item.name}</div><div class="palette-desc">${item.desc}</div>
-        </div>`).join('')}<div class="palette-item rich-text-palette" draggable="true" data-create-type="richText"><div class="palette-icon">Aa</div><div class="palette-name">${RICH_TEXT_PRESET.name}</div><div class="palette-desc">${RICH_TEXT_PRESET.desc}</div></div>`;
+        </div>`).join('');
       $$('[data-create-type]').forEach(item => {
         item.addEventListener('dragstart', event => {
           activePaletteDragType = item.dataset.createType;
@@ -2760,7 +2709,6 @@ using (
         });
         item.addEventListener('dragend', () => {
           activePaletteDragType = null;
-          $('#notesCanvas')?.classList.remove('drag-over');
         });
         bindMobileSource(item, { source: 'palette', type: item.dataset.createType }, typeName(item.dataset.createType));
       });
@@ -2821,7 +2769,7 @@ using (
 
     function renderMobileStructureMap() {
       const columns = `132px repeat(${Math.max(1, currentProject.stages.length)}, 112px)`;
-      let html = `<section class="mobile-design-section"><div class="mobile-section-head"><div><h2>结构地图</h2><p>从全局选择“阶段 × 泳道”单元进行设计</p></div><button data-mobile-structure-settings>编辑骨架</button></div><div class="mobile-structure-scroll"><div class="mobile-structure-grid" style="grid-template-columns:${columns}"><div class="mobile-map-corner">运营全景</div>`;
+      let html = `<section class="mobile-design-section"><div class="mobile-section-head"><div><h2>结构地图</h2><p>从全局选择“步骤 × 内容分类”区域进行设计</p></div><button data-mobile-structure-settings>编辑结构</button></div><div class="mobile-structure-scroll"><div class="mobile-structure-grid" style="grid-template-columns:${columns}"><button class="mobile-map-corner" data-edit-canvas-title title="点击修改总标题">${escapeHtml(currentProject.canvasTitle || '运营全景')}</button>`;
       currentProject.stages.forEach((stage, index) => {
         const count = currentProject.nodes.filter(node => node.stageId === stage.id).length;
         html += `<button class="mobile-map-stage" data-mobile-select-stage="${escapeAttr(stage.id)}"><strong>${escapeHtml(stage.name || `阶段 ${index + 1}`)}</strong><span>${count} 个内容</span></button>`;
@@ -3017,7 +2965,7 @@ using (
       currentProject = normalizeProject(currentProject);
       $('#projectName').value = currentProject.name;
       currentProject.zoom = Number(currentProject.zoom || 1);
-      renderBoard(); renderFreeTexts(); renderStaging(); renderInspector(); renderMobileDesigner(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
+      renderBoard(); renderStaging(); renderInspector(); renderMobileDesigner(); applyZoom(); updateStats(); updateHistoryButtons(); updateBatchToolbar();
       if (document.fullscreenElement || $('#appRoot').classList.contains('pseudo-fullscreen')) requestAnimationFrame(centerCanvasInViewport);
     }
 
@@ -3030,16 +2978,17 @@ using (
         return `${Math.max(230, maxBottom + 24)}px`;
       });
       grid.style.gridTemplateRows = `56px ${laneHeights.join(' ')}`;
-      let html = `<div class="corner-cell"><strong>运营全景</strong><span>${currentProject.lanes.length} 条泳道 · ${stageCount} 个阶段</span></div>`;
+      let html = `<div class="corner-cell"><button class="editable-board-label canvas-title-label" data-edit-canvas-title title="双击修改总标题">${escapeHtml(currentProject.canvasTitle || '运营全景')}</button><span>${currentProject.lanes.length} 个内容分类 · ${stageCount} 个步骤</span></div>`;
       currentProject.stages.forEach((stage, index) => {
-        html += `<div class="stage-head" title="${escapeAttr(stage.name || `阶段列 ${index + 1}`)}"><div class="stage-index">COLUMN ${String(index + 1).padStart(2, '0')}</div></div>`;
+        const stageName = stage.name || `COLUMN ${String(index + 1).padStart(2, '0')}`;
+        html += `<div class="stage-head editable-board-label" data-edit-stage-id="${stage.id}" title="${escapeAttr(stageName)} · 双击修改"><div class="stage-index">${escapeHtml(stageName)}</div></div>`;
       });
       currentProject.lanes.forEach(lane => {
-        html += `<div class="lane-head"><div class="lane-bar"></div><div class="lane-name">${escapeHtml(lane.name)}</div><div class="lane-note">${escapeHtml(lane.note || '运营工作泳道')}</div></div>`;
+        html += `<div class="lane-head editable-board-label" data-edit-lane-id="${lane.id}" title="双击修改内容分类"><div class="lane-bar"></div><div class="lane-name">${escapeHtml(lane.name)}</div><div class="lane-note">${escapeHtml(lane.note || '同一类内容集中放在这里')}</div></div>`;
         currentProject.stages.forEach((stage, stageIndex) => {
           const regionNodes = currentProject.nodes.filter(node => node.stageId === stage.id && node.laneId === lane.id);
-          const phaseName = lane.phases?.[stageIndex] || stage.name || `阶段 ${stageIndex + 1}`;
-          html += `<div class="region" data-stage-id="${stage.id}" data-lane-id="${lane.id}"><div class="region-phase" title="${escapeAttr(phaseName)}">${escapeHtml(phaseName)}</div><div class="region-label">${regionNodes.length || ''}</div>${regionNodes.map(renderNodeHtml).join('')}</div>`;
+          const phaseName = lane.phases?.[stageIndex] || stage.name || `第 ${stageIndex + 1} 步`;
+          html += `<div class="region" data-stage-id="${stage.id}" data-lane-id="${lane.id}"><button class="region-phase editable-board-label" data-edit-phase-stage-id="${stage.id}" data-edit-phase-lane-id="${lane.id}" title="双击修改区域标题">${escapeHtml(phaseName)}</button><div class="region-label">${regionNodes.length || ''}</div>${regionNodes.map(renderNodeHtml).join('')}</div>`;
         });
       });
       grid.innerHTML = html;
@@ -3068,133 +3017,6 @@ using (
         ${content}<span class="resize-handle" title="拖动调整大小"></span>
       </article>`;
     }
-
-    function findFreeText(id) { return currentProject.freeTexts.find(item => item.id === id); }
-
-    function renderFreeTexts() {
-      const layer = $('#freeTextLayer'); const canvas = $('#notesCanvas'); const panel = $('#notesPanel');
-      if (!layer || !canvas || !panel) return;
-      const availableWidth = Math.max(180, canvas.clientWidth - 24);
-      currentProject.freeTexts.forEach(note => {
-        note.surface = 'notes';
-        note.width = Math.max(180, Math.min(Number(note.width || 300), availableWidth));
-        const position = clampFreeText(note, Number(note.x || 12), Number(note.y || 12));
-        note.x = position.x; note.y = position.y;
-      });
-      const bottom = Math.max(0, ...currentProject.freeTexts.map(note => Number(note.y || 0) + Number(note.height || 150) + 24));
-      canvas.style.minHeight = `${Math.max(420, bottom)}px`;
-      panel.classList.toggle('is-empty', currentProject.freeTexts.length === 0);
-      $('#notesCount').textContent = String(currentProject.freeTexts.length);
-      layer.innerHTML = currentProject.freeTexts.map(note => `<article class="rich-text-note ${selectedId === note.id ? 'selected' : ''}" data-free-text-id="${note.id}" style="left:${note.x}px;top:${note.y}px;width:${note.width}px;height:${note.height}px;--text-color:${note.color}"><div class="rich-text-handle" title="在方案说明区内拖动"><span>NOTE</span></div><div class="rich-text-content" contenteditable="true" spellcheck="false" style="font-size:${note.fontSize}px;font-weight:${note.bold ? 800 : 400};text-decoration:${note.underline ? 'underline' : 'none'};text-align:${note.align};color:${note.color}">${escapeHtml(note.content || '').replace(/\n/g, '<br>')}</div><span class="rich-text-resize" title="调整说明卡大小"></span></article>`).join('');
-      bindFreeTextEvents();
-    }
-
-    function clampFreeText(note, x, y) {
-      const canvas = $('#notesCanvas');
-      const width = Number(note.width || 300); const height = Number(note.height || 150);
-      const canvasWidth = Math.max(width + 24, canvas?.clientWidth || width + 24);
-      const canvasHeight = Math.max(height + 24, canvas?.scrollHeight || height + 24, Number(y || 0) + height + 24);
-      return {
-        x: Math.max(12, Math.min(Math.max(12, canvasWidth - width - 12), Number(x) || 12)),
-        y: Math.max(12, Math.min(Math.max(12, canvasHeight - height - 12), Number(y) || 12))
-      };
-    }
-
-    function createFreeTextAtClient(clientX = null, clientY = null) {
-      const canvas = $('#notesCanvas'); const rect = canvas?.getBoundingClientRect();
-      const note = makeRichText(); note.surface = 'notes';
-      const fallbackY = Math.max(12, ...currentProject.freeTexts.map(item => Number(item.y || 0) + Number(item.height || 150) + 18));
-      const desiredX = rect && clientX != null ? clientX - rect.left - note.width / 2 : 12;
-      const desiredY = rect && clientY != null ? clientY - rect.top - 24 : fallbackY;
-      const position = clampFreeText(note, snap(desiredX), snap(desiredY));
-      Object.assign(note, position); checkpoint(); currentProject.freeTexts.push(note); selectedId = note.id; selectedIds.clear();
-      cancelMobilePlacement(); renderAll(); persist();
-      if (isMobileLayout()) openMobileDrawer('notes');
-      else { layoutPrefs.notesCollapsed = false; saveLayoutPrefs(); applyLayoutPrefs(); selectNode(note.id, false, false); }
-      requestAnimationFrame(() => $('#notesScroll')?.scrollTo({ top: Math.max(0, note.y - 20), behavior: 'smooth' }));
-      toast('辅助说明已添加到画布外说明区');
-      return note;
-    }
-
-    function bindFreeTextEvents() {
-      $$('.rich-text-note').forEach(element => {
-        const id = element.dataset.freeTextId;
-        const editor = $('.rich-text-content', element);
-        element.addEventListener('click', event => { event.stopPropagation(); selectNode(id, false, false); });
-        $('.rich-text-handle', element)?.addEventListener('pointerdown', startFreeTextDrag);
-        $('.rich-text-resize', element)?.addEventListener('pointerdown', startFreeTextResize);
-        editor?.addEventListener('focus', () => { if (!editor.dataset.checkpointed) { checkpoint(); editor.dataset.checkpointed = '1'; } selectNode(id, false, false); });
-        editor?.addEventListener('blur', () => { delete editor.dataset.checkpointed; });
-        editor?.addEventListener('input', () => {
-          const note = findFreeText(id); if (!note) return;
-          note.content = editor.innerText.replace(/\n{3,}/g, '\n\n'); note.updatedAt = Date.now(); persist();
-          if ($('#richTextContent') && selectedId === id) $('#richTextContent').value = note.content;
-        });
-      });
-    }
-
-    function startFreeTextDrag(event) {
-      if (event.button !== 0) return;
-      event.preventDefault(); event.stopPropagation();
-      const element = event.currentTarget.closest('.rich-text-note'); const note = findFreeText(element?.dataset.freeTextId); if (!note) return;
-      checkpoint(); selectNode(note.id, false, false);
-      freeTextDragState = { id: note.id, startX: event.clientX, startY: event.clientY, x: note.x, y: note.y, element };
-      safeSetPointerCapture(event.currentTarget, event.pointerId);
-      event.currentTarget.addEventListener('pointermove', moveFreeTextDrag);
-      event.currentTarget.addEventListener('pointerup', endFreeTextDrag, { once: true });
-      event.currentTarget.addEventListener('pointercancel', cancelFreeTextDrag, { once: true });
-    }
-
-    function moveFreeTextDrag(event) {
-      if (!freeTextDragState) return;
-      const note = findFreeText(freeTextDragState.id); if (!note) return;
-      const position = clampFreeText(note, snap(freeTextDragState.x + event.clientX - freeTextDragState.startX), snap(freeTextDragState.y + event.clientY - freeTextDragState.startY));
-      freeTextDragState.preview = position;
-      freeTextDragState.element.style.left = `${position.x}px`; freeTextDragState.element.style.top = `${position.y}px`;
-    }
-
-    function finishFreeTextDrag(event, cancelled = false) {
-      if (!freeTextDragState) return;
-      const state = freeTextDragState; const handle = event?.currentTarget;
-      safeReleasePointerCapture(handle, event?.pointerId); handle?.removeEventListener('pointermove', moveFreeTextDrag);
-      if (!cancelled && state.preview) { const note = findFreeText(state.id); Object.assign(note, state.preview, { updatedAt: Date.now() }); persist(); }
-      freeTextDragState = null;
-      if (cancelled) renderFreeTexts();
-    }
-    function endFreeTextDrag(event) { finishFreeTextDrag(event, false); }
-    function cancelFreeTextDrag(event) { finishFreeTextDrag(event, true); }
-
-    function startFreeTextResize(event) {
-      if (event.button !== 0) return;
-      event.preventDefault(); event.stopPropagation();
-      const element = event.currentTarget.closest('.rich-text-note'); const note = findFreeText(element?.dataset.freeTextId); if (!note) return;
-      checkpoint(); selectNode(note.id, false, false);
-      freeTextResizeState = { id: note.id, startX: event.clientX, startY: event.clientY, width: note.width, height: note.height, element };
-      safeSetPointerCapture(event.currentTarget, event.pointerId);
-      event.currentTarget.addEventListener('pointermove', moveFreeTextResize);
-      event.currentTarget.addEventListener('pointerup', endFreeTextResize, { once: true });
-      event.currentTarget.addEventListener('pointercancel', cancelFreeTextResize, { once: true });
-    }
-
-    function moveFreeTextResize(event) {
-      if (!freeTextResizeState) return;
-      const canvasWidth = Math.max(180, ($('#notesCanvas')?.clientWidth || 320) - 24);
-      const width = Math.max(180, Math.min(canvasWidth, snap(freeTextResizeState.width + event.clientX - freeTextResizeState.startX)));
-      const height = Math.max(88, Math.min(460, snap(freeTextResizeState.height + event.clientY - freeTextResizeState.startY)));
-      freeTextResizeState.preview = { width, height };
-      freeTextResizeState.element.style.width = `${width}px`; freeTextResizeState.element.style.height = `${height}px`;
-    }
-
-    function finishFreeTextResize(event, cancelled = false) {
-      if (!freeTextResizeState) return;
-      const state = freeTextResizeState; const handle = event?.currentTarget;
-      safeReleasePointerCapture(handle, event?.pointerId); handle?.removeEventListener('pointermove', moveFreeTextResize);
-      if (!cancelled && state.preview) { const note = findFreeText(state.id); Object.assign(note, state.preview, { updatedAt: Date.now() }); persist(); renderBoard(); }
-      else if (cancelled) renderFreeTexts();
-      freeTextResizeState = null;
-    }
-    function endFreeTextResize(event) { finishFreeTextResize(event, false); }
-    function cancelFreeTextResize(event) { finishFreeTextResize(event, true); }
 
     function nodeMatchesFilters(node) {
       const query = filters.query.trim().toLowerCase();
@@ -3276,25 +3098,23 @@ using (
     function openMobileDrawer(kind, tab = 'components') {
       if (!isMobileLayout()) return;
       clearTransientCanvasUI(); closeMenus(); syncMobileViewportHeight(); updateOrientationUI(false);
-      const left = $('.sidebar.left'); const right = $('#rightSidebar'); const notes = $('#notesPanel');
-      left.removeAttribute('style'); right.removeAttribute('style'); notes.removeAttribute('style');
-      left.classList.remove('mobile-open'); right.classList.remove('open'); notes.classList.remove('mobile-open');
+      const left = $('.sidebar.left'); const right = $('#rightSidebar');
+      left.removeAttribute('style'); right.removeAttribute('style');
+      left.classList.remove('mobile-open'); right.classList.remove('open');
       if (kind === 'left') {
         switchTab(tab); left.classList.add('mobile-open');
-      } else if (kind === 'notes') {
-        notes.classList.add('mobile-open');
       } else {
         right.classList.add('open');
       }
       resetMobileDrawerScroll(kind, tab);
       $('#mobileBackdrop').classList.add('show');
-      updateMobileDock(kind === 'left' ? tab : kind === 'notes' ? 'notes' : 'details');
+      updateMobileDock(kind === 'left' ? tab : 'details');
     }
 
     function closeMobileDrawers(clearDock = true) {
-      const left = $('.sidebar.left'); const right = $('#rightSidebar'); const notes = $('#notesPanel');
-      left.classList.remove('mobile-open'); right.classList.remove('open'); notes.classList.remove('mobile-open');
-      left.removeAttribute('style'); right.removeAttribute('style'); notes.removeAttribute('style');
+      const left = $('.sidebar.left'); const right = $('#rightSidebar');
+      left.classList.remove('mobile-open'); right.classList.remove('open');
+      left.removeAttribute('style'); right.removeAttribute('style');
       $('#mobileBackdrop').classList.remove('show');
       clearTransientCanvasUI();
       if (clearDock) updateMobileDock('');
@@ -3307,16 +3127,11 @@ using (
     }
 
     function updateMobileDock(active) {
-      const map = { components: '#mobileLibraryBtn', staging: '#mobileStagingBtn', notes: '#mobileNotesBtn', tools: '#mobileToolsBtn', fullscreen: '#mobileFullscreenBtn' };
+      const map = { components: '#mobileLibraryBtn', staging: '#mobileStagingBtn', tools: '#mobileToolsBtn', fullscreen: '#mobileFullscreenBtn' };
       $$('#mobileDock button').forEach(button => button.classList.toggle('active', map[active] === `#${button.id}`));
     }
 
     function beginMobilePlacement(payload, label = '组件') {
-      if (payload?.source === 'palette' && payload.type === 'richText') {
-        closeMobileDrawers(); closeModal('mobileToolsModal');
-        createFreeTextAtClient();
-        return;
-      }
       mobilePlacementPayload = payload;
       closeMobileDrawers(); closeModal('mobileToolsModal');
       document.body.classList.add('mobile-placement-mode');
@@ -3331,7 +3146,7 @@ using (
     }
 
     function placeMobilePayload(payload, region, clientX = null, clientY = null) {
-      if (!payload || !region || payload.type === 'richText') return;
+      if (!payload || !region) return;
       const rect = region.getBoundingClientRect(); const scale = currentProject.zoom || 1;
       const regionNodes = currentProject.nodes.filter(node => node.stageId === region.dataset.stageId && node.laneId === region.dataset.laneId);
       const fallbackY = REGION_CONTENT_TOP + regionNodes.reduce((bottom, node) => Math.max(bottom, Number(node.y || REGION_CONTENT_TOP) + Number(node.height || 82) + 12), 0);
@@ -3389,26 +3204,22 @@ using (
       mobileSourceDrag.ghost.style.left = `${event.clientX}px`; mobileSourceDrag.ghost.style.top = `${event.clientY}px`;
       mobileSourceDrag.ghost.style.visibility = 'hidden';
       const target = document.elementFromPoint(event.clientX, event.clientY);
-      const region = target?.closest('.region'); const notesCanvas = target?.closest('#notesCanvas');
+      const region = target?.closest('.region');
       mobileSourceDrag.ghost.style.visibility = '';
       $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
-      $('#notesCanvas')?.classList.remove('drag-over');
-      if (mobileSourceDrag.payload?.type === 'richText') notesCanvas?.classList.add('drag-over');
-      else if (region) region.classList.add('mobile-drag-over');
+      if (region) region.classList.add('mobile-drag-over');
     }
 
     function finishMobileSourceDrag(event, cancelled = false) {
       if (!mobileSourceDrag) return;
       const state = mobileSourceDrag; state.ghost.style.visibility = 'hidden';
       const target = !cancelled && event ? document.elementFromPoint(event.clientX, event.clientY) : null;
-      const region = target?.closest('.region'); const notesCanvas = target?.closest('#notesCanvas');
+      const region = target?.closest('.region');
       state.ghost.remove(); mobileSourceDrag = null;
       $$('.region.mobile-drag-over').forEach(item => item.classList.remove('mobile-drag-over'));
-      $('#notesCanvas')?.classList.remove('drag-over');
-      if (state.payload?.type === 'richText' && notesCanvas) createFreeTextAtClient(event.clientX, event.clientY);
-      else if (state.payload?.type !== 'richText' && region) placeMobilePayload(state.payload, region, event.clientX, event.clientY);
+      if (region) placeMobilePayload(state.payload, region, event.clientX, event.clientY);
       else if (!cancelled) {
-        toast(state.payload?.type === 'richText' ? '辅助说明只能放入画布外说明区' : '未放入阶段，可再次选择组件');
+        toast('未放入步骤，可再次选择组件');
         openMobileDrawer('left', state.payload.source === 'staging' ? 'staging' : 'components');
       }
     }
@@ -3544,6 +3355,7 @@ using (
         $('.resize-handle', resizeState.element)?.removeEventListener('pointermove', moveNodeResize);
         resizeState = null; renderBoard();
       }
+      cancelCanvasPan();
     }
     function handlePinchStart(event) {
       if (!isMobileLayout() || event.touches.length !== 2) return;
@@ -3599,18 +3411,46 @@ using (
       try { return JSON.parse(event.dataTransfer.getData('text/plain')); } catch { return null; }
     }
 
-    function handleNotesDrop(event) {
-      const payload = readDragPayload(event);
-      if (!payload || payload.source !== 'palette' || payload.type !== 'richText') return;
-      event.preventDefault(); event.stopPropagation();
-      $('#notesCanvas')?.classList.remove('drag-over');
-      createFreeTextAtClient(event.clientX, event.clientY);
+    function editBoardText(message, currentValue, applyValue) {
+      const nextValue = prompt(message, currentValue || '');
+      if (nextValue === null) return;
+      const value = nextValue.trim();
+      if (!value || value === currentValue) return;
+      checkpoint(); applyValue(value); currentProject.updatedAt = Date.now(); renderAll(); persist();
+    }
+
+    function bindBoardTitleEditors() {
+      $$('[data-edit-canvas-title]').forEach(element => {
+        const handler = event => {
+          event.preventDefault(); event.stopPropagation();
+          editBoardText('修改画布总标题', currentProject.canvasTitle || '运营全景', value => { currentProject.canvasTitle = value; });
+        };
+        element.ondblclick = handler;
+        element.onclick = event => { if (isMobileLayout()) handler(event); };
+      });
+      $$('[data-edit-stage-id]').forEach(element => element.ondblclick = event => {
+        event.preventDefault(); event.stopPropagation();
+        const stage = currentProject.stages.find(item => item.id === element.dataset.editStageId); if (!stage) return;
+        editBoardText('修改步骤名称', stage.name, value => { stage.name = value; });
+      });
+      $$('[data-edit-lane-id]').forEach(element => element.ondblclick = event => {
+        event.preventDefault(); event.stopPropagation();
+        const lane = currentProject.lanes.find(item => item.id === element.dataset.editLaneId); if (!lane) return;
+        editBoardText('修改内容分类名称', lane.name, value => { lane.name = value; });
+      });
+      $$('[data-edit-phase-stage-id][data-edit-phase-lane-id]').forEach(element => element.ondblclick = event => {
+        event.preventDefault(); event.stopPropagation();
+        const lane = currentProject.lanes.find(item => item.id === element.dataset.editPhaseLaneId);
+        const stageIndex = currentProject.stages.findIndex(item => item.id === element.dataset.editPhaseStageId);
+        if (!lane || stageIndex < 0) return;
+        lane.phases ||= currentProject.stages.map(stage => stage.name);
+        editBoardText('修改这个区域的标题', lane.phases[stageIndex] || currentProject.stages[stageIndex].name, value => { lane.phases[stageIndex] = value; });
+      });
     }
 
     function bindBoardEvents() {
       $$('.region').forEach(region => {
         region.addEventListener('dragover', event => {
-          if (activePaletteDragType === 'richText') return;
           event.preventDefault(); region.classList.add('drag-over');
         });
         region.addEventListener('dragleave', () => region.classList.remove('drag-over'));
@@ -3620,6 +3460,7 @@ using (
           event.stopPropagation(); placeMobilePayload(mobilePlacementPayload, region, event.clientX, event.clientY);
         });
       });
+      bindBoardTitleEditors();
       $$('.canvas-node').forEach(nodeEl => {
         nodeEl.addEventListener('pointerdown', startNodeDrag);
         nodeEl.addEventListener('click', event => { event.stopPropagation(); if (connectionMode) return; if (!dragState?.moved) selectNode(nodeEl.dataset.nodeId, event.shiftKey); });
@@ -3637,7 +3478,8 @@ using (
       board.ondragover = null;
       board.ondrop = null;
       board.onclick = null;
-      board.onpointerdown = startSelectionBox;
+      board.onpointerdown = null;
+      $('#canvasViewport').onpointerdown = startSelectionBox;
     }
 
     function handleDrop(event) {
@@ -3646,10 +3488,6 @@ using (
       region.classList.remove('drag-over');
       const payload = readDragPayload(event);
       if (!payload) return;
-      if (payload.source === 'palette' && payload.type === 'richText') {
-        toast('辅助说明只能放入画布外说明区');
-        return;
-      }
       const rect = region.getBoundingClientRect();
       const scale = currentProject.zoom || 1;
       const x = snap((event.clientX - rect.left) / scale - 76);
@@ -3902,30 +3740,93 @@ using (
       resizeState = null; clearTransientCanvasUI(); renderBoard(); persist();
     }
 
-    function startSelectionBox(event) {
-      if (isMobileLayout() || event.pointerType === 'touch' || event.button !== 0 || event.target.closest('.canvas-node') || event.target.closest('.stage-head') || event.target.closest('.lane-head') || connectionMode) return;
-      const box = document.createElement('div'); box.className = 'selection-box'; document.body.appendChild(box);
-      selectionState = { startX: event.clientX, startY: event.clientY, box, additive: event.shiftKey };
-      updateSelectionBox(event); window.addEventListener('pointermove', updateSelectionBox); window.addEventListener('pointerup', endSelectionBox, { once: true }); window.addEventListener('pointercancel', cancelSelectionBox, { once: true });
+    function boardContentBounds() {
+      const regions = $$('.region');
+      if (!regions.length) return null;
+      const zoom = currentProject.zoom || 1;
+      const rects = regions.map(region => region.getBoundingClientRect());
+      return {
+        left: Math.min(...rects.map(rect => rect.left)),
+        top: Math.min(...rects.map(rect => rect.top + REGION_CONTENT_TOP * zoom)),
+        right: Math.max(...rects.map(rect => rect.right)),
+        bottom: Math.max(...rects.map(rect => rect.bottom))
+      };
     }
+
+    function startSelectionBox(event) {
+      const region = event.target.closest('.region');
+      const blocked = event.target.closest('.canvas-node,.editable-board-label,button,input,textarea,select,.canvas-toolbar,.canvas-foot');
+      if (isMobileLayout() || event.pointerType === 'touch' || event.button !== 0 || blocked || connectionMode) return;
+      const inRegionContent = !!region && event.clientY >= region.getBoundingClientRect().top + REGION_CONTENT_TOP * (currentProject.zoom || 1);
+      const viewport = $('#canvasViewport');
+      panState = {
+        pointerId: event.pointerId, mode: 'pending', allowSelection: inRegionContent,
+        startX: event.clientX, startY: event.clientY, scrollLeft: viewport.scrollLeft, scrollTop: viewport.scrollTop,
+        additive: event.shiftKey, bounds: boardContentBounds(), timer: null
+      };
+      panState.timer = setTimeout(() => {
+        if (!panState || panState.mode !== 'pending') return;
+        panState.mode = 'pan'; viewport.classList.add('is-panning');
+      }, 320);
+      window.addEventListener('pointermove', updateCanvasBlankGesture);
+      window.addEventListener('pointerup', endCanvasBlankGesture, { once: true });
+      window.addEventListener('pointercancel', cancelCanvasPan, { once: true });
+    }
+
+    function updateCanvasBlankGesture(event) {
+      if (!panState || event.pointerId !== panState.pointerId) return;
+      const dx = event.clientX - panState.startX; const dy = event.clientY - panState.startY;
+      if (panState.mode === 'pending' && Math.hypot(dx, dy) > 6) {
+        if (!panState.allowSelection) return cancelCanvasPan();
+        clearTimeout(panState.timer); panState.mode = 'select';
+        const box = document.createElement('div'); box.className = 'selection-box'; document.body.appendChild(box);
+        selectionState = { startX: panState.startX, startY: panState.startY, box, additive: panState.additive, bounds: panState.bounds };
+      }
+      if (panState.mode === 'select') return updateSelectionBox(event);
+      if (panState.mode === 'pan') {
+        event.preventDefault();
+        const viewport = $('#canvasViewport');
+        viewport.scrollLeft = panState.scrollLeft - dx; viewport.scrollTop = panState.scrollTop - dy;
+      }
+    }
+
     function updateSelectionBox(event) {
       if (!selectionState) return;
-      const left = Math.min(selectionState.startX, event.clientX); const top = Math.min(selectionState.startY, event.clientY);
-      const width = Math.abs(event.clientX - selectionState.startX); const height = Math.abs(event.clientY - selectionState.startY);
-      Object.assign(selectionState.box.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
+      const bounds = selectionState.bounds;
+      const currentX = bounds ? Math.max(bounds.left, Math.min(bounds.right, event.clientX)) : event.clientX;
+      const currentY = bounds ? Math.max(bounds.top, Math.min(bounds.bottom, event.clientY)) : event.clientY;
+      const startX = bounds ? Math.max(bounds.left, Math.min(bounds.right, selectionState.startX)) : selectionState.startX;
+      const startY = bounds ? Math.max(bounds.top, Math.min(bounds.bottom, selectionState.startY)) : selectionState.startY;
+      const left = Math.min(startX, currentX); const top = Math.min(startY, currentY);
+      Object.assign(selectionState.box.style, { left: `${left}px`, top: `${top}px`, width: `${Math.abs(currentX - startX)}px`, height: `${Math.abs(currentY - startY)}px` });
     }
+
+    function endCanvasBlankGesture(event) {
+      if (!panState || event.pointerId !== panState.pointerId) return cancelCanvasPan();
+      const mode = panState.mode; clearTimeout(panState.timer);
+      window.removeEventListener('pointermove', updateCanvasBlankGesture);
+      $('#canvasViewport').classList.remove('is-panning'); panState = null;
+      if (mode === 'select') endSelectionBox();
+      else if (mode === 'pending') selectNode(null);
+    }
+
     function endSelectionBox() {
       if (!selectionState) return;
-      window.removeEventListener('pointermove', updateSelectionBox);
       const selectionRect = selectionState.box.getBoundingClientRect();
       const picked = $$('.canvas-node').filter(item => rectsIntersect(selectionRect, item.getBoundingClientRect())).map(item => item.dataset.nodeId);
       if (!selectionState.additive) selectedIds.clear(); picked.forEach(id => selectedIds.add(id));
-      selectedId = picked.length === 1 ? picked[0] : null;
+      selectedId = selectedIds.size === 1 ? [...selectedIds][0] : null;
       selectionState.box.remove(); selectionState = null; renderBoard(); renderInspector(); updateBatchToolbar();
     }
+
+    function cancelCanvasPan() {
+      if (panState) clearTimeout(panState.timer);
+      panState = null; window.removeEventListener('pointermove', updateCanvasBlankGesture);
+      $('#canvasViewport')?.classList.remove('is-panning'); cancelSelectionBox();
+    }
+
     function cancelSelectionBox() {
       if (!selectionState) return;
-      window.removeEventListener('pointermove', updateSelectionBox);
       selectionState.box?.remove(); selectionState = null;
     }
     function rectsIntersect(a, b) { return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top; }
@@ -3973,10 +3874,7 @@ using (
       document.body.classList.remove('mobile-placement-mode');
       $('.mobile-drag-ghost')?.remove();
       if (mobileSourceDrag?.ghost) mobileSourceDrag.ghost.remove();
-      const hadFreeTextGesture = !!(freeTextDragState || freeTextResizeState);
-      freeTextDragState = null; freeTextResizeState = null;
       mobileSourceDrag = null; edgeSwipeState = null;
-      if (hadFreeTextGesture) renderFreeTexts();
     }
 
     function renderStaging() {
@@ -4015,41 +3913,29 @@ using (
 
     function selectNode(id, additive = false, openDetails = true) {
       if (connectionMode && id && findNode(id)) return handleConnectionClick(id);
-      const isFreeText = !!findFreeText(id);
       if (!id) { selectedId = null; selectedIds.clear(); $('#rightSidebar').classList.remove('open'); }
-      else if (additive && !isFreeText) {
+      else if (additive) {
         if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
         selectedId = selectedIds.size === 1 ? [...selectedIds][0] : null;
-      } else { selectedId = id; selectedIds = isFreeText ? new Set() : new Set([id]); }
+      } else { selectedId = id; selectedIds = new Set([id]); }
       $$('.canvas-node').forEach(item => {
         item.classList.toggle('selected', item.dataset.nodeId === selectedId);
         item.classList.toggle('multi-selected', selectedIds.has(item.dataset.nodeId));
       });
-      $$('.rich-text-note').forEach(item => item.classList.toggle('selected', item.dataset.freeTextId === selectedId));
       renderInspector(); updateBatchToolbar();
       if (id && openDetails && isMobileLayout() && !mobileMultiSelect) openMobileDrawer('right');
       else if (id && openDetails && !isMobileLayout()) $('#rightSidebar').classList.add('open');
     }
 
     function renderInspector() {
-      const node = findNode(selectedId); const note = findFreeText(selectedId); const selected = node || note;
+      const node = findNode(selectedId); const selected = node;
       const lightweight = !!node && isLightweightNode(node);
       $('#emptyInspector').classList.toggle('hidden', !!selected);
       $('#inspector').classList.toggle('hidden', !selected);
       $('#standardInspectorFields').classList.toggle('hidden', !node || lightweight);
       $('#lightweightInspectorFields').classList.toggle('hidden', !lightweight);
-      $('#richTextInspectorFields').classList.toggle('hidden', !note);
       $('#moveStagingBtn').classList.toggle('hidden', !node);
       if (!selected) return;
-      if (note) {
-        $('#richTextContent').value = note.content || '';
-        $('#richFontSize').value = String(note.fontSize || 16);
-        $('#richTextAlign').value = note.align || 'left';
-        $('#richTextColor').value = note.color || '#173f40';
-        $('#richBoldBtn').classList.toggle('active', !!note.bold);
-        $('#richUnderlineBtn').classList.toggle('active', !!note.underline);
-        return;
-      }
       if (lightweight) {
         const isPerson = node.type === 'person'; const isPlainText = node.type === 'plainText'; const isShape = node.type === 'shape';
         $('#lightweightInspectorTitle').textContent = isPerson ? '人名组件' : isPlainText ? '纯文字框' : '基础图形';
@@ -4139,12 +4025,6 @@ using (
       renderMobileDesigner(); persist();
     }
 
-    function updateSelectedFreeText(field, value, recordHistory = true) {
-      const note = findFreeText(selectedId); if (!note || JSON.stringify(note[field]) === JSON.stringify(value)) return;
-      if (recordHistory) checkpoint();
-      note[field] = value; note.updatedAt = Date.now(); renderFreeTexts(); renderInspector(); persist();
-    }
-
     function bindContinuousNodeInput(element, field, transform = value => value) {
       if (!element) return;
       element.addEventListener('focus', () => {
@@ -4171,12 +4051,6 @@ using (
       });
       $$('.status-option').forEach(item => item.onclick = () => updateSelected('style', item.dataset.style));
       $$('.color-dot').forEach(item => item.onclick = () => updateSelected('color', item.dataset.color));
-      $('#richTextContent').addEventListener('change', event => updateSelectedFreeText('content', event.target.value));
-      $('#richFontSize').addEventListener('change', event => updateSelectedFreeText('fontSize', Number(event.target.value) || 16));
-      $('#richTextAlign').addEventListener('change', event => updateSelectedFreeText('align', event.target.value));
-      $('#richTextColor').addEventListener('input', event => updateSelectedFreeText('color', event.target.value));
-      $('#richBoldBtn').onclick = () => { const note = findFreeText(selectedId); if (note) updateSelectedFreeText('bold', !note.bold); };
-      $('#richUnderlineBtn').onclick = () => { const note = findFreeText(selectedId); if (note) updateSelectedFreeText('underline', !note.underline); };
       const imageInput = $('#nodeImageInput'); const imageButton = $('#nodeImageUploadBtn'); const imageDropZone = $('#nodeImageDropZone');
       const chooseNodeImages = () => {
         const node = findNode(selectedId); if (!node || imageUploadBusy || (node.images?.length || 0) >= MAX_NODE_IMAGES) return;
@@ -4196,12 +4070,6 @@ using (
     }
 
     function duplicateSelected() {
-      const note = findFreeText(selectedId);
-      if (note) {
-        checkpoint();
-        const copy = { ...deepClone(note), id: uid('text'), x: note.x + GRID * 2, y: note.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
-        currentProject.freeTexts.push(copy); selectedId = copy.id; selectedIds.clear(); renderAll(); persist(); toast('已复制文字说明'); return;
-      }
       const node = findNode(selectedId); if (!node) return;
       checkpoint();
       const copy = { ...deepClone(node), id: uid('node'), title: `${node.title}（副本）`, images: [], y: node.y + GRID * 2, createdAt: Date.now(), updatedAt: Date.now() };
@@ -4210,12 +4078,8 @@ using (
     }
     async function deleteSelected() {
       if (!selectedId) return;
-      const id = selectedId; const note = findFreeText(id);
-      if (note) {
-        checkpoint(); currentProject.freeTexts = currentProject.freeTexts.filter(item => item.id !== id);
-        selectedIds.clear(); selectedId = null; renderAll(); persist(); toast('文字说明已删除'); return;
-      }
-      const node = findNode(id); const element = document.querySelector(`[data-node-id="${id}"]`);
+      const id = selectedId; const node = findNode(id); if (!node) return;
+      const element = document.querySelector(`[data-node-id="${id}"]`);
       if (!(await removeNodeStorageImages([node]))) return;
       checkpoint(); burstCapsuleAt(element, node?.color);
       currentProject.nodes = currentProject.nodes.filter(item => item.id !== id);
@@ -4513,10 +4377,7 @@ using (
         modified: changes.filter(change => change.types.includes('modified')).length,
         moved: changes.filter(change => change.types.includes('moved')).length
       };
-      const beforeNotes = (beforeProject.freeTexts || []).map(note => compareStableValue(note.content)).filter(Boolean);
-      const afterNotes = (afterProject.freeTexts || []).map(note => compareStableValue(note.content)).filter(Boolean);
-      const notesChanged = JSON.stringify(beforeNotes) !== JSON.stringify(afterNotes);
-      return { beforeProject, afterProject, changes, stats, notesChanged, beforeMetrics: compareProjectMetrics(beforeProject), afterMetrics: compareProjectMetrics(afterProject) };
+      return { beforeProject, afterProject, changes, stats, beforeMetrics: compareProjectMetrics(beforeProject), afterMetrics: compareProjectMetrics(afterProject) };
     }
 
     function compareProjectOptions(selectedId = '') {
@@ -4550,7 +4411,7 @@ using (
     }
 
     function compareInsightText(result) {
-      const { stats, changes, notesChanged } = result;
+      const { stats, changes } = result;
       const cellCounts = new Map();
       changes.forEach(change => {
         const key = change.afterCell || change.beforeCell; if (key && key !== '灵感池||未归位') cellCounts.set(key, (cellCounts.get(key) || 0) + 1);
@@ -4561,7 +4422,6 @@ using (
       if (stats.modified) actions.push(`细化 ${stats.modified} 项内容`);
       if (stats.moved) actions.push(`调整 ${stats.moved} 项归属`);
       if (stats.deleted) actions.push(`精简 ${stats.deleted} 项内容`);
-      if (notesChanged) actions.push('更新方案说明');
       if (!actions.length) return '两个方案的结构与内容暂未发现可识别差异。';
       return `${actions.join('，')}。${focus.length ? `变化主要集中在 ${focus.join('、')}。` : ''}此处仅陈述变化，不自动判断内容增加等同于方案更优。`;
     }
@@ -4575,7 +4435,7 @@ using (
     }
 
     function renderCompareOverview(result) {
-      return `${compareHeroHtml(result)}<div class="compare-summary-grid"><div class="compare-stat added"><strong>+${result.stats.added}</strong><span>新增内容</span></div><div class="compare-stat deleted"><strong>−${result.stats.deleted}</strong><span>删除内容</span></div><div class="compare-stat modified"><strong>${result.stats.modified}</strong><span>修改内容</span></div><div class="compare-stat moved"><strong>${result.stats.moved}</strong><span>移动归属</span></div></div><div class="compare-insight">${escapeHtml(compareInsightText(result))}</div><div class="compare-metrics">${compareMetricHtml('结构覆盖率', result.beforeMetrics.structure, result.afterMetrics.structure)}${compareMetricHtml('负责人明确度', result.beforeMetrics.owner, result.afterMetrics.owner)}${compareMetricHtml('详细方案完整度', result.beforeMetrics.detail, result.afterMetrics.detail)}${compareMetricHtml('指标与风险覆盖', result.beforeMetrics.control, result.afterMetrics.control)}</div>${result.notesChanged ? '<div class="compare-insight">方案说明区内容也发生了变化，可结合两版方案说明进一步核对背景、策略与复盘内容。</div>' : ''}`;
+      return `${compareHeroHtml(result)}<div class="compare-summary-grid"><div class="compare-stat added"><strong>+${result.stats.added}</strong><span>新增内容</span></div><div class="compare-stat deleted"><strong>−${result.stats.deleted}</strong><span>删除内容</span></div><div class="compare-stat modified"><strong>${result.stats.modified}</strong><span>修改内容</span></div><div class="compare-stat moved"><strong>${result.stats.moved}</strong><span>移动归属</span></div></div><div class="compare-insight">${escapeHtml(compareInsightText(result))}</div><div class="compare-metrics">${compareMetricHtml('结构覆盖率', result.beforeMetrics.structure, result.afterMetrics.structure)}${compareMetricHtml('负责人明确度', result.beforeMetrics.owner, result.afterMetrics.owner)}${compareMetricHtml('详细方案完整度', result.beforeMetrics.detail, result.afterMetrics.detail)}${compareMetricHtml('指标与风险覆盖', result.beforeMetrics.control, result.afterMetrics.control)}</div>`;
     }
 
     function compareStructureAxes(result) {
@@ -4827,7 +4687,6 @@ using (
         cursorY = rowY - cardGap;
         sections.push({ kind, title, y: sectionY, headerHeight, placements });
       };
-      addSection('notes', '方案说明', project.freeTexts || [], note => Math.max(126, Math.min(280, Number(note.height || 150))));
       addSection('staging', '灵感池', project.staging || [], () => 96);
       return {
         margin, titleHeight, laneHeadWidth, stageWidth, stageHeadHeight, laneHeights,
@@ -4968,7 +4827,7 @@ using (
     }
 
     async function exportPng() {
-      persist(true); setExportProgress('正在绘制完整画布和方案说明……', true);
+      persist(true); setExportProgress('正在绘制完整画布与组件关系……', true);
       await new Promise(resolve => requestAnimationFrame(resolve));
       const { canvas } = renderProjectExportCanvas(currentProject, 2);
       setExportProgress('正在生成高清 PNG……', true);
@@ -5125,10 +4984,9 @@ using (
       if (isMobileLayout()) toast('已切换到全局视图，可双指或点击＋放大编辑');
     }
     function toggleGrid() {
-      currentProject.grid = !currentProject.grid;
-      $('#gridToggle').classList.toggle('active', currentProject.grid);
-      $('#canvasViewport').style.backgroundImage = currentProject.grid ? 'radial-gradient(#cbd7d3 1px, transparent 1px)' : 'none';
-      persist();
+      currentProject.grid = currentProject.grid === false;
+      updateStats(); persist();
+      toast(currentProject.grid ? '内容区域网格已显示' : '内容区域网格已隐藏');
     }
 
     function openNodeMenu(event, id) {
@@ -5163,8 +5021,10 @@ using (
     function escapeAttr(value = '') { return escapeHtml(value); }
     function updateStats() {
       $('#boardStats').textContent = `${currentProject.nodes.length} 个运营组件`;
-      $('#gridToggle').classList.toggle('active', currentProject.grid !== false);
-      $('#canvasViewport').style.backgroundImage = currentProject.grid === false ? 'none' : 'radial-gradient(#cbd7d3 1px, transparent 1px)';
+      const gridVisible = currentProject.grid !== false;
+      $('#gridToggle').classList.toggle('active', gridVisible);
+      $('#board').classList.toggle('show-grid', gridVisible);
+      $('#gridToggle').setAttribute('aria-pressed', String(gridVisible));
     }
     function toast(message, type = '') {
       const item = document.createElement('div'); item.className = `toast ${type}`; item.textContent = message;
@@ -5175,12 +5035,19 @@ using (
       $$('.tab-btn').forEach(button => button.onclick = () => switchTab(button.dataset.tab));
       $('#quickAddBtn').onclick = addQuickNote;
       $('#quickNoteInput').addEventListener('keydown', event => { if (event.key === 'Enter') addQuickNote(); });
-      $('#batchNoteBtn').onclick = () => openModal('batchNoteModal'); $('#createBatchNotesBtn').onclick = createBatchNotes; $('#sortStagingBtn').onclick = sortStaging;
+      $('#batchNoteBtn').onclick = () => openModal('batchNoteModal'); $('#createBatchNotesBtn').onclick = createBatchNotes;
       $$('[data-batch]').forEach(button => button.onclick = () => batchAction(button.dataset.batch));
       $('#canvasSearch').oninput = event => { filters.query = event.target.value; applyFilters(); };
       $('#typeFilter').onchange = event => { filters.type = event.target.value; applyFilters(); };
       $('#statusFilter').onchange = event => { filters.style = event.target.value; applyFilters(); };
-      $('#projectName').addEventListener('change', event => { checkpoint(); currentProject.name = event.target.value.trim() || '未命名运营画布'; renderAll(); persist(); });
+      const projectNameInput = $('#projectName');
+      projectNameInput.addEventListener('focus', () => { if (!projectNameInput.dataset.checkpointed) { checkpoint(); projectNameInput.dataset.checkpointed = '1'; } });
+      projectNameInput.addEventListener('input', () => {
+        currentProject.name = projectNameInput.value.trim() || '未命名运营画布'; currentProject.updatedAt = Date.now();
+        $('#mobileDesignTitle').textContent = currentProject.name; persist();
+      });
+      projectNameInput.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); projectNameInput.blur(); } });
+      projectNameInput.addEventListener('blur', () => { delete projectNameInput.dataset.checkpointed; projectNameInput.value = currentProject.name; renderProjectList(); });
       $('#saveBtn').onclick = () => { persist(true); toast(cloudLoggedIn() ? '方案已保存，本地与云端将自动同步' : '方案已保存到当前浏览器'); };
       const openCloudAccount = () => { initCloudUi(); openModal('cloudModal'); };
       $('#cloudBtn').onclick = openCloudAccount;
@@ -5206,7 +5073,6 @@ using (
         $$('#mobileDesignDock button').forEach(item => item.classList.toggle('active', item === button));
         if (action === 'map') { mobileDesignState.view = 'map'; renderMobileDesigner(); }
         if (action === 'staging') openMobileDrawer('left', 'staging');
-        if (action === 'notes') openMobileDrawer('notes');
         if (action === 'canvas') enterMobileCanvasView();
         if (action === 'tools') openModal('mobileToolsModal');
       });
@@ -5279,22 +5145,6 @@ using (
       $('#cleanCanvasBtn').onclick = () => toggleCleanCanvas(false);
       $('#panelRestoreBtn').onclick = restoreSidebarPanels;
       $('#sidebarResizer').addEventListener('pointerdown', startSidebarResize);
-      $('#addNoteBtn').onclick = () => createFreeTextAtClient();
-      $('#notesNarrowBtn').onclick = () => setNotesWidth(layoutPrefs.notesWidth - 40);
-      $('#notesWideBtn').onclick = () => setNotesWidth(layoutPrefs.notesWidth + 40);
-      $('#notesCollapseBtn').onclick = toggleNotesCollapsed;
-      $('#notesRestoreBtn').onclick = restoreNotesPanel;
-      $('#closeNotesPanelBtn').onclick = () => closeMobileDrawers();
-      const notesCanvas = $('#notesCanvas');
-      notesCanvas.addEventListener('dragover', event => {
-        if (activePaletteDragType !== 'richText') return;
-        event.preventDefault();
-        notesCanvas.classList.add('drag-over');
-      });
-      notesCanvas.addEventListener('dragleave', event => {
-        if (!notesCanvas.contains(event.relatedTarget)) notesCanvas.classList.remove('drag-over');
-      });
-      notesCanvas.addEventListener('drop', handleNotesDrop);
       $('#mobilePanelSizeBtn').onclick = () => { layoutPrefs.mobileExpanded = !layoutPrefs.mobileExpanded; saveLayoutPrefs(); applyLayoutPrefs(); syncMobileViewportHeight(); };
       $('#exportBtn').onclick = openExportModal;
       $$('[data-export-format]').forEach(button => button.onclick = () => runExport(button.dataset.exportFormat));
@@ -5306,7 +5156,6 @@ using (
       $('#mobileExitBtn').onclick = requestCanvasExit;
       $('#mobileLibraryBtn').onclick = () => openMobileDrawer('left', 'components');
       $('#mobileStagingBtn').onclick = () => openMobileDrawer('left', 'staging');
-      $('#mobileNotesBtn').onclick = () => openMobileDrawer('notes');
       $('#mobileArrangeBtn').onclick = () => { clearTransientCanvasUI(); autoArrange(); updateMobileDock(''); };
       $('#mobileToolsBtn').onclick = () => { clearTransientCanvasUI(); updateMobileDock('tools'); openModal('mobileToolsModal'); };
       $('#mobileFitBtn').onclick = fitView;
@@ -5364,7 +5213,10 @@ using (
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z' && !event.shiftKey && !editing) { event.preventDefault(); undo(); }
         if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z')) && !editing) { event.preventDefault(); redo(); }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd' && selectedId && !editing) { event.preventDefault(); duplicateSelected(); }
-        if ((event.key === 'Delete' || event.key === 'Backspace') && selectedId && !editing && !onboardingState.active) { event.preventDefault(); deleteSelected(); }
+        if ((event.key === 'Delete' || event.key === 'Backspace') && (selectedId || selectedIds.size) && !editing && !onboardingState.active) {
+          event.preventDefault();
+          if (selectedIds.size > 1) batchAction('delete'); else deleteSelected();
+        }
         if (event.key === 'Escape' && onboardingState.active) { event.preventDefault(); finishOnboarding('dismissed'); return; }
         if (event.key === 'Escape') { closeMenus(); selectNode(null); $('#rightSidebar').classList.remove('open'); }
       });
@@ -5375,6 +5227,13 @@ using (
       syncMobileViewportHeight(); installMobileHistoryGuard(); updateOrientationUI(false);
       if ((currentProject.zoom || 1) < .65) currentProject.zoom = innerWidth > innerHeight ? .9 : .75;
       requestAnimationFrame(() => { applyZoom(); $('#canvasViewport').scrollTo({ left: 0, top: 0 }); persist(false, false); });
+    }
+    setTimeout(() => toast(isMobileLayout() ? '手机版结构设计器已就绪' : '画布已就绪，可从左侧拖入组件'), 500);
+    setTimeout(() => scheduleFirstOnboarding(), 850);
+  </script>
+</body>
+</html>
+left: 0, top: 0 }); persist(false, false); });
     }
     setTimeout(() => toast(isMobileLayout() ? '手机版结构设计器已就绪' : '画布已就绪，可从左侧拖入组件'), 500);
     setTimeout(() => scheduleFirstOnboarding(), 850);
