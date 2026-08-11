@@ -289,7 +289,7 @@
     }
     .canvas-viewport.is-panning { cursor: grabbing; user-select: none; }
     .board-scale-shell { position: relative; width: max-content; min-width: 100%; overflow: visible; }
-    .board-transform { position: absolute; left: 0; top: 0; width: max-content; transform-origin: top left; transition: transform .12s ease; will-change: transform; }
+    .board-transform { position: absolute; left: 0; top: 0; width: max-content; transform-origin: top left; transition: left .12s ease, top .12s ease, transform .12s ease; }
     .board-transform.pinching, .board-transform.is-panning, .canvas-viewport.is-panning .board-transform { transition: none; }
     .board {
       position: relative; width: max-content; min-width: 1100px; padding: 0; overflow: hidden;
@@ -4984,7 +4984,9 @@ using (
       const zoom = Number(currentProject.zoom) || 1;
       const panX = Number(currentProject.panX) || 0;
       const panY = Number(currentProject.panY) || 0;
-      transform.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
+      transform.style.left = `${panX}px`;
+      transform.style.top = `${panY}px`;
+      transform.style.transform = `scale(${zoom})`;
       requestAnimationFrame(renderEdges);
     }
 
