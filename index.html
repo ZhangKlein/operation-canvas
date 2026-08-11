@@ -412,7 +412,10 @@
     .edge-label { fill: #526a6a; font-size: 10px; paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; }
     .canvas-node { z-index: 4; }
     .canvas-node.multi-selected { box-shadow: 0 0 0 3px rgba(217,139,43,.22), 0 12px 25px rgba(25,60,61,.14); }
-    .canvas-node.filtered-out { opacity: .16; filter: grayscale(.65); }
+    .canvas-node.filtered-out { display: none !important; }
+    .search-count.filter-active { min-width: auto; padding: 4px 7px; border-radius: 999px; color: #86581e; background: #fff0d6; font-weight: 800; }
+    .clear-filter-btn { height: 29px; padding: 0 9px; border: 1px solid rgba(217,139,43,.42); border-radius: 7px; color: #86581e; background: #fffaf1; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .clear-filter-btn:hover { border-color: var(--accent); background: #fff3dd; }
     .resize-handle { position: absolute; right: -5px; bottom: -5px; width: 13px; height: 13px; border: 2px solid #fff; border-radius: 4px; background: var(--node-color, #0d5d5a); cursor: nwse-resize; box-shadow: 0 1px 5px rgba(20,50,52,.25); }
     .selection-box { position: fixed; z-index: 120; border: 1px solid #d98b2b; background: rgba(217,139,43,.10); pointer-events: none; }
     .batch-toolbar { position: absolute; z-index: 14; left: 50%; top: 60px; transform: translateX(-50%); display: flex; align-items: center; gap: 5px; padding: 6px; border: 1px solid #d7dfdc; border-radius: 12px; background: rgba(255,255,255,.96); box-shadow: var(--shadow-soft); }
@@ -1114,7 +1117,7 @@
         <div class="canvas-toolbar">
           <div class="canvas-badge"><span class="live-dot"></span><strong id="boardStats">0 个运营组件</strong><span>自动吸附已开启</span></div>
           <div class="view-actions">
-            <div class="search-tools"><input id="canvasSearch" placeholder="搜索标题、负责人、标签"><select id="typeFilter"><option value="">全部类型</option></select><select id="statusFilter"><option value="">全部状态</option><option value="solid">现有内容</option><option value="dashed">准备实施</option></select><span class="search-count" id="searchCount"></span></div>
+            <div class="search-tools"><input id="canvasSearch" placeholder="搜索标题、负责人、标签"><select id="typeFilter"><option value="">全部类型</option></select><select id="statusFilter"><option value="">全部状态</option><option value="solid">现有内容</option><option value="dashed">准备实施</option></select><span class="search-count" id="searchCount"></span><button class="clear-filter-btn hidden" id="clearFilterBtn" type="button">清除筛选</button></div>
             <button class="view-btn active" id="gridToggle">网格</button>
             <button class="view-btn" id="autoArrangeBtn">自动整理</button>
             <button class="view-btn" id="connectBtn">连接</button>
@@ -1843,14 +1846,17 @@
     }
 
     function finishOnboarding(status = 'completed') {
-      if (!onboardingState.active) return;
-      saveOnboardingResult(status);
+      const wasActive = onboardingState.active;
+      if (wasActive) saveOnboardingResult(status);
       const restore = onboardingState.restoreMobileView;
-      onboardingState.active = false;
-      $('#onboardingLayer').classList.add('hidden');
-      $('#onboardingSpotlight').classList.add('hidden');
+      const layer = $('#onboardingLayer');
+      const spotlight = $('#onboardingSpotlight');
+      layer?.classList.add('hidden');
+      layer?.classList.remove('welcome');
+      spotlight?.classList.add('hidden');
+      onboardingState = { active: false, welcome: false, step: 0, manual: false, mobile: isMobileLayout(), restoreMobileView: null };
       if (restore && isMobileLayout()) { mobileDesignState = restore; renderMobileDesigner(); }
-      if (status === 'completed') toast('新手引导已完成，可从“新手教程”再次学习');
+      if (wasActive && status === 'completed') toast('新手引导已完成，可从“新手教程”再次学习');
     }
 
     function nextOnboardingStep() {
@@ -3028,18 +3034,34 @@ using (
       return (!query || text.includes(query)) && typeMatch && (!filters.style || node.style === filters.style);
     }
 
+    function canvasFiltersActive() {
+      return !!(filters.query.trim() || filters.type || filters.style);
+    }
     function applyFilters() {
+      const active = canvasFiltersActive();
       const matched = currentProject.nodes.filter(nodeMatchesFilters).length;
-      $('#searchCount').textContent = (filters.query || filters.type || filters.style) ? `${matched}/${currentProject.nodes.length}` : '';
+      const searchCount = $('#searchCount');
+      const clearButton = $('#clearFilterBtn');
+      if (searchCount) {
+        searchCount.textContent = active ? `筛选中 ${matched}/${currentProject.nodes.length}` : '';
+        searchCount.classList.toggle('filter-active', active);
+      }
+      clearButton?.classList.toggle('hidden', !active);
       $$('.canvas-node').forEach(item => {
         const node = findNode(item.dataset.nodeId);
-        item.classList.toggle('filtered-out', !!node && !nodeMatchesFilters(node));
+        item.classList.toggle('filtered-out', active && !!node && !nodeMatchesFilters(node));
       });
+      const edgeLayer = $('#edgeLayer');
+      if (edgeLayer) edgeLayer.style.display = active ? 'none' : '';
     }
     function resetCanvasFilters(apply = true) {
       filters = { query: '', type: '', style: '' };
       ['canvasSearch', 'mobileCanvasSearch', 'typeFilter', 'mobileTypeFilter', 'statusFilter', 'mobileStatusFilter'].forEach(id => { const element = $(`#${id}`); if (element) element.value = ''; });
-      if ($('#searchCount')) $('#searchCount').textContent = '';
+      const searchCount = $('#searchCount');
+      if (searchCount) { searchCount.textContent = ''; searchCount.classList.remove('filter-active'); }
+      $('#clearFilterBtn')?.classList.add('hidden');
+      const edgeLayer = $('#edgeLayer');
+      if (edgeLayer) edgeLayer.style.display = '';
       if (apply) applyFilters();
     }
 
@@ -3877,6 +3899,17 @@ using (
       if (snapped.snappedY) document.body.insertAdjacentHTML('beforeend', `<div class="guide h" style="top:${rect.top}px"></div>`);
     }
     function clearGuides() { $$('.guide').forEach(item => item.remove()); }
+    function repairOrphanedCanvasOverlays() {
+      const onboardingLayer = $('#onboardingLayer');
+      const onboardingSpotlight = $('#onboardingSpotlight');
+      if (!onboardingState.active) {
+        onboardingLayer?.classList.add('hidden');
+        onboardingLayer?.classList.remove('welcome');
+        onboardingSpotlight?.classList.add('hidden');
+      }
+      const mobileDrawerOpen = !!$('.sidebar.left.mobile-open') || !!$('#rightSidebar.open');
+      if (!mobileDrawerOpen) $('#mobileBackdrop')?.classList.remove('show');
+    }
     function clearTransientCanvasUI() {
       clearGuides(); cancelSelectionBox(); $$('.selection-box').forEach(item => item.remove()); clearStagingReturnTarget();
       $$('.region.drag-over,.region.mobile-drag-over').forEach(item => item.classList.remove('drag-over', 'mobile-drag-over'));
@@ -3884,6 +3917,7 @@ using (
       $('.mobile-drag-ghost')?.remove();
       if (mobileSourceDrag?.ghost) mobileSourceDrag.ghost.remove();
       mobileSourceDrag = null; edgeSwipeState = null;
+      repairOrphanedCanvasOverlays();
     }
 
     function renderStaging() {
@@ -5060,6 +5094,7 @@ using (
       $('#canvasSearch').oninput = event => { filters.query = event.target.value; applyFilters(); };
       $('#typeFilter').onchange = event => { filters.type = event.target.value; applyFilters(); };
       $('#statusFilter').onchange = event => { filters.style = event.target.value; applyFilters(); };
+      $('#clearFilterBtn').onclick = () => resetCanvasFilters(true);
       const projectNameInput = $('#projectName');
       projectNameInput.addEventListener('focus', () => { if (!projectNameInput.dataset.checkpointed) { checkpoint(); projectNameInput.dataset.checkpointed = '1'; } });
       projectNameInput.addEventListener('input', () => {
