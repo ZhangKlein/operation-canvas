@@ -290,7 +290,7 @@
     .canvas-viewport.is-panning { cursor: grabbing; user-select: none; }
     .board-scale-shell { position: relative; width: max-content; min-width: 100%; overflow: visible; }
     .board-transform { position: absolute; left: 0; top: 0; width: max-content; transform-origin: top left; transition: transform .12s ease; will-change: transform; }
-    .board-transform.pinching { transition: none; }
+    .board-transform.pinching, .board-transform.is-panning, .canvas-viewport.is-panning .board-transform { transition: none; }
     .board {
       position: relative; width: max-content; min-width: 1100px; padding: 0; overflow: hidden;
       border: 1px solid #cbd7d4; border-radius: 16px; background: var(--paper);
@@ -319,12 +319,15 @@
     .corner-cell strong { font-size: 13px; letter-spacing: .05em; }
     .corner-cell span { margin-top: 4px; color: rgba(255,255,255,.57); font-size: 10px; }
     .stage-head {
-      position: sticky; top: 0; z-index: 7; min-width: 185px; height: 56px; padding: 12px 15px;
-      display: flex; flex-direction: column; justify-content: center;
-      background: linear-gradient(180deg, #f9fbfa, #f0f5f3);
+      position: sticky; top: 0; z-index: 7; min-width: 185px; height: 56px; padding: 10px 15px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #fbfcfb, #eef3f1);
     }
-    .stage-index { color: var(--accent); font-size: 9px; font-weight: 800; letter-spacing: .16em; }
-    .stage-name { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stage-index {
+      color: #0d5d5a; font-family: Georgia, "Times New Roman", serif; font-size: 13px; font-weight: 700;
+      font-style: italic; letter-spacing: .2em; line-height: 1; text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(255,255,255,.9);
+    }
     .lane-head {
       position: sticky; left: 0; z-index: 6; width: 148px; min-height: 230px; padding: 20px 15px;
       background: linear-gradient(90deg, #f7faf8, #eff4f2);
@@ -1561,7 +1564,7 @@
       ];
       const project = {
         id: uid('project'), name: '用户运营体系', canvasTitle: '运营全景', createdAt: Date.now(), updatedAt: Date.now(),
-        stages, lanes, nodes: [], freeTexts: [], staging: [], edges: [], snapshots: [], zoom: 1, grid: true
+        stages, lanes, nodes: [], freeTexts: [], staging: [], edges: [], snapshots: [], zoom: 1, panX: 0, panY: 0, grid: true
       };
       project.nodes.push(
         makeNode('action', stages[0].id, lanes[0].id, 12, 38, { title: '核心体验验证', summary: '收集种子用户反馈，确认关键体验闭环', owner: '产品运营', tags: ['体验', '反馈'] }),
@@ -1607,6 +1610,8 @@
       project.snapshots ||= [];
       project.canvasTitle = String(project.canvasTitle || '运营全景');
       project.zoom ||= 1;
+      project.panX = Number(project.panX || 0);
+      project.panY = Number(project.panY || 0);
       project.grid ??= true;
       project.freeTexts.forEach((note, index) => {
         note.type = 'richText'; note.content ||= ''; note.width ||= 300; note.height ||= 150;
@@ -2980,8 +2985,9 @@ using (
       grid.style.gridTemplateRows = `56px ${laneHeights.join(' ')}`;
       let html = `<div class="corner-cell"><button class="editable-board-label canvas-title-label" data-edit-canvas-title title="双击修改总标题">${escapeHtml(currentProject.canvasTitle || '运营全景')}</button><span>${currentProject.lanes.length} 个内容分类 · ${stageCount} 个步骤</span></div>`;
       currentProject.stages.forEach((stage, index) => {
-        const stageName = stage.name || `COLUMN ${String(index + 1).padStart(2, '0')}`;
-        html += `<div class="stage-head editable-board-label" data-edit-stage-id="${stage.id}" title="${escapeAttr(stageName)} · 双击修改"><div class="stage-index">${escapeHtml(stageName)}</div></div>`;
+        const columnLabel = `COLUMN ${String(index + 1).padStart(2, '0')}`;
+        const semanticName = stage.name || columnLabel;
+        html += `<div class="stage-head editable-board-label" data-edit-stage-id="${stage.id}" title="${escapeAttr(columnLabel)} · 双击修改步骤名称（用于结构视图）"><div class="stage-index">${escapeHtml(columnLabel)}</div></div>`;
       });
       currentProject.lanes.forEach(lane => {
         html += `<div class="lane-head editable-board-label" data-edit-lane-id="${lane.id}" title="双击修改内容分类"><div class="lane-bar"></div><div class="lane-name">${escapeHtml(lane.name)}</div><div class="lane-note">${escapeHtml(lane.note || '同一类内容集中放在这里')}</div></div>`;
@@ -3233,29 +3239,30 @@ using (
 
     function captureCanvasView() {
       const viewport = $('#canvasViewport');
-      return { zoom: currentProject.zoom || 1, left: viewport.scrollLeft, top: viewport.scrollTop };
+      return {
+        zoom: currentProject.zoom || 1,
+        panX: Number(currentProject.panX || 0),
+        panY: Number(currentProject.panY || 0),
+        left: viewport.scrollLeft,
+        top: viewport.scrollTop
+      };
     }
 
     function centerCanvasInViewport() {
-      const viewport = $('#canvasViewport'); const shell = $('#boardScaleShell'); const transform = $('#boardTransform'); const board = $('#board');
-      if (!viewport || !shell || !transform || !board) return;
-      applyZoom();
-      const zoom = currentProject.zoom || 1;
+      const viewport = $('#canvasViewport'); const shell = $('#boardScaleShell'); const board = $('#board');
+      if (!viewport || !shell || !board) return;
+      viewport.scrollTo({ left: 0, top: 0, behavior: 'auto' });
+      const zoom = Number(currentProject.zoom) || 1;
+      const viewportRect = viewport.getBoundingClientRect();
+      const shellRect = shell.getBoundingClientRect();
       const scaledWidth = board.offsetWidth * zoom; const scaledHeight = board.offsetHeight * zoom;
-      const horizontalInset = Math.max(0, (viewport.clientWidth - scaledWidth) / 2);
-      const verticalInset = Math.max(0, (viewport.clientHeight - scaledHeight) / 2);
-      shell.style.width = `${Math.max(viewport.clientWidth, Math.ceil(scaledWidth))}px`;
-      shell.style.height = `${Math.max(viewport.clientHeight, Math.ceil(scaledHeight))}px`;
-      transform.style.left = `${horizontalInset}px`;
-      transform.style.top = `${verticalInset}px`;
-      viewport.scrollTo({ left: Math.max(0, (shell.scrollWidth - viewport.clientWidth) / 2), top: Math.max(0, (shell.scrollHeight - viewport.clientHeight) / 2), behavior: 'auto' });
-      requestAnimationFrame(renderEdges);
+      currentProject.panX = viewportRect.left + (viewportRect.width - scaledWidth) / 2 - shellRect.left;
+      currentProject.panY = viewportRect.top + (viewportRect.height - scaledHeight) / 2 - shellRect.top;
+      applyZoom();
     }
 
     function clearFullscreenCanvasOffset() {
-      const transform = $('#boardTransform');
-      if (!transform) return;
-      transform.style.left = '0px'; transform.style.top = '0px';
+      currentProject.panX = 0; currentProject.panY = 0;
       applyZoom();
     }
 
@@ -3271,7 +3278,10 @@ using (
       clearFullscreenCanvasOffset();
       if (!previous) return;
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        currentProject.zoom = previous.zoom; applyZoom();
+        currentProject.zoom = previous.zoom;
+        currentProject.panX = Number(previous.panX || 0);
+        currentProject.panY = Number(previous.panY || 0);
+        applyZoom();
         $('#canvasViewport').scrollTo({ left: previous.left, top: previous.top, behavior: 'auto' });
         renderEdges();
       }));
@@ -3361,12 +3371,12 @@ using (
       if (!isMobileLayout() || event.touches.length !== 2) return;
       event.preventDefault(); event.stopPropagation();
       cancelActiveCanvasGesture(); edgeSwipeState = null;
-      const viewport = $('#canvasViewport'); const shell = $('#boardScaleShell'); const rect = viewport.getBoundingClientRect(); const center = touchCenter(event.touches);
+      const viewport = $('#canvasViewport'); const rect = viewport.getBoundingClientRect(); const transformRect = $('#boardTransform').getBoundingClientRect(); const center = touchCenter(event.touches);
       const zoom = currentProject.zoom || 1;
       pinchState = {
         distance: touchDistance(event.touches), zoom,
-        contentX: (viewport.scrollLeft + center.x - rect.left - shell.offsetLeft) / zoom,
-        contentY: (viewport.scrollTop + center.y - rect.top - shell.offsetTop) / zoom,
+        contentX: (center.x - transformRect.left) / zoom,
+        contentY: (center.y - transformRect.top) / zoom,
         centerX: center.x - rect.left, centerY: center.y - rect.top
       };
       $('#boardTransform').classList.add('pinching');
@@ -3761,7 +3771,8 @@ using (
       const viewport = $('#canvasViewport');
       panState = {
         pointerId: event.pointerId, mode: 'pending', allowSelection: inRegionContent,
-        startX: event.clientX, startY: event.clientY, scrollLeft: viewport.scrollLeft, scrollTop: viewport.scrollTop,
+        startX: event.clientX, startY: event.clientY,
+        panX: Number(currentProject.panX || 0), panY: Number(currentProject.panY || 0),
         additive: event.shiftKey, bounds: boardContentBounds(), timer: null
       };
       panState.timer = setTimeout(() => {
@@ -3785,8 +3796,9 @@ using (
       if (panState.mode === 'select') return updateSelectionBox(event);
       if (panState.mode === 'pan') {
         event.preventDefault();
-        const viewport = $('#canvasViewport');
-        viewport.scrollLeft = panState.scrollLeft - dx; viewport.scrollTop = panState.scrollTop - dy;
+        currentProject.panX = panState.panX + dx;
+        currentProject.panY = panState.panY + dy;
+        applyCanvasTransform();
       }
     }
 
@@ -3807,6 +3819,7 @@ using (
       window.removeEventListener('pointermove', updateCanvasBlankGesture);
       $('#canvasViewport').classList.remove('is-panning'); panState = null;
       if (mode === 'select') endSelectionBox();
+      else if (mode === 'pan') persist();
       else if (mode === 'pending') selectNode(null);
     }
 
@@ -4935,19 +4948,28 @@ using (
       const bounds = zoomBounds(pinch ? 'pinch' : 'edit');
       return Math.max(bounds.min, Math.min(bounds.max, Number(value) || 1));
     }
+    function applyCanvasTransform() {
+      const transform = $('#boardTransform');
+      if (!transform) return;
+      const zoom = Number(currentProject.zoom) || 1;
+      const panX = Number(currentProject.panX) || 0;
+      const panY = Number(currentProject.panY) || 0;
+      transform.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
+      requestAnimationFrame(renderEdges);
+    }
+
     function applyZoom() {
       const absoluteBounds = isMobileLayout() ? zoomBounds('overview') : zoomBounds('edit');
       const zoom = Math.max(absoluteBounds.min, Math.min(isMobileLayout() ? 1.8 : absoluteBounds.max, Number(currentProject.zoom) || 1));
       currentProject.zoom = zoom;
-      const board = $('#board'); const transform = $('#boardTransform'); const shell = $('#boardScaleShell');
+      const board = $('#board'); const shell = $('#boardScaleShell');
       const boardWidth = Math.max(1, board.offsetWidth); const boardHeight = Math.max(1, board.offsetHeight);
-      transform.style.transform = `scale(${zoom})`;
+      applyCanvasTransform();
       shell.style.width = `${Math.ceil(boardWidth * zoom)}px`;
       shell.style.height = `${Math.ceil(boardHeight * zoom)}px`;
       const label = `${Math.round(zoom * 100)}%`;
       $('#zoomValue').textContent = label;
       $('#mobileZoomValue').textContent = label;
-      requestAnimationFrame(renderEdges);
     }
     function zoomAnchorAtViewportCenter() {
       const viewport = $('#canvasViewport'); const rect = viewport.getBoundingClientRect(); const transformRect = $('#boardTransform').getBoundingClientRect();
@@ -4963,9 +4985,12 @@ using (
       const bounds = zoomBounds(mode);
       const nextZoom = Math.max(bounds.min, Math.min(bounds.max, Number(value) || 1));
       const focus = anchor || zoomAnchorAtViewportCenter();
-      currentProject.zoom = nextZoom; applyZoom();
-      viewport.scrollLeft = Math.max(0, shell.offsetLeft + focus.contentX * nextZoom - focus.screenX);
-      viewport.scrollTop = Math.max(0, shell.offsetTop + focus.contentY * nextZoom - focus.screenY);
+      const viewportRect = viewport.getBoundingClientRect();
+      const shellRect = shell.getBoundingClientRect();
+      currentProject.zoom = nextZoom;
+      currentProject.panX = viewportRect.left + focus.screenX - focus.contentX * nextZoom - shellRect.left;
+      currentProject.panY = viewportRect.top + focus.screenY - focus.contentY * nextZoom - shellRect.top;
+      applyZoom();
       if (save) persist();
     }
     function changeZoom(delta) {
@@ -4978,9 +5003,8 @@ using (
       const widthRatio = availableWidth / Math.max(1, board.offsetWidth);
       const heightRatio = availableHeight / Math.max(1, board.offsetHeight);
       const bounds = zoomBounds('overview');
-      const zoom = Math.max(bounds.min, Math.min(bounds.max, widthRatio, heightRatio));
-      currentProject.zoom = zoom; applyZoom(); persist();
-      viewport.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+      currentProject.zoom = Math.max(bounds.min, Math.min(bounds.max, widthRatio, heightRatio));
+      centerCanvasInViewport(); persist();
       if (isMobileLayout()) toast('已切换到全局视图，可双指或点击＋放大编辑');
     }
     function toggleGrid() {
@@ -5138,7 +5162,7 @@ using (
       $('#auditBtn').onclick = runAudit;
       $('#snapshotsBtn').onclick = () => { renderSnapshotList(); openModal('snapshotsModal'); };
       $('#createSnapshotBtn').onclick = createSnapshot;
-      $('#centerViewBtn').onclick = () => $('#canvasViewport').scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+      $('#centerViewBtn').onclick = () => { centerCanvasInViewport(); persist(); };
       $('#deselectBtn').onclick = () => selectNode(null);
       $('#fullscreenBtn').onclick = toggleImmersiveFullscreen;
       $('#sidebarCollapseBtn').onclick = toggleSidebarCollapsed;
@@ -5227,13 +5251,6 @@ using (
       syncMobileViewportHeight(); installMobileHistoryGuard(); updateOrientationUI(false);
       if ((currentProject.zoom || 1) < .65) currentProject.zoom = innerWidth > innerHeight ? .9 : .75;
       requestAnimationFrame(() => { applyZoom(); $('#canvasViewport').scrollTo({ left: 0, top: 0 }); persist(false, false); });
-    }
-    setTimeout(() => toast(isMobileLayout() ? '手机版结构设计器已就绪' : '画布已就绪，可从左侧拖入组件'), 500);
-    setTimeout(() => scheduleFirstOnboarding(), 850);
-  </script>
-</body>
-</html>
-left: 0, top: 0 }); persist(false, false); });
     }
     setTimeout(() => toast(isMobileLayout() ? '手机版结构设计器已就绪' : '画布已就绪，可从左侧拖入组件'), 500);
     setTimeout(() => scheduleFirstOnboarding(), 850);
